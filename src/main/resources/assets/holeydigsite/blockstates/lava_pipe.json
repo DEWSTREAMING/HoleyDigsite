@@ -1,0 +1,138 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_core"
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side"
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "true",
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "filled": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_core_filled"
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side_filled"
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side_filled",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side_filled",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side_filled",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "true",
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side_filled",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "filled": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/lava_pipe_side_filled",
+        "x": 90
+      }
+    }
+  ]
+}

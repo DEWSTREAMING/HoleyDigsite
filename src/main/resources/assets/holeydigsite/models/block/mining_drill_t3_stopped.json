@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "holeydigsite:block/mining_drill_t3_side_stopped",
+    "north": "holeydigsite:block/mining_drill_t3_front",
+    "south": "holeydigsite:block/mining_drill_t3_back",
+    "east": "holeydigsite:block/mining_drill_t3_side_stopped",
+    "west": "holeydigsite:block/mining_drill_t3_side_stopped",
+    "up": "holeydigsite:block/mining_drill_t3_top",
+    "down": "holeydigsite:block/mining_drill_t3_bottom"
+  }
+}

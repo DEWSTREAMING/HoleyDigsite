@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/golden_pan_trophy"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/golden_pan_trophy",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/golden_pan_trophy",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/golden_pan_trophy",
+      "y": 270
+    }
+  }
+}

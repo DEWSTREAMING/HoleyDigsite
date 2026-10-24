@@ -1,0 +1,356 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "holeydigsite:block/gem_cutter_housing",
+    "side": "holeydigsite:block/clump_belt_frame_side",
+    "end": "holeydigsite:block/clump_belt_frame_end",
+    "bottom": "holeydigsite:block/clump_belt_frame_bottom",
+    "top": "holeydigsite:block/clump_belt_top_moving",
+    "housing": "holeydigsite:block/gem_cutter_housing",
+    "wheel": "holeydigsite:block/gem_cutter_wheel"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#top",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#bottom",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "down"
+        },
+        "north": {
+          "texture": "#end",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#end",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "south"
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        16,
+        4
+      ],
+      "to": [
+        3,
+        25,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            3,
+            9
+          ]
+        },
+        "south": {
+          "texture": "#housing",
+          "uv": [
+            13,
+            0,
+            16,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#housing",
+          "uv": [
+            4,
+            0,
+            12,
+            9
+          ]
+        },
+        "east": {
+          "texture": "#housing",
+          "uv": [
+            4,
+            0,
+            12,
+            9
+          ]
+        },
+        "up": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            4,
+            3,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        16,
+        4
+      ],
+      "to": [
+        16,
+        25,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#housing",
+          "uv": [
+            13,
+            0,
+            16,
+            9
+          ]
+        },
+        "south": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            3,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#housing",
+          "uv": [
+            4,
+            0,
+            12,
+            9
+          ]
+        },
+        "east": {
+          "texture": "#housing",
+          "uv": [
+            4,
+            0,
+            12,
+            9
+          ]
+        },
+        "up": {
+          "texture": "#housing",
+          "uv": [
+            13,
+            4,
+            16,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        25,
+        3
+      ],
+      "to": [
+        16,
+        29,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            16,
+            4
+          ]
+        },
+        "south": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            16,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#housing",
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ]
+        },
+        "east": {
+          "texture": "#housing",
+          "uv": [
+            3,
+            0,
+            13,
+            4
+          ]
+        },
+        "up": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            3,
+            16,
+            13
+          ]
+        },
+        "down": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            3,
+            16,
+            13
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        7.5,
+        16.5,
+        3.5
+      ],
+      "to": [
+        8.5,
+        25.5,
+        12.5
+      ],
+      "faces": {
+        "west": {
+          "texture": "#wheel",
+          "uv": [
+            0.5,
+            0.5,
+            15.5,
+            15.5
+          ]
+        },
+        "east": {
+          "texture": "#wheel",
+          "uv": [
+            0.5,
+            0.5,
+            15.5,
+            15.5
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        22,
+        7.5
+      ],
+      "to": [
+        13,
+        23,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            10,
+            1
+          ]
+        },
+        "south": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            10,
+            1
+          ]
+        },
+        "up": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            10,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#housing",
+          "uv": [
+            0,
+            0,
+            10,
+            1
+          ]
+        }
+      }
+    }
+  ]
+}

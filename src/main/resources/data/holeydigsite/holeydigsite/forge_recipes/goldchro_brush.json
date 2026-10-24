@@ -1,0 +1,17 @@
+{
+  "order": 40,
+  "category": "tools",
+  "metals": {
+    "holeydigsite:goldchro": 16
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:brush",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:goldchro_brush",
+    "count": 1
+  }
+}

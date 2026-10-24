@@ -1,0 +1,220 @@
+{
+  "variants": {
+    "fill=0,tier=1": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=2": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=3": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=4": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=5": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=6": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=7": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=0,tier=8": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=1,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_1"
+    },
+    "fill=1,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_1_deep"
+    },
+    "fill=1,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_1_abyssal"
+    },
+    "fill=1,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_1_gravel"
+    },
+    "fill=1,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_1_sand"
+    },
+    "fill=1,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_1_coarse"
+    },
+    "fill=1,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_1_rooted"
+    },
+    "fill=1,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_1_moss"
+    },
+    "fill=2,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_2"
+    },
+    "fill=2,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_2_deep"
+    },
+    "fill=2,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_2_abyssal"
+    },
+    "fill=2,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_2_gravel"
+    },
+    "fill=2,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_2_sand"
+    },
+    "fill=2,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_2_coarse"
+    },
+    "fill=2,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_2_rooted"
+    },
+    "fill=2,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_2_moss"
+    },
+    "fill=3,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_3"
+    },
+    "fill=3,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_3_deep"
+    },
+    "fill=3,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_3_abyssal"
+    },
+    "fill=3,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_3_gravel"
+    },
+    "fill=3,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_3_sand"
+    },
+    "fill=3,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_3_coarse"
+    },
+    "fill=3,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_3_rooted"
+    },
+    "fill=3,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_3_moss"
+    },
+    "fill=4,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_4"
+    },
+    "fill=4,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_4_deep"
+    },
+    "fill=4,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_4_abyssal"
+    },
+    "fill=4,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_4_gravel"
+    },
+    "fill=4,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_4_sand"
+    },
+    "fill=4,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_4_coarse"
+    },
+    "fill=4,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_4_rooted"
+    },
+    "fill=4,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_4_moss"
+    },
+    "fill=5,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_5"
+    },
+    "fill=5,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_5_deep"
+    },
+    "fill=5,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_5_abyssal"
+    },
+    "fill=5,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_5_gravel"
+    },
+    "fill=5,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_5_sand"
+    },
+    "fill=5,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_5_coarse"
+    },
+    "fill=5,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_5_rooted"
+    },
+    "fill=5,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_5_moss"
+    },
+    "fill=6,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_6"
+    },
+    "fill=6,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_6_deep"
+    },
+    "fill=6,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_6_abyssal"
+    },
+    "fill=6,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_6_gravel"
+    },
+    "fill=6,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_6_sand"
+    },
+    "fill=6,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_6_coarse"
+    },
+    "fill=6,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_6_rooted"
+    },
+    "fill=6,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_6_moss"
+    },
+    "fill=7,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_7"
+    },
+    "fill=7,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_7_deep"
+    },
+    "fill=7,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_7_abyssal"
+    },
+    "fill=7,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_7_gravel"
+    },
+    "fill=7,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_7_sand"
+    },
+    "fill=7,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_7_coarse"
+    },
+    "fill=7,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_7_rooted"
+    },
+    "fill=7,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_7_moss"
+    },
+    "fill=8,tier=1": {
+      "model": "holeydigsite:block/large_pan_fill_8"
+    },
+    "fill=8,tier=2": {
+      "model": "holeydigsite:block/large_pan_fill_8_deep"
+    },
+    "fill=8,tier=3": {
+      "model": "holeydigsite:block/large_pan_fill_8_abyssal"
+    },
+    "fill=8,tier=4": {
+      "model": "holeydigsite:block/large_pan_fill_8_gravel"
+    },
+    "fill=8,tier=5": {
+      "model": "holeydigsite:block/large_pan_fill_8_sand"
+    },
+    "fill=8,tier=6": {
+      "model": "holeydigsite:block/large_pan_fill_8_coarse"
+    },
+    "fill=8,tier=7": {
+      "model": "holeydigsite:block/large_pan_fill_8_rooted"
+    },
+    "fill=8,tier=8": {
+      "model": "holeydigsite:block/large_pan_fill_8_moss"
+    }
+  }
+}

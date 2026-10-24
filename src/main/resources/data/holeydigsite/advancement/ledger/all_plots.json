@@ -1,0 +1,10 @@
+{
+  "criteria": {
+    "done": {
+      "trigger": "holeydigsite:plot_bought",
+      "conditions": {
+        "count": 3
+      }
+    }
+  }
+}

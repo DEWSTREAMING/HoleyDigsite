@@ -1,0 +1,121 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "two_way": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_3way"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "two_way": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_2way"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "two_way": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_3way",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "two_way": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_2way",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "two_way": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_3way",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "two_way": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_2way",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "two_way": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_3way",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "two_way": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/belt_splitter_2way",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout",
+        "y": 270
+      }
+    }
+  ]
+}

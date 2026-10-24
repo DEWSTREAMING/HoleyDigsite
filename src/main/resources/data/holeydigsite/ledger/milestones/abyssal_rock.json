@@ -1,0 +1,8 @@
+{
+  "chapter": "land",
+  "order": 24,
+  "renown": 25,
+  "advancement": "holeydigsite:ledger/abyssal_rock",
+  "name": "ledger.holeydigsite.milestone.abyssal_rock",
+  "hint": "ledger.holeydigsite.milestone.abyssal_rock.hint"
+}

@@ -1,0 +1,8 @@
+{
+  "chapter": "land",
+  "order": 23,
+  "renown": 100,
+  "advancement": "holeydigsite:ledger/all_plots",
+  "name": "ledger.holeydigsite.milestone.all_plots",
+  "hint": "ledger.holeydigsite.milestone.all_plots.hint"
+}

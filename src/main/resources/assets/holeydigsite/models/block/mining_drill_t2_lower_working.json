@@ -1,0 +1,204 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/mining_drill_t2_lower_side",
+    "front": "holeydigsite:block/mining_drill_t2_lower_front",
+    "back": "holeydigsite:block/mining_drill_t2_lower_back",
+    "side": "holeydigsite:block/mining_drill_t2_lower_side",
+    "bottom": "holeydigsite:block/mining_drill_t2_bottom",
+    "bit": "holeydigsite:block/mining_drill_bit_working"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#back",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "west"
+        },
+        "down": {
+          "texture": "#bottom",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#bottom",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        -3
+      ],
+      "to": [
+        12,
+        12,
+        0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bit",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#bit",
+          "uv": [
+            0,
+            4,
+            3,
+            12
+          ]
+        },
+        "west": {
+          "texture": "#bit",
+          "uv": [
+            13,
+            4,
+            16,
+            12
+          ]
+        },
+        "up": {
+          "texture": "#bit",
+          "uv": [
+            4,
+            0,
+            12,
+            3
+          ]
+        },
+        "down": {
+          "texture": "#bit",
+          "uv": [
+            4,
+            13,
+            12,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        6,
+        -5
+      ],
+      "to": [
+        10,
+        10,
+        -3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bit",
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ]
+        },
+        "east": {
+          "texture": "#bit",
+          "uv": [
+            0,
+            6,
+            2,
+            10
+          ]
+        },
+        "west": {
+          "texture": "#bit",
+          "uv": [
+            14,
+            6,
+            16,
+            10
+          ]
+        },
+        "up": {
+          "texture": "#bit",
+          "uv": [
+            6,
+            0,
+            10,
+            2
+          ]
+        },
+        "down": {
+          "texture": "#bit",
+          "uv": [
+            6,
+            14,
+            10,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "rolls": 2,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:folkiron_chunk_small",
+          "weight": 40,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 4
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:folkiron_chunk_medium",
+          "weight": 44,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 3
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:folkiron_chunk_large",
+          "weight": 16
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:goldchro_chunk_small",
+          "weight": 60,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 1,
+                "max": 2
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:goldchro_chunk_medium",
+          "weight": 30
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:goldchro_chunk_large",
+          "weight": 10
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_ruby_small",
+          "weight": 75
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_ruby_medium",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_ruby_large",
+          "weight": 5
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.035
+        }
+      ]
+    }
+  ],
+  "random_sequence": "holeydigsite:panning/coarse_dirt"
+}

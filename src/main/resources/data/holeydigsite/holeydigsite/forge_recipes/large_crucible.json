@@ -1,0 +1,18 @@
+{
+  "order": 30,
+  "category": "casting",
+  "metals": {
+    "holeydigsite:folkiron": 2800,
+    "holeydigsite:goldchro": 70
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:crucible",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:large_crucible",
+    "count": 1
+  }
+}

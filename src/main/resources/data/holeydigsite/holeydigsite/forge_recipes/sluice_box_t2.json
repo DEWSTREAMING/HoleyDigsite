@@ -1,0 +1,18 @@
+{
+  "order": 20,
+  "category": "sluices",
+  "metals": {
+    "holeydigsite:folkiron": 400,
+    "holeydigsite:goldchro": 45
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:sluice_box",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:sluice_box_t2",
+    "count": 1
+  }
+}

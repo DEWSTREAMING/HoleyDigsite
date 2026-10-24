@@ -1,0 +1,14 @@
+{
+  "families": [
+    "mining_drill",
+    "sluice_box",
+    "pan",
+    "brush",
+    "clump_belt",
+    "incline_belt",
+    "down_incline_belt",
+    "crucible",
+    "forge",
+    "mold"
+  ]
+}

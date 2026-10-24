@@ -1,0 +1,10 @@
+{
+  "criteria": {
+    "done": {
+      "trigger": "holeydigsite:panned",
+      "conditions": {
+        "tier": 3
+      }
+    }
+  }
+}

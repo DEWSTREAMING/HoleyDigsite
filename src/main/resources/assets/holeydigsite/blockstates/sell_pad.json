@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "locked=false": {
+      "model": "holeydigsite:block/sell_pad"
+    },
+    "locked=true": {
+      "model": "holeydigsite:block/sell_pad"
+    }
+  }
+}

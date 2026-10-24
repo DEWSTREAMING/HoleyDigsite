@@ -1,0 +1,19 @@
+{
+  "order": 30,
+  "category": "casting",
+  "metals": {
+    "holeydigsite:folkiron": 2400,
+    "holeydigsite:silvane": 1000,
+    "holeydigsite:goldchro": 50
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:mold",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:casting_mold_t2",
+    "count": 1
+  }
+}

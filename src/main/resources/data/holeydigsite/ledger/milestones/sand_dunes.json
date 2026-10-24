@@ -1,0 +1,8 @@
+{
+  "chapter": "land",
+  "order": 22,
+  "renown": 50,
+  "advancement": "holeydigsite:ledger/sand_dunes",
+  "name": "ledger.holeydigsite.milestone.sand_dunes",
+  "hint": "ledger.holeydigsite.milestone.sand_dunes.hint"
+}

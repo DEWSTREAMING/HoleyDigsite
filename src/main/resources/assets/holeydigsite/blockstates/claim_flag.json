@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/claim_flag"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/claim_flag",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/claim_flag",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/claim_flag",
+      "y": 270
+    }
+  }
+}

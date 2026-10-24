@@ -1,0 +1,162 @@
+{
+  "family": "pan",
+  "assets": {
+    "texture_naming": "id",
+    "same_stats": [
+      "max_fill"
+    ],
+    "default": {
+      "swap": [
+        "trim"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "pan",
+      "name": "Pan",
+      "kind": "pan",
+      "mark": "I",
+      "block": {
+        "map_color": "GOLD",
+        "strength": 0.5,
+        "resistance": 0.5,
+        "sound": "METAL",
+        "no_occlusion": true,
+        "push_reaction": "DESTROY"
+      },
+      "item": {
+        "stacks_to": 16
+      },
+      "stats": {
+        "max_fill": 4
+      },
+      "tab": [
+        {
+          "order": 120
+        },
+        {
+          "order": 121,
+          "stack": "full_pan"
+        },
+        {
+          "order": 310,
+          "stack": "full_pan",
+          "dirt_tier": 2
+        },
+        {
+          "order": 311,
+          "stack": "full_pan",
+          "dirt_tier": 3
+        },
+        {
+          "order": 610,
+          "stack": "full_pan",
+          "dirt_tier": 4
+        },
+        {
+          "order": 611,
+          "stack": "full_pan",
+          "dirt_tier": 5
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 16,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "large_pan",
+      "name": "Large Pan",
+      "kind": "large",
+      "mark": "II",
+      "block": {
+        "map_color": "GOLD",
+        "strength": 0.5,
+        "resistance": 0.5,
+        "sound": "METAL",
+        "no_occlusion": true,
+        "push_reaction": "DESTROY"
+      },
+      "item": {
+        "stacks_to": 16,
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "max_fill": 8
+      },
+      "colors": {
+        "trim": [
+          [
+            196,
+            146,
+            30
+          ],
+          [
+            232,
+            190,
+            60
+          ],
+          [
+            255,
+            230,
+            120
+          ]
+        ]
+      },
+      "tab": [
+        {
+          "order": 530
+        },
+        {
+          "order": 531,
+          "stack": "full_pan"
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "large_pan",
+            "order": 30,
+            "metals": {
+              "holeydigsite:folkiron": 1200
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:pan",
+                "count": 1
+              }
+            ],
+            "count": 1,
+            "category": "tools",
+            "variant": "material.holeydigsite.folkiron"
+          },
+          {
+            "file": "large_pan_silvane",
+            "order": 31,
+            "metals": {
+              "holeydigsite:silvane": 170
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:pan",
+                "count": 1
+              }
+            ],
+            "count": 1,
+            "category": "tools",
+            "variant": "material.holeydigsite.silvane"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "ingredient": {
+    "item": "holeydigsite:glowroot"
+  },
+  "result": {
+    "id": "holeydigsite:roasted_glowroot"
+  },
+  "experience": 0.35,
+  "cookingtime": 100
+}

@@ -1,0 +1,36 @@
+{
+  "order": 5,
+  "category": "weapons",
+  "ingots": 3,
+  "gem": "none",
+  "hits": 6,
+  "result": "holeydigsite:smith_sword",
+  "bonus": 0.4,
+  "min_grams": 25,
+  "gear": {
+    "full_grams": 750,
+    "base_damage": 3.0,
+    "attack_speed": -2.4,
+    "damage_scale": 1.0,
+    "durability_scale": 1.0,
+    "floor": 0.5
+  },
+  "parts": [
+    {
+      "name": "blade",
+      "from": "ingot1"
+    },
+    {
+      "name": "guard",
+      "from": "ingot2"
+    },
+    {
+      "name": "pommel",
+      "from": "ingot3"
+    },
+    {
+      "name": "grip",
+      "from": "none"
+    }
+  ]
+}

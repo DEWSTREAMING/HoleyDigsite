@@ -1,0 +1,28 @@
+{
+  "order": 3,
+  "category": "weapons",
+  "ingots": 1,
+  "gem": "none",
+  "hits": 4,
+  "result": "holeydigsite:smith_dagger",
+  "bonus": 0.25,
+  "min_grams": 25,
+  "gear": {
+    "full_grams": 250,
+    "base_damage": 2.0,
+    "attack_speed": -1.6,
+    "damage_scale": 0.7,
+    "durability_scale": 0.5,
+    "floor": 0.5
+  },
+  "parts": [
+    {
+      "name": "blade",
+      "from": "ingot1"
+    },
+    {
+      "name": "grip",
+      "from": "none"
+    }
+  ]
+}

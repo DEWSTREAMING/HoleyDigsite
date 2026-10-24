@@ -1,0 +1,177 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "mode": "moving",
+        "powered": "false",
+        "water": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt_moving"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "facing": "north",
+            "mode": "empty|blocked"
+          },
+          {
+            "facing": "north",
+            "powered": "true"
+          },
+          {
+            "facing": "north",
+            "water": "false"
+          }
+        ]
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "mode": "moving",
+        "powered": "false",
+        "water": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt_moving",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "facing": "east",
+            "mode": "empty|blocked"
+          },
+          {
+            "facing": "east",
+            "powered": "true"
+          },
+          {
+            "facing": "east",
+            "water": "false"
+          }
+        ]
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "mode": "moving",
+        "powered": "false",
+        "water": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt_moving",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "facing": "south",
+            "mode": "empty|blocked"
+          },
+          {
+            "facing": "south",
+            "powered": "true"
+          },
+          {
+            "facing": "south",
+            "water": "false"
+          }
+        ]
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "mode": "moving",
+        "powered": "false",
+        "water": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt_moving",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {
+            "facing": "west",
+            "mode": "empty|blocked"
+          },
+          {
+            "facing": "west",
+            "powered": "true"
+          },
+          {
+            "facing": "west",
+            "water": "false"
+          }
+        ]
+      },
+      "apply": {
+        "model": "holeydigsite:block/down_incline_belt",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "spout": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/clump_belt_spout",
+        "y": 270
+      }
+    }
+  ]
+}

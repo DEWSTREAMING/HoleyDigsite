@@ -1,0 +1,95 @@
+{
+  "family": "down_incline_belt",
+  "assets": {
+    "texture_naming": "id",
+    "rules": [],
+    "default": {}
+  },
+  "tiers": [
+    {
+      "id": "down_incline_belt",
+      "name": "Down Inclined Belt",
+      "mark": "I",
+      "textures_from": "clump_belt",
+      "block": {
+        "map_color": "COLOR_GRAY",
+        "strength": 0.8,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true
+      },
+      "item": {},
+      "stats": {
+        "speed": 1
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Lowers items one block: takes them from the belt behind it, hands them to the belt one lower in front. Stacks into stairs",
+      "tab": [
+        {
+          "order": 730
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 32,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "fast_down_incline_belt",
+      "name": "Fast Down Inclined Belt",
+      "mark": "II",
+      "textures_from": "fast_clump_belt",
+      "block": {
+        "map_color": "COLOR_YELLOW",
+        "strength": 0.8,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true
+      },
+      "item": {
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "speed": 2
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Down Inclined Belt at two blocks per second",
+      "tab": [
+        {
+          "order": 740
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "fast_down_incline_belt",
+            "order": 53,
+            "metals": {
+              "holeydigsite:folkiron": 850
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:down_incline_belt",
+                "count": 4
+              }
+            ],
+            "count": 4,
+            "category": "belts"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

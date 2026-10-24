@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "holeydigsite:earned_total", "conditions": {"min": 10000}}}}

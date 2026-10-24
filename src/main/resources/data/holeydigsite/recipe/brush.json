@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "B",
+    "S"
+  ],
+  "key": {
+    "B": [
+      {
+        "tag": "minecraft:saplings"
+      },
+      {
+        "tag": "minecraft:leaves"
+      },
+      {
+        "item": "minecraft:string"
+      },
+      {
+        "tag": "minecraft:wool"
+      }
+    ],
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "holeydigsite:brush",
+    "count": 1
+  }
+}

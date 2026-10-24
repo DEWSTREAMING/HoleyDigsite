@@ -1,0 +1,205 @@
+{
+  "family": "sluice_box",
+  "assets": {
+    "texture_naming": "tag",
+    "texture_stem": "sluice",
+    "shared_textures": [
+      "^sluice_(lamp_|water_|dirt|ramp|riffle|tray)"
+    ],
+    "rules": [
+      {
+        "match": "^back$",
+        "swap": [
+          "body"
+        ],
+        "border": "trim",
+        "mark": {
+          "ramp": "trim",
+          "pos": [
+            9,
+            9
+          ]
+        }
+      }
+    ],
+    "default": {
+      "swap": [
+        "body"
+      ],
+      "border": "trim"
+    }
+  },
+  "tiers": [
+    {
+      "id": "sluice_box",
+      "name": "Tier 1 Sluice Box",
+      "mark": "I",
+      "block": {
+        "map_color": "WOOD",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "WOOD",
+        "no_occlusion": true,
+        "push_reaction": "BLOCK"
+      },
+      "item": {},
+      "stats": {
+        "cycle_ticks": 100,
+        "max_queue": 4,
+        "tray_slots": 9
+      },
+      "tags": [
+        "minecraft:mineable/axe"
+      ],
+      "colors": {
+        "body": [
+          [
+            40,
+            30,
+            20
+          ],
+          [
+            78,
+            55,
+            32
+          ],
+          [
+            104,
+            74,
+            43
+          ],
+          [
+            139,
+            101,
+            61
+          ],
+          [
+            163,
+            121,
+            76
+          ]
+        ]
+      },
+      "tooltip": "Washes a Dirt Clump every 5 s like panning; finds collect in the tray",
+      "tab": [
+        {
+          "order": 240
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 3072,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "sluice_box_t2",
+      "name": "Tier 2 Sluice Box",
+      "tag": "t2",
+      "mark": "II",
+      "block": {
+        "map_color": "WOOD",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "WOOD",
+        "no_occlusion": true,
+        "push_reaction": "BLOCK"
+      },
+      "item": {
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "cycle_ticks": 50,
+        "max_queue": 8,
+        "tray_slots": 18
+      },
+      "tags": [
+        "minecraft:mineable/axe"
+      ],
+      "colors": {
+        "body": [
+          [
+            52,
+            34,
+            22
+          ],
+          [
+            66,
+            44,
+            28
+          ],
+          [
+            66,
+            44,
+            28
+          ],
+          [
+            80,
+            54,
+            34
+          ],
+          [
+            80,
+            54,
+            34
+          ]
+        ],
+        "trim": [
+          [
+            150,
+            104,
+            16
+          ],
+          [
+            196,
+            146,
+            30
+          ],
+          [
+            232,
+            190,
+            60
+          ],
+          [
+            255,
+            230,
+            120
+          ]
+        ]
+      },
+      "tooltip": "Tier 2: washes a clump every 2.5 s (2x Tier 1), queue 8, tray 18 slots",
+      "tab": [
+        {
+          "order": 520
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "sluice_box_t2",
+            "order": 20,
+            "metals": {
+              "holeydigsite:folkiron": 400,
+              "holeydigsite:goldchro": 45
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:sluice_box",
+                "count": 1
+              }
+            ],
+            "count": 1,
+            "category": "sluices"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

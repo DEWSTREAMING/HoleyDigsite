@@ -1,0 +1,375 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "tipping": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_tipped"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "tipping": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_tipped",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "tipping": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_tipped",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "tipping": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_tipped",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "fill": "1",
+        "metal": "folkiron",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_folkiron_1"
+      }
+    },
+    {
+      "when": {
+        "fill": "2",
+        "metal": "folkiron",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_folkiron_2"
+      }
+    },
+    {
+      "when": {
+        "fill": "3",
+        "metal": "folkiron",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_folkiron_3"
+      }
+    },
+    {
+      "when": {
+        "fill": "4",
+        "metal": "folkiron",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_folkiron_4"
+      }
+    },
+    {
+      "when": {
+        "chunks": "true",
+        "metal": "folkiron",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_chunks_folkiron"
+      }
+    },
+    {
+      "when": {
+        "fill": "1",
+        "metal": "goldchro",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_goldchro_1"
+      }
+    },
+    {
+      "when": {
+        "fill": "2",
+        "metal": "goldchro",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_goldchro_2"
+      }
+    },
+    {
+      "when": {
+        "fill": "3",
+        "metal": "goldchro",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_goldchro_3"
+      }
+    },
+    {
+      "when": {
+        "fill": "4",
+        "metal": "goldchro",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_goldchro_4"
+      }
+    },
+    {
+      "when": {
+        "chunks": "true",
+        "metal": "goldchro",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_chunks_goldchro"
+      }
+    },
+    {
+      "when": {
+        "fill": "1",
+        "metal": "other",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_other_1"
+      }
+    },
+    {
+      "when": {
+        "fill": "2",
+        "metal": "other",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_other_2"
+      }
+    },
+    {
+      "when": {
+        "fill": "3",
+        "metal": "other",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_other_3"
+      }
+    },
+    {
+      "when": {
+        "fill": "4",
+        "metal": "other",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_other_4"
+      }
+    },
+    {
+      "when": {
+        "chunks": "true",
+        "metal": "other",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_chunks_other"
+      }
+    },
+    {
+      "when": {
+        "fill": "1",
+        "metal": "orchremia",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_orchremia_1"
+      }
+    },
+    {
+      "when": {
+        "fill": "2",
+        "metal": "orchremia",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_orchremia_2"
+      }
+    },
+    {
+      "when": {
+        "fill": "3",
+        "metal": "orchremia",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_orchremia_3"
+      }
+    },
+    {
+      "when": {
+        "fill": "4",
+        "metal": "orchremia",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_orchremia_4"
+      }
+    },
+    {
+      "when": {
+        "chunks": "true",
+        "metal": "orchremia",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_chunks_orchremia"
+      }
+    },
+    {
+      "when": {
+        "fill": "1",
+        "metal": "silvane",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_silvane_1"
+      }
+    },
+    {
+      "when": {
+        "fill": "2",
+        "metal": "silvane",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_silvane_2"
+      }
+    },
+    {
+      "when": {
+        "fill": "3",
+        "metal": "silvane",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_silvane_3"
+      }
+    },
+    {
+      "when": {
+        "fill": "4",
+        "metal": "silvane",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_molten_silvane_4"
+      }
+    },
+    {
+      "when": {
+        "chunks": "true",
+        "metal": "silvane",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_chunks_silvane"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "auto": "true",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_lamp"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "auto": "true",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_lamp",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "auto": "true",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_lamp",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "auto": "true",
+        "tipping": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/large_crucible_lamp",
+        "y": 270
+      }
+    }
+  ]
+}

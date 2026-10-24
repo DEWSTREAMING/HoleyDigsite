@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "locked=false,pressed=false": {
+      "model": "holeydigsite:block/shop_button"
+    },
+    "locked=false,pressed=true": {
+      "model": "holeydigsite:block/shop_button_pressed"
+    },
+    "locked=true,pressed=false": {
+      "model": "holeydigsite:block/shop_button"
+    },
+    "locked=true,pressed=true": {
+      "model": "holeydigsite:block/shop_button_pressed"
+    }
+  }
+}

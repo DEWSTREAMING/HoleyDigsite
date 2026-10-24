@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/lucky_lantern"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/lucky_lantern",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/lucky_lantern",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/lucky_lantern",
+      "y": 270
+    }
+  }
+}

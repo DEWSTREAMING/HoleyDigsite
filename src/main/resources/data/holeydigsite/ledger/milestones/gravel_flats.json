@@ -1,0 +1,8 @@
+{
+  "chapter": "land",
+  "order": 21,
+  "renown": 50,
+  "advancement": "holeydigsite:ledger/gravel_flats",
+  "name": "ledger.holeydigsite.milestone.gravel_flats",
+  "hint": "ledger.holeydigsite.milestone.gravel_flats.hint"
+}

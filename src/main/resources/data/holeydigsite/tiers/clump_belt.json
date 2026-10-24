@@ -1,0 +1,227 @@
+{
+  "family": "clump_belt",
+  "assets": {
+    "texture_naming": "id",
+    "texture_stem": "clump_belt",
+    "shared_textures": [
+      "^clump_belt_spout$"
+    ],
+    "rules": [
+      {
+        "match": "^frame_",
+        "swap": [
+          "trim"
+        ]
+      }
+    ],
+    "default": {
+      "swap": [
+        "edge"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "clump_belt",
+      "name": "Conveyor Belt",
+      "mark": "I",
+      "block": {
+        "map_color": "COLOR_GRAY",
+        "strength": 0.8,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true
+      },
+      "item": {},
+      "stats": {
+        "speed": 1
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "colors": {
+        "trim": [
+          [
+            38,
+            38,
+            42
+          ],
+          [
+            58,
+            59,
+            64
+          ],
+          [
+            82,
+            83,
+            89
+          ],
+          [
+            112,
+            113,
+            120
+          ],
+          [
+            146,
+            147,
+            154
+          ]
+        ],
+        "edge": [
+          [
+            70,
+            72,
+            76
+          ],
+          [
+            98,
+            100,
+            104
+          ],
+          [
+            150,
+            152,
+            156
+          ],
+          [
+            196,
+            198,
+            202
+          ]
+        ]
+      },
+      "tooltip": "Carries any item one block per second, the way you face when placing it. Feeds pans, sluices, crucibles, Sell Pads...",
+      "tab": [
+        {
+          "order": 230
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 16,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "fast_clump_belt",
+      "name": "Fast Conveyor Belt",
+      "mark": "II",
+      "block": {
+        "map_color": "COLOR_YELLOW",
+        "strength": 0.8,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true
+      },
+      "item": {
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "speed": 2
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "colors": {
+        "trim": [
+          [
+            120,
+            84,
+            20
+          ],
+          [
+            170,
+            124,
+            30
+          ],
+          [
+            220,
+            178,
+            64
+          ],
+          [
+            240,
+            204,
+            92
+          ],
+          [
+            250,
+            226,
+            140
+          ]
+        ],
+        "edge": [
+          [
+            232,
+            190,
+            60
+          ],
+          [
+            232,
+            190,
+            60
+          ],
+          [
+            196,
+            146,
+            30
+          ],
+          [
+            232,
+            190,
+            60
+          ]
+        ]
+      },
+      "tooltip": "Carries any item two blocks per second (2x); joins normal belts both ways",
+      "tab": [
+        {
+          "order": 550
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "fast_clump_belt",
+            "order": 50,
+            "metals": {
+              "holeydigsite:folkiron": 850
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:clump_belt",
+                "count": 4
+              }
+            ],
+            "count": 4,
+            "category": "belts",
+            "variant": "material.holeydigsite.folkiron"
+          },
+          {
+            "file": "fast_clump_belt_orchremia",
+            "order": 51,
+            "metals": {
+              "holeydigsite:orchremia": 500
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:clump_belt",
+                "count": 4
+              }
+            ],
+            "count": 4,
+            "category": "belts",
+            "variant": "material.holeydigsite.orchremia"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

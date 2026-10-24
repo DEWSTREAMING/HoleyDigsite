@@ -1,0 +1,22 @@
+{
+  "criteria": {
+    "riffle": {
+      "trigger": "holeydigsite:upgrade_installed",
+      "conditions": {
+        "item": "holeydigsite:riffle_insert"
+      }
+    },
+    "mesh": {
+      "trigger": "holeydigsite:upgrade_installed",
+      "conditions": {
+        "item": "holeydigsite:fine_mesh_screen"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "riffle",
+      "mesh"
+    ]
+  ]
+}

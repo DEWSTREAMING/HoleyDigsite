@@ -1,0 +1,36 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/molten_folkiron",
+    "molten": "holeydigsite:block/molten_folkiron"
+  },
+  "elements": [
+    {
+      "from": [
+        2.167,
+        1.2,
+        2.167
+      ],
+      "to": [
+        13.833,
+        10.2,
+        13.833
+      ],
+      "faces": {
+        "up": {
+          "texture": "#molten",
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          }
+        }
+      }
+    }
+  ]
+}

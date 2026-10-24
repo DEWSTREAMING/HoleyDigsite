@@ -1,0 +1,173 @@
+{
+  "family": "mold",
+  "assets": {
+    "texture_naming": "id",
+    "default": {
+      "swap": [
+        "body",
+        "trim"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "mold",
+      "name": "Mold",
+      "kind": "basic",
+      "mark": "I",
+      "block": {
+        "map_color": "METAL",
+        "strength": 1.0,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true,
+        "push_reaction": "BLOCK",
+        "light": 6
+      },
+      "item": {},
+      "stats": {
+        "cool_ticks": 60,
+        "targets": [
+          10,
+          25,
+          50,
+          75,
+          100,
+          150,
+          200
+        ]
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Casts an ingot from the Crucible behind it. Empty hand: set the weight (sneak: back)",
+      "tab": [
+        {
+          "order": 420
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 256,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "casting_mold_t2",
+      "name": "Casting Mold",
+      "kind": "casting",
+      "tag": "t2",
+      "mark": "II",
+      "texture_stem": "casting_mold",
+      "block": {
+        "map_color": "METAL",
+        "strength": 1.0,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true,
+        "push_reaction": "BLOCK",
+        "light": 6
+      },
+      "item": {},
+      "stats": {
+        "cool_ticks": 20,
+        "targets": [
+          10,
+          25,
+          50,
+          75,
+          100,
+          150,
+          200,
+          300,
+          400,
+          500
+        ]
+      },
+      "colors": {
+        "body": [
+          [
+            73,
+            65,
+            52
+          ],
+          [
+            89,
+            80,
+            66
+          ],
+          [
+            104,
+            94,
+            78
+          ],
+          [
+            117,
+            106,
+            88
+          ],
+          [
+            133,
+            121,
+            100
+          ],
+          [
+            155,
+            141,
+            117
+          ]
+        ],
+        "trim": [
+          [
+            120,
+            84,
+            20
+          ],
+          [
+            196,
+            150,
+            40
+          ],
+          [
+            240,
+            204,
+            92
+          ]
+        ]
+      },
+      "tab": [
+        {
+          "order": 760
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "casting_mold_t2",
+            "order": 30,
+            "category": "casting",
+            "metals": {
+              "holeydigsite:folkiron": 2400,
+              "holeydigsite:silvane": 1000,
+              "holeydigsite:goldchro": 50
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:mold",
+                "count": 1
+              }
+            ],
+            "count": 1
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

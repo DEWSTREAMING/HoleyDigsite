@@ -1,0 +1,400 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/large_crucible_side",
+    "side": "holeydigsite:block/large_crucible_side",
+    "inner": "holeydigsite:block/large_crucible_inner"
+  },
+  "elements": [
+    {
+      "from": [
+        1.0,
+        0.0,
+        1.0
+      ],
+      "to": [
+        15.0,
+        1.2,
+        15.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side",
+          "uv": [
+            2,
+            15,
+            14,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            2,
+            15,
+            14,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            2,
+            15,
+            14,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            2,
+            15,
+            14,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#inner",
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ]
+        },
+        "down": {
+          "texture": "#side",
+          "uv": [
+            2,
+            2,
+            14,
+            14
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.0,
+          0.0,
+          1.0
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    },
+    {
+      "from": [
+        1.0,
+        1.2,
+        1.0
+      ],
+      "to": [
+        15.0,
+        10.8,
+        2.167
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side",
+          "uv": [
+            2,
+            7,
+            14,
+            15
+          ]
+        },
+        "south": {
+          "texture": "#inner",
+          "uv": [
+            2,
+            7,
+            14,
+            15
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            13,
+            7,
+            14,
+            15
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            2,
+            7,
+            3,
+            15
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            2,
+            2,
+            14,
+            3
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.0,
+          0.0,
+          1.0
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    },
+    {
+      "from": [
+        1.0,
+        1.2,
+        13.833
+      ],
+      "to": [
+        15.0,
+        10.8,
+        15.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#inner",
+          "uv": [
+            2,
+            7,
+            14,
+            15
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            2,
+            7,
+            14,
+            15
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            2,
+            7,
+            3,
+            15
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            13,
+            7,
+            14,
+            15
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            2,
+            13,
+            14,
+            14
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.0,
+          0.0,
+          1.0
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    },
+    {
+      "from": [
+        1.0,
+        1.2,
+        2.167
+      ],
+      "to": [
+        2.167,
+        10.8,
+        13.833
+      ],
+      "faces": {
+        "west": {
+          "texture": "#side",
+          "uv": [
+            3,
+            7,
+            13,
+            15
+          ]
+        },
+        "east": {
+          "texture": "#inner",
+          "uv": [
+            3,
+            7,
+            13,
+            15
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            2,
+            3,
+            3,
+            13
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.0,
+          0.0,
+          1.0
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    },
+    {
+      "from": [
+        13.833,
+        1.2,
+        2.167
+      ],
+      "to": [
+        15.0,
+        10.8,
+        13.833
+      ],
+      "faces": {
+        "west": {
+          "texture": "#inner",
+          "uv": [
+            3,
+            7,
+            13,
+            15
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            3,
+            7,
+            13,
+            15
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            13,
+            3,
+            14,
+            13
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.0,
+          0.0,
+          1.0
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    },
+    {
+      "from": [
+        6.25,
+        8.4,
+        -0.75
+      ],
+      "to": [
+        9.75,
+        10.8,
+        1.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side",
+          "uv": [
+            6.5,
+            7,
+            9.5,
+            9
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            6.5,
+            7,
+            9.5,
+            9
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            14,
+            7,
+            15.5,
+            9
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            0.5,
+            7,
+            2,
+            9
+          ]
+        },
+        "up": {
+          "texture": "#side",
+          "uv": [
+            6.5,
+            0.5,
+            9.5,
+            2
+          ]
+        },
+        "down": {
+          "texture": "#side",
+          "uv": [
+            6.5,
+            14,
+            9.5,
+            15.5
+          ]
+        }
+      },
+      "rotation": {
+        "origin": [
+          8.0,
+          0.0,
+          1.0
+        ],
+        "axis": "x",
+        "angle": -22.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "order": 50,
+  "category": "belts",
+  "variant": "material.holeydigsite.folkiron",
+  "metals": {
+    "holeydigsite:folkiron": 850
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:clump_belt",
+      "count": 4
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:fast_clump_belt",
+    "count": 4
+  }
+}

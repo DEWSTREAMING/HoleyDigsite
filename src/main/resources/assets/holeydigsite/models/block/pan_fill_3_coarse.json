@@ -1,0 +1,194 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/pan",
+    "pan": "holeydigsite:block/pan",
+    "dirt": "minecraft:block/coarse_dirt"
+  },
+  "elements": [
+    {
+      "name": "floor",
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        1,
+        15
+      ],
+      "faces": {
+        "down": {
+          "texture": "#pan",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#pan"
+        },
+        "north": {
+          "texture": "#pan"
+        },
+        "south": {
+          "texture": "#pan"
+        },
+        "west": {
+          "texture": "#pan"
+        },
+        "east": {
+          "texture": "#pan"
+        }
+      }
+    },
+    {
+      "name": "rim_north",
+      "from": [
+        1,
+        1,
+        1
+      ],
+      "to": [
+        15,
+        4,
+        2
+      ],
+      "faces": {
+        "up": {
+          "texture": "#pan"
+        },
+        "north": {
+          "texture": "#pan"
+        },
+        "south": {
+          "texture": "#pan"
+        },
+        "west": {
+          "texture": "#pan"
+        },
+        "east": {
+          "texture": "#pan"
+        }
+      }
+    },
+    {
+      "name": "rim_south",
+      "from": [
+        1,
+        1,
+        14
+      ],
+      "to": [
+        15,
+        4,
+        15
+      ],
+      "faces": {
+        "up": {
+          "texture": "#pan"
+        },
+        "north": {
+          "texture": "#pan"
+        },
+        "south": {
+          "texture": "#pan"
+        },
+        "west": {
+          "texture": "#pan"
+        },
+        "east": {
+          "texture": "#pan"
+        }
+      }
+    },
+    {
+      "name": "rim_west",
+      "from": [
+        1,
+        1,
+        2
+      ],
+      "to": [
+        2,
+        4,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#pan"
+        },
+        "north": {
+          "texture": "#pan"
+        },
+        "south": {
+          "texture": "#pan"
+        },
+        "west": {
+          "texture": "#pan"
+        },
+        "east": {
+          "texture": "#pan"
+        }
+      }
+    },
+    {
+      "name": "rim_east",
+      "from": [
+        14,
+        1,
+        2
+      ],
+      "to": [
+        15,
+        4,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#pan"
+        },
+        "north": {
+          "texture": "#pan"
+        },
+        "south": {
+          "texture": "#pan"
+        },
+        "west": {
+          "texture": "#pan"
+        },
+        "east": {
+          "texture": "#pan"
+        }
+      }
+    },
+    {
+      "name": "dirt",
+      "from": [
+        2,
+        1,
+        2
+      ],
+      "to": [
+        14,
+        3.5,
+        14
+      ],
+      "faces": {
+        "up": {
+          "texture": "#dirt"
+        },
+        "north": {
+          "texture": "#dirt"
+        },
+        "south": {
+          "texture": "#dirt"
+        },
+        "west": {
+          "texture": "#dirt"
+        },
+        "east": {
+          "texture": "#dirt"
+        }
+      }
+    }
+  ]
+}

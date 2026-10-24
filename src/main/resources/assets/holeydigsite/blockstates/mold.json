@@ -1,0 +1,309 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "holeydigsite:block/mold"
+      }
+    },
+    {
+      "when": {
+        "metal": "folkiron",
+        "solid": "false",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_folkiron_hot_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "folkiron",
+        "solid": "false",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_folkiron_hot_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "folkiron",
+        "solid": "false",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_folkiron_hot_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "folkiron",
+        "solid": "true",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_folkiron_solid_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "folkiron",
+        "solid": "true",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_folkiron_solid_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "folkiron",
+        "solid": "true",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_folkiron_solid_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "goldchro",
+        "solid": "false",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_goldchro_hot_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "goldchro",
+        "solid": "false",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_goldchro_hot_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "goldchro",
+        "solid": "false",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_goldchro_hot_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "goldchro",
+        "solid": "true",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_goldchro_solid_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "goldchro",
+        "solid": "true",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_goldchro_solid_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "goldchro",
+        "solid": "true",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_goldchro_solid_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "other",
+        "solid": "false",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_other_hot_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "other",
+        "solid": "false",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_other_hot_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "other",
+        "solid": "false",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_other_hot_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "other",
+        "solid": "true",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_other_solid_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "other",
+        "solid": "true",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_other_solid_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "other",
+        "solid": "true",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_other_solid_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "orchremia",
+        "solid": "false",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_orchremia_hot_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "orchremia",
+        "solid": "false",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_orchremia_hot_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "orchremia",
+        "solid": "false",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_orchremia_hot_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "orchremia",
+        "solid": "true",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_orchremia_solid_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "orchremia",
+        "solid": "true",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_orchremia_solid_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "orchremia",
+        "solid": "true",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_orchremia_solid_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "silvane",
+        "solid": "false",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_silvane_hot_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "silvane",
+        "solid": "false",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_silvane_hot_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "silvane",
+        "solid": "false",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_silvane_hot_3"
+      }
+    },
+    {
+      "when": {
+        "metal": "silvane",
+        "solid": "true",
+        "level": "1"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_silvane_solid_1"
+      }
+    },
+    {
+      "when": {
+        "metal": "silvane",
+        "solid": "true",
+        "level": "2"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_silvane_solid_2"
+      }
+    },
+    {
+      "when": {
+        "metal": "silvane",
+        "solid": "true",
+        "level": "3"
+      },
+      "apply": {
+        "model": "holeydigsite:block/mold_metal_silvane_solid_3"
+      }
+    }
+  ]
+}

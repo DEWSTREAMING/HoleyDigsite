@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "holeydigsite:upgrade_installed", "conditions": {"item": "holeydigsite:seed_screen"}}}}

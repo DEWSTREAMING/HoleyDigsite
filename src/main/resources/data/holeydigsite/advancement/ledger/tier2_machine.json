@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": "holeydigsite:mining_drill_t2"}]}}}}

@@ -1,0 +1,95 @@
+{
+  "family": "incline_belt",
+  "assets": {
+    "texture_naming": "id",
+    "rules": [],
+    "default": {}
+  },
+  "tiers": [
+    {
+      "id": "incline_belt",
+      "name": "Inclined Belt",
+      "mark": "I",
+      "textures_from": "clump_belt",
+      "block": {
+        "map_color": "COLOR_GRAY",
+        "strength": 0.8,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true
+      },
+      "item": {},
+      "stats": {
+        "speed": 1
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Lifts items one block: takes them from the belt one lower behind it, hands them to the belt in front. Stacks into stairs",
+      "tab": [
+        {
+          "order": 710
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 32,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "fast_incline_belt",
+      "name": "Fast Inclined Belt",
+      "mark": "II",
+      "textures_from": "fast_clump_belt",
+      "block": {
+        "map_color": "COLOR_YELLOW",
+        "strength": 0.8,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "no_occlusion": true
+      },
+      "item": {
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "speed": 2
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Inclined Belt at two blocks per second",
+      "tab": [
+        {
+          "order": 720
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "fast_incline_belt",
+            "order": 52,
+            "metals": {
+              "holeydigsite:folkiron": 850
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:incline_belt",
+                "count": 4
+              }
+            ],
+            "count": 4,
+            "category": "belts"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

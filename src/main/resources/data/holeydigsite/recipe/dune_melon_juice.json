@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "holeydigsite:dune_melon_slice"
+    },
+    {
+      "item": "holeydigsite:dune_melon_slice"
+    },
+    {
+      "item": "minecraft:glass_bottle"
+    }
+  ],
+  "result": {
+    "id": "holeydigsite:dune_melon_juice",
+    "count": 1
+  }
+}

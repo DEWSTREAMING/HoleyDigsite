@@ -1,0 +1,24 @@
+{
+  "kind": "store",
+  "name": "site.holeydigsite.deep_dig_shop",
+  "version": 2,
+  "structure": "holeydigsite:store/deep_dig_shop_v2",
+  "size": [
+    7,
+    11,
+    7
+  ],
+  "entrance": [
+    7,
+    3,
+    3
+  ],
+  "protect": true,
+  "layout": "holeydigsite:deep_dig_shop",
+  "plot": "deep_dig",
+  "board": [
+    12,
+    3,
+    -1
+  ]
+}

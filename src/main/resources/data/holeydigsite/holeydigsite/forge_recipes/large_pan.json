@@ -1,0 +1,18 @@
+{
+  "order": 30,
+  "category": "tools",
+  "variant": "material.holeydigsite.folkiron",
+  "metals": {
+    "holeydigsite:folkiron": 1200
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:pan",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:large_pan",
+    "count": 1
+  }
+}

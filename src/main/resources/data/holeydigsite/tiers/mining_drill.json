@@ -1,0 +1,249 @@
+{
+  "family": "mining_drill",
+  "assets": {
+    "texture_naming": "tag",
+    "texture_stem": "mining_drill",
+    "shared_textures": [
+      "^mining_drill_(lantern_|spout|bit)"
+    ],
+    "rules": [
+      {
+        "match": "^upper_side$",
+        "swap": [
+          "trim",
+          "rivet"
+        ],
+        "mark": {
+          "ramp": "trim",
+          "pos": [
+            null,
+            5
+          ]
+        }
+      }
+    ],
+    "default": {
+      "swap": [
+        "trim",
+        "rivet"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "mining_drill",
+      "name": "Tier 1 Mining Drill",
+      "mark": "I",
+      "block": {
+        "map_color": "COLOR_ORANGE",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "push_reaction": "BLOCK"
+      },
+      "item": {},
+      "stats": {
+        "cycle_ticks": 300
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "colors": {
+        "trim": [
+          [
+            52,
+            52,
+            56
+          ],
+          [
+            78,
+            79,
+            85
+          ],
+          [
+            108,
+            109,
+            116
+          ]
+        ],
+        "rivet": [
+          [
+            150,
+            151,
+            158
+          ]
+        ]
+      },
+      "tooltip": "Place on Dirtrock (deeper rock gives better clumps): drills a Dirt Clump every 15 s into the pan, belt or sluice in front",
+      "tab": [
+        {
+          "order": 210
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 2048,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "mining_drill_t2",
+      "name": "Tier 2 Mining Drill",
+      "tag": "t2",
+      "mark": "II",
+      "block": {
+        "map_color": "COLOR_GRAY",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "push_reaction": "BLOCK"
+      },
+      "item": {
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "cycle_ticks": 150
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "colors": {
+        "trim": [
+          [
+            120,
+            84,
+            20
+          ],
+          [
+            196,
+            150,
+            40
+          ],
+          [
+            240,
+            204,
+            92
+          ]
+        ],
+        "rivet": [
+          [
+            110,
+            80,
+            30
+          ]
+        ]
+      },
+      "tooltip": "Tier 2: a Dirt Clump every 7.5 s (2x Tier 1). Place on Dirtrock; outputs into the pan, belt or sluice in front",
+      "tab": [
+        {
+          "order": 510
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "mining_drill_t2",
+            "order": 10,
+            "metals": {
+              "holeydigsite:folkiron": 400,
+              "holeydigsite:goldchro": 45
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:mining_drill",
+                "count": 1
+              }
+            ],
+            "count": 1,
+            "category": "drills"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "mining_drill_t3",
+      "name": "Tier 3 Mining Drill",
+      "tag": "t3",
+      "mark": "III",
+      "block": {
+        "map_color": "COLOR_LIGHT_GRAY",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "METAL",
+        "push_reaction": "BLOCK"
+      },
+      "item": {
+        "rarity": "RARE"
+      },
+      "stats": {
+        "cycle_ticks": 100
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "colors": {
+        "trim": [
+          [
+            118,
+            58,
+            26
+          ],
+          [
+            190,
+            102,
+            48
+          ],
+          [
+            226,
+            150,
+            92
+          ]
+        ],
+        "rivet": [
+          [
+            205,
+            215,
+            225
+          ]
+        ]
+      },
+      "tooltip": "Tier 3: a clump every 5 s (3x Tier 1). Place on any rock; outputs into the pan, belt or sluice in front",
+      "tab": [
+        {
+          "order": 700
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "mining_drill_t3",
+            "order": 60,
+            "metals": {
+              "holeydigsite:orchremia": 7000,
+              "holeydigsite:silvane": 2400,
+              "holeydigsite:goldchro": 250
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:mining_drill_t2",
+                "count": 1
+              }
+            ],
+            "count": 1,
+            "category": "drills"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

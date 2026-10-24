@@ -1,0 +1,614 @@
+{
+ "parent": "minecraft:block/block",
+ "textures": {
+  "particle": "holeydigsite:block/sluice_wood",
+  "wood": "holeydigsite:block/sluice_wood",
+  "port": "holeydigsite:block/sluice_port",
+  "back": "holeydigsite:block/sluice_back",
+  "tray": "holeydigsite:block/sluice_tray",
+  "ramp": "holeydigsite:block/sluice_ramp",
+  "riffle": "holeydigsite:block/sluice_riffle",
+  "lamp": "holeydigsite:block/sluice_lamp_stopped",
+  "water": "holeydigsite:block/sluice_water_still"
+ },
+ "elements": [
+  {
+   "from": [
+    0,
+    0,
+    0
+   ],
+   "to": [
+    16,
+    4,
+    16
+   ],
+   "faces": {
+    "down": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      0,
+      16,
+      16
+     ],
+     "cullface": "down"
+    },
+    "north": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "cullface": "south"
+    },
+    "west": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "cullface": "west"
+    },
+    "east": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      12,
+      16,
+      16
+     ],
+     "cullface": "east"
+    },
+    "up": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      0,
+      16,
+      16
+     ]
+    }
+   },
+   "name": "body"
+  },
+  {
+   "from": [
+    0,
+    4,
+    0
+   ],
+   "to": [
+    2,
+    12,
+    16
+   ],
+   "faces": {
+    "west": {
+     "texture": "#port",
+     "uv": [
+      0,
+      4,
+      16,
+      12
+     ],
+     "cullface": "west"
+    },
+    "east": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      4,
+      16,
+      12
+     ]
+    },
+    "up": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      0,
+      2,
+      16
+     ]
+    },
+    "north": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      4,
+      2,
+      12
+     ],
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#wood",
+     "uv": [
+      14,
+      4,
+      16,
+      12
+     ],
+     "cullface": "south"
+    }
+   },
+   "name": "wall_w"
+  },
+  {
+   "from": [
+    14,
+    4,
+    0
+   ],
+   "to": [
+    16,
+    12,
+    16
+   ],
+   "faces": {
+    "east": {
+     "texture": "#port",
+     "uv": [
+      0,
+      4,
+      16,
+      12
+     ],
+     "cullface": "east"
+    },
+    "west": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      4,
+      16,
+      12
+     ]
+    },
+    "up": {
+     "texture": "#wood",
+     "uv": [
+      14,
+      0,
+      16,
+      16
+     ]
+    },
+    "north": {
+     "texture": "#wood",
+     "uv": [
+      14,
+      4,
+      16,
+      12
+     ],
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#wood",
+     "uv": [
+      0,
+      4,
+      2,
+      12
+     ],
+     "cullface": "south"
+    }
+   },
+   "name": "wall_e"
+  },
+  {
+   "from": [
+    2,
+    4,
+    15
+   ],
+   "to": [
+    14,
+    12,
+    16
+   ],
+   "faces": {
+    "south": {
+     "texture": "#back",
+     "uv": [
+      2,
+      0,
+      14,
+      8
+     ],
+     "cullface": "south"
+    },
+    "north": {
+     "texture": "#wood",
+     "uv": [
+      2,
+      4,
+      14,
+      12
+     ]
+    },
+    "up": {
+     "texture": "#wood",
+     "uv": [
+      2,
+      15,
+      14,
+      16
+     ]
+    }
+   },
+   "name": "back"
+  },
+  {
+   "from": [
+    2,
+    4,
+    0
+   ],
+   "to": [
+    14,
+    5,
+    5
+   ],
+   "faces": {
+    "up": {
+     "texture": "#tray",
+     "uv": [
+      2,
+      0,
+      14,
+      5
+     ]
+    }
+   },
+   "name": "tray"
+  },
+  {
+   "from": [
+    2,
+    5,
+    0
+   ],
+   "to": [
+    14,
+    6,
+    1
+   ],
+   "faces": {
+    "up": {
+     "texture": "#tray",
+     "uv": [
+      2,
+      0,
+      14,
+      1
+     ]
+    },
+    "north": {
+     "texture": "#tray",
+     "uv": [
+      2,
+      10,
+      14,
+      11
+     ],
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#tray",
+     "uv": [
+      2,
+      10,
+      14,
+      11
+     ]
+    }
+   },
+   "name": "lip"
+  },
+  {
+   "from": [
+    2,
+    7,
+    4
+   ],
+   "to": [
+    14,
+    8,
+    15
+   ],
+   "faces": {
+    "up": {
+     "texture": "#ramp",
+     "uv": [
+      2,
+      1,
+      14,
+      12
+     ]
+    },
+    "down": {
+     "texture": "#ramp",
+     "uv": [
+      2,
+      1,
+      14,
+      12
+     ]
+    },
+    "north": {
+     "texture": "#ramp",
+     "uv": [
+      2,
+      8,
+      14,
+      9
+     ]
+    }
+   },
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "name": "ramp"
+  },
+  {
+   "from": [
+    2,
+    8,
+    6
+   ],
+   "to": [
+    14,
+    9,
+    7
+   ],
+   "faces": {
+    "up": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      0,
+      14,
+      1
+     ]
+    },
+    "north": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      5,
+      14,
+      6
+     ]
+    },
+    "south": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      5,
+      14,
+      6
+     ]
+    }
+   },
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "name": "riffle1"
+  },
+  {
+   "from": [
+    2,
+    8,
+    9
+   ],
+   "to": [
+    14,
+    9,
+    10
+   ],
+   "faces": {
+    "up": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      0,
+      14,
+      1
+     ]
+    },
+    "north": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      5,
+      14,
+      6
+     ]
+    },
+    "south": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      5,
+      14,
+      6
+     ]
+    }
+   },
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "name": "riffle2"
+  },
+  {
+   "from": [
+    2,
+    8,
+    12
+   ],
+   "to": [
+    14,
+    9,
+    13
+   ],
+   "faces": {
+    "up": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      0,
+      14,
+      1
+     ]
+    },
+    "north": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      5,
+      14,
+      6
+     ]
+    },
+    "south": {
+     "texture": "#riffle",
+     "uv": [
+      2,
+      5,
+      14,
+      6
+     ]
+    }
+   },
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "name": "riffle3"
+  },
+  {
+   "from": [
+    7,
+    1.5,
+    -0.5
+   ],
+   "to": [
+    9,
+    3.5,
+    0
+   ],
+   "faces": {
+    "north": {
+     "texture": "#lamp",
+     "uv": [
+      4,
+      4,
+      8,
+      8
+     ]
+    },
+    "up": {
+     "texture": "#lamp",
+     "uv": [
+      4,
+      4,
+      8,
+      5
+     ]
+    },
+    "west": {
+     "texture": "#lamp",
+     "uv": [
+      4,
+      4,
+      5,
+      8
+     ]
+    },
+    "east": {
+     "texture": "#lamp",
+     "uv": [
+      4,
+      4,
+      5,
+      8
+     ]
+    }
+   },
+   "name": "lamp"
+  },
+  {
+   "from": [
+    2,
+    8.5,
+    4
+   ],
+   "to": [
+    14,
+    8.5,
+    15
+   ],
+   "faces": {
+    "up": {
+     "texture": "#water",
+     "uv": [
+      2,
+      1,
+      14,
+      12
+     ]
+    }
+   },
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "name": "water"
+  }
+ ]
+}

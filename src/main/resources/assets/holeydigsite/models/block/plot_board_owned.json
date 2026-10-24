@@ -1,0 +1,147 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/oak_planks",
+    "post": "minecraft:block/stripped_oak_log",
+    "board": "holeydigsite:block/plot_board_owned",
+    "edge": "minecraft:block/oak_planks"
+  },
+  "elements": [
+    {
+      "from": [
+        7,
+        0,
+        7
+      ],
+      "to": [
+        9,
+        10,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#post",
+          "uv": [
+            7,
+            6,
+            9,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#post",
+          "uv": [
+            7,
+            6,
+            9,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#post",
+          "uv": [
+            7,
+            6,
+            9,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#post",
+          "uv": [
+            7,
+            6,
+            9,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#post",
+          "uv": [
+            7,
+            7,
+            9,
+            9
+          ]
+        },
+        "down": {
+          "texture": "#post",
+          "uv": [
+            7,
+            7,
+            9,
+            9
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        8,
+        6.5
+      ],
+      "to": [
+        15,
+        16,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#board",
+          "uv": [
+            1,
+            0,
+            15,
+            8
+          ]
+        },
+        "south": {
+          "texture": "#board",
+          "uv": [
+            1,
+            0,
+            15,
+            8
+          ]
+        },
+        "east": {
+          "texture": "#edge",
+          "uv": [
+            6.5,
+            0,
+            9.5,
+            8
+          ]
+        },
+        "west": {
+          "texture": "#edge",
+          "uv": [
+            6.5,
+            0,
+            9.5,
+            8
+          ]
+        },
+        "up": {
+          "texture": "#edge",
+          "uv": [
+            1,
+            6.5,
+            15,
+            9.5
+          ]
+        },
+        "down": {
+          "texture": "#edge",
+          "uv": [
+            1,
+            6.5,
+            15,
+            9.5
+          ]
+        }
+      }
+    }
+  ]
+}

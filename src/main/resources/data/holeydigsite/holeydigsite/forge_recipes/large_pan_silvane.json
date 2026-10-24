@@ -1,0 +1,18 @@
+{
+  "order": 31,
+  "category": "tools",
+  "variant": "material.holeydigsite.silvane",
+  "metals": {
+    "holeydigsite:silvane": 170
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:pan",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:large_pan",
+    "count": 1
+  }
+}

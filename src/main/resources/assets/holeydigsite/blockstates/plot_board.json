@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,owned=false": {
+      "model": "holeydigsite:block/plot_board_for_sale"
+    },
+    "facing=north,owned=true": {
+      "model": "holeydigsite:block/plot_board_owned"
+    },
+    "facing=east,owned=false": {
+      "model": "holeydigsite:block/plot_board_for_sale",
+      "y": 90
+    },
+    "facing=east,owned=true": {
+      "model": "holeydigsite:block/plot_board_owned",
+      "y": 90
+    },
+    "facing=south,owned=false": {
+      "model": "holeydigsite:block/plot_board_for_sale",
+      "y": 180
+    },
+    "facing=south,owned=true": {
+      "model": "holeydigsite:block/plot_board_owned",
+      "y": 180
+    },
+    "facing=west,owned=false": {
+      "model": "holeydigsite:block/plot_board_for_sale",
+      "y": 270
+    },
+    "facing=west,owned=true": {
+      "model": "holeydigsite:block/plot_board_owned",
+      "y": 270
+    }
+  }
+}

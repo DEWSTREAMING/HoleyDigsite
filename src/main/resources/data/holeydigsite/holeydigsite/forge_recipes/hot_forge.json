@@ -1,0 +1,19 @@
+{
+  "order": 30,
+  "category": "casting",
+  "metals": {
+    "holeydigsite:folkiron": 2400,
+    "holeydigsite:orchremia": 3600,
+    "holeydigsite:goldchro": 60
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:forge",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:hot_forge",
+    "count": 1
+  }
+}

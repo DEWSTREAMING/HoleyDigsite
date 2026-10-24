@@ -1,0 +1,18 @@
+{
+  "order": 10,
+  "category": "drills",
+  "metals": {
+    "holeydigsite:folkiron": 400,
+    "holeydigsite:goldchro": 45
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:mining_drill",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:mining_drill_t2",
+    "count": 1
+  }
+}

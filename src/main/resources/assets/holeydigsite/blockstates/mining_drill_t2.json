@@ -1,0 +1,94 @@
+{
+  "variants": {
+    "facing=north,half=lower,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_lower_working"
+    },
+    "facing=north,half=upper,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_working"
+    },
+    "facing=north,half=lower,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_lower"
+    },
+    "facing=north,half=upper,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_stopped"
+    },
+    "facing=north,half=lower,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_lower"
+    },
+    "facing=north,half=upper,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_no_power"
+    },
+    "facing=east,half=lower,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_lower_working",
+      "y": 90
+    },
+    "facing=east,half=upper,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_working",
+      "y": 90
+    },
+    "facing=east,half=lower,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_lower",
+      "y": 90
+    },
+    "facing=east,half=upper,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_stopped",
+      "y": 90
+    },
+    "facing=east,half=lower,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_lower",
+      "y": 90
+    },
+    "facing=east,half=upper,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_no_power",
+      "y": 90
+    },
+    "facing=south,half=lower,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_lower_working",
+      "y": 180
+    },
+    "facing=south,half=upper,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_working",
+      "y": 180
+    },
+    "facing=south,half=lower,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_lower",
+      "y": 180
+    },
+    "facing=south,half=upper,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_stopped",
+      "y": 180
+    },
+    "facing=south,half=lower,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_lower",
+      "y": 180
+    },
+    "facing=south,half=upper,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_no_power",
+      "y": 180
+    },
+    "facing=west,half=lower,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_lower_working",
+      "y": 270
+    },
+    "facing=west,half=upper,status=working": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_working",
+      "y": 270
+    },
+    "facing=west,half=lower,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_lower",
+      "y": 270
+    },
+    "facing=west,half=upper,status=stopped": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_stopped",
+      "y": 270
+    },
+    "facing=west,half=lower,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_lower",
+      "y": 270
+    },
+    "facing=west,half=upper,status=no_power": {
+      "model": "holeydigsite:block/mining_drill_t2_upper_no_power",
+      "y": 270
+    }
+  }
+}

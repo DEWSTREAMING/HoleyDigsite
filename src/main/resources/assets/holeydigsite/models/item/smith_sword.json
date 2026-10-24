@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "holeydigsite:item/smith_sword",
+    "layer1": "holeydigsite:item/smith_sword_guard",
+    "layer2": "holeydigsite:item/smith_sword_pommel",
+    "layer3": "holeydigsite:item/smith_sword_grip"
+  }
+}

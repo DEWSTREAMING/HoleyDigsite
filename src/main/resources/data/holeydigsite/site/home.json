@@ -1,0 +1,18 @@
+{
+  "kind": "store",
+  "name": "site.holeydigsite.home",
+  "version": 4,
+  "structure": "holeydigsite:store/home_v4",
+  "size": [
+    26,
+    26,
+    22
+  ],
+  "entrance": [
+    0,
+    11,
+    10
+  ],
+  "protect": true,
+  "layout": "holeydigsite:home"
+}

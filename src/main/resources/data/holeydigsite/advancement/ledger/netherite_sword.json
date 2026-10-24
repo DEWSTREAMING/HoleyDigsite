@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "holeydigsite:smithed", "conditions": {"piece": "sword", "min_tier": "netherite"}}}}

@@ -1,0 +1,25 @@
+{
+  "values": [
+    "holeydigsite:ruby_small",
+    "holeydigsite:ruby_medium",
+    "holeydigsite:ruby_large",
+    "holeydigsite:goldchro_chunk_large",
+    "holeydigsite:sapphire_small",
+    "holeydigsite:sapphire_medium",
+    "holeydigsite:sapphire_large",
+    "holeydigsite:topaz_small",
+    "holeydigsite:topaz_medium",
+    "holeydigsite:topaz_large",
+    "holeydigsite:orchremia_chunk_large",
+    "holeydigsite:silvane_chunk_large",
+    "holeydigsite:uncut_ruby_small",
+    "holeydigsite:uncut_ruby_medium",
+    "holeydigsite:uncut_ruby_large",
+    "holeydigsite:uncut_sapphire_small",
+    "holeydigsite:uncut_sapphire_medium",
+    "holeydigsite:uncut_sapphire_large",
+    "holeydigsite:uncut_topaz_small",
+    "holeydigsite:uncut_topaz_medium",
+    "holeydigsite:uncut_topaz_large"
+  ]
+}

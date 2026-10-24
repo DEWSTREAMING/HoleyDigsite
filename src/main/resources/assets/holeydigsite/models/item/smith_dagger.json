@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "holeydigsite:item/smith_dagger",
+    "layer1": "holeydigsite:item/smith_dagger_grip"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "replace": false,
+  "values": [
+    "holeydigsite:water_intake",
+    "holeydigsite:water_pipe",
+    "holeydigsite:mining_drill",
+    "holeydigsite:clump_belt",
+    "holeydigsite:lava_intake",
+    "holeydigsite:lava_pipe",
+    "holeydigsite:forge",
+    "holeydigsite:crucible",
+    "holeydigsite:mold",
+    "holeydigsite:mining_drill_t2",
+    "holeydigsite:fast_clump_belt",
+    "holeydigsite:crafting_forge",
+    "holeydigsite:mining_drill_t3",
+    "holeydigsite:incline_belt",
+    "holeydigsite:fast_incline_belt",
+    "holeydigsite:filter_belt",
+    "holeydigsite:miners_lantern",
+    "holeydigsite:river_stone_lamp",
+    "holeydigsite:sandstone_lamp",
+    "holeydigsite:smithing_anvil",
+    "holeydigsite:drop_chute",
+    "holeydigsite:down_incline_belt",
+    "holeydigsite:fast_down_incline_belt"
+  ]
+}

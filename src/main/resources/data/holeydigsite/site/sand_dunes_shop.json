@@ -1,0 +1,24 @@
+{
+  "kind": "store",
+  "name": "site.holeydigsite.sand_dunes_shop",
+  "version": 2,
+  "structure": "holeydigsite:store/sand_dunes_shop_v2",
+  "size": [
+    7,
+    11,
+    7
+  ],
+  "entrance": [
+    3,
+    3,
+    7
+  ],
+  "protect": true,
+  "layout": "holeydigsite:sand_dunes_shop",
+  "plot": "sand_dunes",
+  "board": [
+    -2,
+    3,
+    9
+  ]
+}

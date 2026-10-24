@@ -1,0 +1,36 @@
+{
+  "order": 2,
+  "category": "jewellery",
+  "ingots": 2,
+  "gem": "required",
+  "hits": 5,
+  "result": "holeydigsite:smith_necklace",
+  "bonus": 0.4,
+  "min_grams": 10,
+  "parts": [
+    {
+      "name": "chain",
+      "from": "ingot1"
+    },
+    {
+      "name": "pendant setting",
+      "from": "ingot2"
+    },
+    {
+      "name": "gem",
+      "from": "gem"
+    }
+  ],
+  "wear": {
+    "full_grams": 400,
+    "floor": 0.5,
+    "head": {
+      "armor": 1.0,
+      "toughness": 1.0
+    },
+    "curio": {
+      "armor": 0.5,
+      "toughness": 0.2
+    }
+  }
+}

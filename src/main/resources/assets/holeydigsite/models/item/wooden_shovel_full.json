@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "holeydigsite:item/wooden_shovel_full"
+  }
+}

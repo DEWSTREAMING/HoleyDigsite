@@ -1,0 +1,6 @@
+{
+  "parent": "holeydigsite:block/pan_fill_3",
+  "textures": {
+    "dirt": "holeydigsite:block/pan_dirt_deep"
+  }
+}

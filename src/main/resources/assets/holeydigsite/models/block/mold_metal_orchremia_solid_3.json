@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/metal_orchremia",
+    "t": "holeydigsite:block/metal_orchremia"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        1,
+        5
+      ],
+      "to": [
+        12,
+        4,
+        11
+      ],
+      "faces": {
+        "up": {
+          "texture": "#t",
+          "uv": [
+            4,
+            5,
+            12,
+            11
+          ]
+        }
+      }
+    }
+  ]
+}

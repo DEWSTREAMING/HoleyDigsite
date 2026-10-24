@@ -1,0 +1,32 @@
+{
+  "order": 4,
+  "category": "tools",
+  "ingots": 2,
+  "gem": "none",
+  "hits": 5,
+  "result": "holeydigsite:smith_axe",
+  "bonus": 0.3,
+  "min_grams": 25,
+  "gear": {
+    "full_grams": 500,
+    "base_damage": 5.5,
+    "attack_speed": -3.1,
+    "damage_scale": 1.0,
+    "durability_scale": 1.0,
+    "floor": 0.5
+  },
+  "parts": [
+    {
+      "name": "head",
+      "from": "ingot1"
+    },
+    {
+      "name": "binding",
+      "from": "ingot2"
+    },
+    {
+      "name": "handle",
+      "from": "none"
+    }
+  ]
+}

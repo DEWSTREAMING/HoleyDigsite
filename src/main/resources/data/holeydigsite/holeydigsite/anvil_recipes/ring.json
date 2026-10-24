@@ -1,0 +1,29 @@
+{
+  "order": 1,
+  "category": "jewellery",
+  "ingots": 1,
+  "gem": "optional",
+  "hits": 4,
+  "result": "holeydigsite:smith_ring",
+  "bonus": 0.25,
+  "gem_bonus": 0.4,
+  "min_grams": 10,
+  "parts": [
+    {
+      "name": "band",
+      "from": "ingot1"
+    },
+    {
+      "name": "gem",
+      "from": "gem"
+    }
+  ],
+  "wear": {
+    "full_grams": 200,
+    "floor": 0.5,
+    "curio": {
+      "armor": 0.4,
+      "toughness": 0.15
+    }
+  }
+}

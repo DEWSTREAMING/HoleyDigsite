@@ -1,0 +1,17 @@
+{
+  "order": 52,
+  "category": "belts",
+  "metals": {
+    "holeydigsite:folkiron": 850
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:incline_belt",
+      "count": 4
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:fast_incline_belt",
+    "count": 4
+  }
+}

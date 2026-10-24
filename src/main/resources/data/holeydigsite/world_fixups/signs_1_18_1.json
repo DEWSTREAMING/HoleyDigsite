@@ -1,0 +1,97 @@
+{
+ "origin": {
+  "site": "holeydigsite:home",
+  "offset": [
+   18,
+   0,
+   3
+  ]
+ },
+ "groups": [],
+ "signs": [
+  {
+   "where": "island",
+   "pos": [
+    7,
+    10,
+    18
+   ],
+   "block": "minecraft:oak_sign",
+   "old": [
+    "Drill pad",
+    "Scoop the dirt,",
+    "drill the rock,",
+    "pan in the pool"
+   ],
+   "new": [
+    "DRILL PAD",
+    "",
+    "Pan at",
+    "the pool"
+   ]
+  },
+  {
+   "where": "island",
+   "pos": [
+    11,
+    10,
+    10
+   ],
+   "block": "minecraft:oak_sign",
+   "old": [
+    "Holey Digsite",
+    "-> Trading Post",
+    "v Land plots",
+    ""
+   ],
+   "new": [
+    "Trading Post ↑",
+    "",
+    "Land plots →",
+    ""
+   ]
+  },
+  {
+   "where": "gravel_flats",
+   "pos": [
+    30,
+    10,
+    46
+   ],
+   "block": "minecraft:oak_sign",
+   "old": [
+    "Gravel Flats",
+    "Gravelrock lies",
+    "under the banks;",
+    "see the cut bank"
+   ],
+   "new": [
+    "GRAVEL FLATS",
+    "Rock under",
+    "the banks",
+    ""
+   ]
+  },
+  {
+   "where": "sand_dunes",
+   "pos": [
+    57,
+    10,
+    48
+   ],
+   "block": "minecraft:birch_sign",
+   "old": [
+    "Sand Dunes",
+    "Sandrock beds lie",
+    "under the dunes,",
+    "open in the hollows"
+   ],
+   "new": [
+    "SAND DUNES",
+    "Dig the",
+    "hollows",
+    ""
+   ]
+  }
+ ]
+}

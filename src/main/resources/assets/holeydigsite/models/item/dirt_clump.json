@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "holeydigsite:item/dirt_clump"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "holeydigsite:tier": 2
+      },
+      "model": "holeydigsite:item/dirt_clump_deep"
+    },
+    {
+      "predicate": {
+        "holeydigsite:tier": 3
+      },
+      "model": "holeydigsite:item/dirt_clump_abyssal"
+    },
+    {
+      "predicate": {
+        "holeydigsite:tier": 6
+      },
+      "model": "holeydigsite:item/dirt_clump_coarse"
+    },
+    {
+      "predicate": {
+        "holeydigsite:tier": 7
+      },
+      "model": "holeydigsite:item/dirt_clump_rooted"
+    },
+    {
+      "predicate": {
+        "holeydigsite:tier": 8
+      },
+      "model": "holeydigsite:item/dirt_clump_moss"
+    }
+  ]
+}

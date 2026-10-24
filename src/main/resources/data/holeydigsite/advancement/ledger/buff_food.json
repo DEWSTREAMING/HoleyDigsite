@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "minecraft:consume_item", "conditions": {"item": {"items": ["holeydigsite:roasted_glowroot", "holeydigsite:riverbean_stew", "holeydigsite:dune_melon_juice"]}}}}}

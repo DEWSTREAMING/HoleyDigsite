@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "holeydigsite:gold_coin"
+    }
+  ],
+  "result": {
+    "id": "holeydigsite:silver_coin",
+    "count": 8
+  }
+}

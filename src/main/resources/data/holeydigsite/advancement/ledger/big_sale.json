@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "holeydigsite:sold", "conditions": {"min_single_value": 1000}}}}

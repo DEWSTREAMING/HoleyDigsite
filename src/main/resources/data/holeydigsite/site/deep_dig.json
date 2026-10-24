@@ -1,0 +1,33 @@
+{
+  "kind": "plot",
+  "name": "site.holeydigsite.deep_dig",
+  "version": 4,
+  "structure": "holeydigsite:plot/deep_dig_v4",
+  "size": [
+    21,
+    32,
+    21
+  ],
+  "entrance": [
+    10,
+    10,
+    1
+  ],
+  "protect": false,
+  "plot": "deep_dig",
+  "board": [
+    13,
+    10,
+    1
+  ],
+  "children": [
+    {
+      "site": "holeydigsite:deep_dig_shop",
+      "pos": [
+        1,
+        7,
+        2
+      ]
+    }
+  ]
+}

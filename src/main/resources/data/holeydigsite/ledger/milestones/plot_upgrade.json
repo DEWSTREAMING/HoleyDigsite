@@ -1,0 +1,8 @@
+{
+  "chapter": "land",
+  "order": 25,
+  "renown": 25,
+  "advancement": "holeydigsite:ledger/plot_upgrade",
+  "name": "ledger.holeydigsite.milestone.plot_upgrade",
+  "hint": "ledger.holeydigsite.milestone.plot_upgrade.hint"
+}

@@ -1,0 +1,225 @@
+{
+  "parent": "holeydigsite:block/pan",
+  "overrides": [
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25
+      },
+      "model": "holeydigsite:block/pan_fill_1"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 2
+      },
+      "model": "holeydigsite:block/pan_fill_1_deep"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 3
+      },
+      "model": "holeydigsite:block/pan_fill_1_abyssal"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 4
+      },
+      "model": "holeydigsite:block/pan_fill_1_gravel"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 5
+      },
+      "model": "holeydigsite:block/pan_fill_1_sand"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 6
+      },
+      "model": "holeydigsite:block/pan_fill_1_coarse"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 7
+      },
+      "model": "holeydigsite:block/pan_fill_1_rooted"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.25,
+        "holeydigsite:tier": 8
+      },
+      "model": "holeydigsite:block/pan_fill_1_moss"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5
+      },
+      "model": "holeydigsite:block/pan_fill_2"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 2
+      },
+      "model": "holeydigsite:block/pan_fill_2_deep"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 3
+      },
+      "model": "holeydigsite:block/pan_fill_2_abyssal"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 4
+      },
+      "model": "holeydigsite:block/pan_fill_2_gravel"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 5
+      },
+      "model": "holeydigsite:block/pan_fill_2_sand"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 6
+      },
+      "model": "holeydigsite:block/pan_fill_2_coarse"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 7
+      },
+      "model": "holeydigsite:block/pan_fill_2_rooted"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.5,
+        "holeydigsite:tier": 8
+      },
+      "model": "holeydigsite:block/pan_fill_2_moss"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75
+      },
+      "model": "holeydigsite:block/pan_fill_3"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 2
+      },
+      "model": "holeydigsite:block/pan_fill_3_deep"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 3
+      },
+      "model": "holeydigsite:block/pan_fill_3_abyssal"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 4
+      },
+      "model": "holeydigsite:block/pan_fill_3_gravel"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 5
+      },
+      "model": "holeydigsite:block/pan_fill_3_sand"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 6
+      },
+      "model": "holeydigsite:block/pan_fill_3_coarse"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 7
+      },
+      "model": "holeydigsite:block/pan_fill_3_rooted"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 0.75,
+        "holeydigsite:tier": 8
+      },
+      "model": "holeydigsite:block/pan_fill_3_moss"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0
+      },
+      "model": "holeydigsite:block/pan_fill_4"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 2
+      },
+      "model": "holeydigsite:block/pan_fill_4_deep"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 3
+      },
+      "model": "holeydigsite:block/pan_fill_4_abyssal"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 4
+      },
+      "model": "holeydigsite:block/pan_fill_4_gravel"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 5
+      },
+      "model": "holeydigsite:block/pan_fill_4_sand"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 6
+      },
+      "model": "holeydigsite:block/pan_fill_4_coarse"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 7
+      },
+      "model": "holeydigsite:block/pan_fill_4_rooted"
+    },
+    {
+      "predicate": {
+        "holeydigsite:fill": 1.0,
+        "holeydigsite:tier": 8
+      },
+      "model": "holeydigsite:block/pan_fill_4_moss"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "plot",
+  "name": "site.holeydigsite.sand_dunes",
+  "version": 5,
+  "structure": "holeydigsite:plot/sand_dunes_v5",
+  "size": [
+    21,
+    32,
+    21
+  ],
+  "entrance": [
+    1,
+    10,
+    16
+  ],
+  "protect": false,
+  "plot": "sand_dunes",
+  "board": [
+    1,
+    10,
+    13
+  ],
+  "children": [
+    {
+      "site": "holeydigsite:sand_dunes_shop",
+      "pos": [
+        3,
+        7,
+        4
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "holeydigsite:dirtrock",
+    "holeydigsite:deep_dirtrock",
+    "holeydigsite:abyssal_dirtrock",
+    "holeydigsite:shop_display",
+    "holeydigsite:gravelrock",
+    "holeydigsite:sandrock",
+    "holeydigsite:plot_board"
+  ]
+}

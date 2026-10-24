@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "holeydigsite:riverbean"
+    },
+    {
+      "item": "holeydigsite:riverbean"
+    },
+    {
+      "item": "holeydigsite:riverbean"
+    },
+    {
+      "item": "minecraft:bowl"
+    }
+  ],
+  "result": {
+    "id": "holeydigsite:riverbean_stew",
+    "count": 1
+  }
+}

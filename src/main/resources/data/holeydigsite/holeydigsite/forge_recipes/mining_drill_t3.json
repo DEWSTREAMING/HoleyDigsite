@@ -1,0 +1,19 @@
+{
+  "order": 60,
+  "category": "drills",
+  "metals": {
+    "holeydigsite:orchremia": 7000,
+    "holeydigsite:silvane": 2400,
+    "holeydigsite:goldchro": 250
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:mining_drill_t2",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:mining_drill_t3",
+    "count": 1
+  }
+}

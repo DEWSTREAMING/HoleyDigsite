@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "holeydigsite:sluice_box",
+    "holeydigsite:sell_pad",
+    "holeydigsite:buy_pad",
+    "holeydigsite:money_pan",
+    "holeydigsite:shop_button",
+    "holeydigsite:sluice_box_t2",
+    "holeydigsite:gem_cutter"
+  ]
+}

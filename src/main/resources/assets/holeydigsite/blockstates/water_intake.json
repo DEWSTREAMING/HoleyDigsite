@@ -1,0 +1,63 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "waterlogged": "false"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake"
+      }
+    },
+    {
+      "when": {
+        "waterlogged": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake_active"
+      }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake_collar_side"
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake_collar_side",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake_collar_side",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake_collar_side",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "true"
+      },
+      "apply": {
+        "model": "holeydigsite:block/water_intake_collar_up"
+      }
+    }
+  ]
+}

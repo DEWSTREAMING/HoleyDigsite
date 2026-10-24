@@ -1,0 +1,33 @@
+{
+  "kind": "plot",
+  "name": "site.holeydigsite.gravel_flats",
+  "version": 4,
+  "structure": "holeydigsite:plot/gravel_flats_v4",
+  "size": [
+    21,
+    32,
+    21
+  ],
+  "entrance": [
+    10,
+    10,
+    1
+  ],
+  "protect": false,
+  "plot": "gravel_flats",
+  "board": [
+    7,
+    10,
+    1
+  ],
+  "children": [
+    {
+      "site": "holeydigsite:gravel_flats_shop",
+      "pos": [
+        14,
+        7,
+        1
+      ]
+    }
+  ]
+}

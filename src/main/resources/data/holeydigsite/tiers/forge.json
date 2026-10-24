@@ -1,0 +1,139 @@
+{
+  "family": "forge",
+  "assets": {
+    "texture_naming": "id",
+    "default": {
+      "swap": [
+        "body",
+        "trim"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "forge",
+      "name": "Forge",
+      "kind": "basic",
+      "mark": "I",
+      "block": {
+        "map_color": "STONE",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "DEEPSLATE_BRICKS",
+        "push_reaction": "BLOCK",
+        "light": 13
+      },
+      "item": {},
+      "stats": {
+        "heat": 1
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Heats the Crucible on top while lava powered. No fuel needed",
+      "tab": [
+        {
+          "order": 400
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 1536,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "hot_forge",
+      "name": "Hot Forge",
+      "kind": "hot",
+      "mark": "II",
+      "block": {
+        "map_color": "COLOR_ORANGE",
+        "strength": 2.0,
+        "resistance": 6.0,
+        "sound": "DEEPSLATE_BRICKS",
+        "push_reaction": "BLOCK",
+        "light": 15
+      },
+      "item": {},
+      "stats": {
+        "heat": 2
+      },
+      "colors": {
+        "body": [
+          [
+            55,
+            25,
+            23
+          ],
+          [
+            86,
+            49,
+            44
+          ],
+          [
+            100,
+            59,
+            53
+          ],
+          [
+            116,
+            71,
+            62
+          ]
+        ],
+        "trim": [
+          [
+            120,
+            84,
+            20
+          ],
+          [
+            196,
+            150,
+            40
+          ],
+          [
+            240,
+            204,
+            92
+          ]
+        ]
+      },
+      "tooltip": "Tier 2 forge, lava powered like the Forge: any Crucible on it melts twice as fast. Glows white-hot",
+      "tab": [
+        {
+          "order": 750
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "hot_forge",
+            "order": 30,
+            "category": "casting",
+            "metals": {
+              "holeydigsite:folkiron": 2400,
+              "holeydigsite:orchremia": 3600,
+              "holeydigsite:goldchro": 60
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:forge",
+                "count": 1
+              }
+            ],
+            "count": 1
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

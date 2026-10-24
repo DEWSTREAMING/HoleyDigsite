@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/smithing_anvil"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/smithing_anvil",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/smithing_anvil",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/smithing_anvil",
+      "y": 270
+    }
+  }
+}

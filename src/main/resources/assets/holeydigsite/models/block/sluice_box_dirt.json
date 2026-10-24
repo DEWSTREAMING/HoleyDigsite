@@ -1,0 +1,213 @@
+{
+ "parent": "minecraft:block/block",
+ "textures": {
+  "particle": "holeydigsite:block/sluice_dirt",
+  "dirt": "holeydigsite:block/sluice_dirt"
+ },
+ "elements": [
+  {
+   "from": [
+    3,
+    8.5,
+    7
+   ],
+   "to": [
+    13,
+    9.6,
+    8.5
+   ],
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "faces": {
+    "up": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      7,
+      13,
+      8.5
+     ]
+    },
+    "north": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      0,
+      13,
+      1.0999999999999996
+     ]
+    },
+    "south": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      0,
+      13,
+      1.0999999999999996
+     ]
+    },
+    "west": {
+     "texture": "#dirt",
+     "uv": [
+      7,
+      0,
+      8.5,
+      1.0999999999999996
+     ]
+    },
+    "east": {
+     "texture": "#dirt",
+     "uv": [
+      7,
+      0,
+      8.5,
+      1.0999999999999996
+     ]
+    }
+   }
+  },
+  {
+   "from": [
+    3,
+    8.5,
+    10
+   ],
+   "to": [
+    13,
+    9.6,
+    11.5
+   ],
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "faces": {
+    "up": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      10,
+      13,
+      11.5
+     ]
+    },
+    "north": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      0,
+      13,
+      1.0999999999999996
+     ]
+    },
+    "south": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      0,
+      13,
+      1.0999999999999996
+     ]
+    },
+    "west": {
+     "texture": "#dirt",
+     "uv": [
+      10,
+      0,
+      11.5,
+      1.0999999999999996
+     ]
+    },
+    "east": {
+     "texture": "#dirt",
+     "uv": [
+      10,
+      0,
+      11.5,
+      1.0999999999999996
+     ]
+    }
+   }
+  },
+  {
+   "from": [
+    3,
+    8.5,
+    13
+   ],
+   "to": [
+    13,
+    9.9,
+    15
+   ],
+   "rotation": {
+    "origin": [
+     8,
+     8,
+     8
+    ],
+    "axis": "x",
+    "angle": -22.5
+   },
+   "faces": {
+    "up": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      13,
+      13,
+      15
+     ]
+    },
+    "north": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      0,
+      13,
+      1.4000000000000004
+     ]
+    },
+    "south": {
+     "texture": "#dirt",
+     "uv": [
+      3,
+      0,
+      13,
+      1.4000000000000004
+     ]
+    },
+    "west": {
+     "texture": "#dirt",
+     "uv": [
+      13,
+      0,
+      15,
+      1.4000000000000004
+     ]
+    },
+    "east": {
+     "texture": "#dirt",
+     "uv": [
+      13,
+      0,
+      15,
+      1.4000000000000004
+     ]
+    }
+   }
+  }
+ ]
+}

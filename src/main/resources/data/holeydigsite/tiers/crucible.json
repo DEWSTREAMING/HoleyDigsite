@@ -1,0 +1,147 @@
+{
+  "family": "crucible",
+  "assets": {
+    "texture_naming": "id",
+    "default": {
+      "swap": [
+        "body",
+        "trim"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "crucible",
+      "name": "Crucible",
+      "kind": "basic",
+      "mark": "I",
+      "block": {
+        "map_color": "TERRACOTTA_ORANGE",
+        "strength": 1.5,
+        "resistance": 6.0,
+        "sound": "DECORATED_POT",
+        "no_occlusion": true,
+        "push_reaction": "BLOCK",
+        "light": 7
+      },
+      "item": {},
+      "stats": {
+        "capacity": 200,
+        "ticks_per_gram": 4
+      },
+      "tags": [
+        "minecraft:mineable/pickaxe"
+      ],
+      "tooltip": "Put it on a Forge: melts one metal at a time, up to 200 g (5 g per second)",
+      "tab": [
+        {
+          "order": 410
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 1024,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "large_crucible",
+      "name": "Large Crucible",
+      "kind": "large",
+      "mark": "II",
+      "block": {
+        "map_color": "TERRACOTTA_ORANGE",
+        "strength": 1.5,
+        "resistance": 6.0,
+        "sound": "DECORATED_POT",
+        "no_occlusion": true,
+        "push_reaction": "BLOCK",
+        "light": 9
+      },
+      "item": {},
+      "stats": {
+        "capacity": 500,
+        "ticks_per_gram": 2
+      },
+      "colors": {
+        "body": [
+          [
+            120,
+            60,
+            34
+          ],
+          [
+            146,
+            76,
+            42
+          ],
+          [
+            170,
+            92,
+            52
+          ],
+          [
+            192,
+            112,
+            66
+          ],
+          [
+            207,
+            120,
+            71
+          ]
+        ],
+        "trim": [
+          [
+            120,
+            84,
+            20
+          ],
+          [
+            196,
+            150,
+            40
+          ],
+          [
+            240,
+            204,
+            92
+          ]
+        ]
+      },
+      "tooltip": "Tier 2 crucible: holds 500 g and melts twice as fast (10 g per second). Otherwise like the Crucible",
+      "tab": [
+        {
+          "order": 740
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "large_crucible",
+            "order": 30,
+            "category": "casting",
+            "metals": {
+              "holeydigsite:folkiron": 2800,
+              "holeydigsite:goldchro": 70
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:crucible",
+                "count": 1
+              }
+            ],
+            "count": 1
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

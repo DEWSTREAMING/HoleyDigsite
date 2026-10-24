@@ -1,0 +1,114 @@
+{
+  "family": "brush",
+  "assets": {
+    "texture_naming": "id",
+    "default": {
+      "swap": [
+        "handle",
+        "band"
+      ]
+    }
+  },
+  "tiers": [
+    {
+      "id": "brush",
+      "name": "Brush",
+      "mark": "I",
+      "item": {
+        "stacks_to": 1
+      },
+      "stats": {
+        "cycle_ticks": 40
+      },
+      "tab": [
+        {
+          "order": 110
+        }
+      ],
+      "obtain": {
+        "shop": {
+          "price": 16,
+          "count": 1
+        }
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    },
+    {
+      "id": "goldchro_brush",
+      "name": "Goldchro Brush",
+      "mark": "II",
+      "item": {
+        "stacks_to": 1,
+        "rarity": "UNCOMMON"
+      },
+      "stats": {
+        "cycle_ticks": 20
+      },
+      "colors": {
+        "handle": [
+          [
+            52,
+            34,
+            22
+          ],
+          [
+            66,
+            44,
+            28
+          ],
+          [
+            80,
+            54,
+            34
+          ]
+        ],
+        "band": [
+          [
+            196,
+            146,
+            30
+          ],
+          [
+            232,
+            190,
+            60
+          ],
+          [
+            255,
+            230,
+            120
+          ]
+        ]
+      },
+      "tab": [
+        {
+          "order": 540
+        }
+      ],
+      "obtain": {
+        "recipes": [
+          {
+            "file": "goldchro_brush",
+            "order": 40,
+            "metals": {
+              "holeydigsite:goldchro": 16
+            },
+            "parts": [
+              {
+                "item": "holeydigsite:brush",
+                "count": 1
+              }
+            ],
+            "count": 1,
+            "category": "tools"
+          }
+        ]
+      },
+      "assets": {
+        "mode": "legacy"
+      }
+    }
+  ]
+}

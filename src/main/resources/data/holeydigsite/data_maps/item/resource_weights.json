@@ -1,0 +1,232 @@
+{
+  "replace": false,
+  "values": {
+    "holeydigsite:folkiron_chunk_small": {
+      "material": "holeydigsite:folkiron",
+      "grams": 2
+    },
+    "holeydigsite:folkiron_chunk_medium": {
+      "material": "holeydigsite:folkiron",
+      "grams": 5
+    },
+    "holeydigsite:folkiron_chunk_large": {
+      "material": "holeydigsite:folkiron",
+      "grams": 12
+    },
+    "holeydigsite:goldchro_chunk_small": {
+      "material": "holeydigsite:goldchro",
+      "grams": 1
+    },
+    "holeydigsite:goldchro_chunk_medium": {
+      "material": "holeydigsite:goldchro",
+      "grams": 3
+    },
+    "holeydigsite:goldchro_chunk_large": {
+      "material": "holeydigsite:goldchro",
+      "grams": 7
+    },
+    "holeydigsite:ruby_small": {
+      "material": "holeydigsite:ruby",
+      "grams": 1,
+      "meltable": false
+    },
+    "holeydigsite:uncut_ruby_small": {
+      "material": "holeydigsite:ruby",
+      "grams": 1,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:ruby_medium": {
+      "material": "holeydigsite:ruby",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_ruby_medium": {
+      "material": "holeydigsite:ruby",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:ruby_large": {
+      "material": "holeydigsite:ruby",
+      "grams": 4,
+      "meltable": false
+    },
+    "holeydigsite:uncut_ruby_large": {
+      "material": "holeydigsite:ruby",
+      "grams": 4,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:folkiron_ingot": {
+      "material": "holeydigsite:folkiron",
+      "grams": 10,
+      "form": "ingot"
+    },
+    "holeydigsite:goldchro_ingot": {
+      "material": "holeydigsite:goldchro",
+      "grams": 10,
+      "form": "ingot"
+    },
+    "holeydigsite:orchremia_chunk_small": {
+      "material": "holeydigsite:orchremia",
+      "grams": 2
+    },
+    "holeydigsite:orchremia_chunk_medium": {
+      "material": "holeydigsite:orchremia",
+      "grams": 5
+    },
+    "holeydigsite:orchremia_chunk_large": {
+      "material": "holeydigsite:orchremia",
+      "grams": 12
+    },
+    "holeydigsite:silvane_chunk_small": {
+      "material": "holeydigsite:silvane",
+      "grams": 1
+    },
+    "holeydigsite:silvane_chunk_medium": {
+      "material": "holeydigsite:silvane",
+      "grams": 3
+    },
+    "holeydigsite:silvane_chunk_large": {
+      "material": "holeydigsite:silvane",
+      "grams": 7
+    },
+    "holeydigsite:sapphire_small": {
+      "material": "holeydigsite:sapphire",
+      "grams": 1,
+      "meltable": false
+    },
+    "holeydigsite:uncut_sapphire_small": {
+      "material": "holeydigsite:sapphire",
+      "grams": 1,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:sapphire_medium": {
+      "material": "holeydigsite:sapphire",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_sapphire_medium": {
+      "material": "holeydigsite:sapphire",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:sapphire_large": {
+      "material": "holeydigsite:sapphire",
+      "grams": 4,
+      "meltable": false
+    },
+    "holeydigsite:uncut_sapphire_large": {
+      "material": "holeydigsite:sapphire",
+      "grams": 4,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:topaz_small": {
+      "material": "holeydigsite:topaz",
+      "grams": 1,
+      "meltable": false
+    },
+    "holeydigsite:uncut_topaz_small": {
+      "material": "holeydigsite:topaz",
+      "grams": 1,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:topaz_medium": {
+      "material": "holeydigsite:topaz",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_topaz_medium": {
+      "material": "holeydigsite:topaz",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:topaz_large": {
+      "material": "holeydigsite:topaz",
+      "grams": 4,
+      "meltable": false
+    },
+    "holeydigsite:uncut_topaz_large": {
+      "material": "holeydigsite:topaz",
+      "grams": 4,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:orchremia_ingot": {
+      "material": "holeydigsite:orchremia",
+      "grams": 10,
+      "form": "ingot"
+    },
+    "holeydigsite:silvane_ingot": {
+      "material": "holeydigsite:silvane",
+      "grams": 10,
+      "form": "ingot"
+    },
+    "holeydigsite:glowroot": {
+      "material": "holeydigsite:glowroot",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "holeydigsite:roasted_glowroot": {
+      "material": "holeydigsite:roasted_glowroot",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "holeydigsite:riverbean": {
+      "material": "holeydigsite:riverbean",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "holeydigsite:riverbean_stew": {
+      "material": "holeydigsite:riverbean_stew",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "holeydigsite:dune_melon_slice": {
+      "material": "holeydigsite:dune_melon_slice",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "holeydigsite:dune_melon_juice": {
+      "material": "holeydigsite:dune_melon_juice",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "minecraft:wheat": {
+      "material": "holeydigsite:wheat",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "minecraft:beetroot": {
+      "material": "holeydigsite:beetroot",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "minecraft:carrot": {
+      "material": "holeydigsite:carrot",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "minecraft:potato": {
+      "material": "holeydigsite:potato",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    }
+  }
+}

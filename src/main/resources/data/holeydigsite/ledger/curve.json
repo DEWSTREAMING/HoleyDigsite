@@ -1,0 +1,25 @@
+{
+  "levels": [
+    15, 15, 20, 20, 25, 25, 30, 30, 35, 35,
+    50, 50, 55, 55, 60, 65, 65, 70, 70, 75, 75, 80, 80, 85, 85,
+    100, 100, 105, 110, 115, 120, 120, 125, 130, 135, 140, 140, 145, 150, 155, 160, 165, 170, 175, 175, 180, 185, 190, 190, 195
+  ],
+  "coins": {
+    "S": 128,
+    "M": 512,
+    "L": 1920
+  },
+  "reward_ingot_grams": 100,
+  "ongoing": {
+    "pan_scoops_per_renown": 4,
+    "pan_cap": 400,
+    "sluice_clumps_per_renown": 40,
+    "sluice_cap": 400,
+    "harvest_renown": 2,
+    "harvest_cap": 600,
+    "smith_renown": 5,
+    "smith_cap": 1000,
+    "sell_copper_per_renown": 500,
+    "sell_cap": 2000
+  }
+}

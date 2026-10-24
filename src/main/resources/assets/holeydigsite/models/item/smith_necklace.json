@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "holeydigsite:item/smith_necklace",
+    "layer1": "holeydigsite:item/smith_necklace_setting",
+    "layer2": "holeydigsite:item/smith_necklace_gem"
+  }
+}

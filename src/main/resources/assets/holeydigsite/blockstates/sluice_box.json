@@ -1,0 +1,316 @@
+{
+ "multipart": [
+  {
+   "when": {
+    "facing": "north",
+    "status": "working"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_working"
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "status": "idle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_idle"
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "status": "stopped"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_stopped"
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "status": "no_power"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_no_power"
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "dirt": "true"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_dirt"
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "status": "working"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_working",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "status": "idle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_idle",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "status": "stopped"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_stopped",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "status": "no_power"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_no_power",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "dirt": "true"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_dirt",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "status": "working"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_working",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "status": "idle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_idle",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "status": "stopped"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_stopped",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "status": "no_power"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_no_power",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "dirt": "true"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_dirt",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "status": "working"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_working",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "status": "idle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_idle",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "status": "stopped"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_stopped",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "status": "no_power"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_no_power",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "dirt": "true"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_box_dirt",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "upgrade": "riffle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_riffle"
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "upgrade": "riffle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_riffle",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "upgrade": "riffle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_riffle",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "upgrade": "riffle"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_riffle",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "upgrade": "mesh"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_mesh"
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "upgrade": "mesh"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_mesh",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "upgrade": "mesh"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_mesh",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "upgrade": "mesh"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_mesh",
+    "y": 270
+   }
+  },
+  {
+   "when": {
+    "facing": "north",
+    "upgrade": "seed"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_seed"
+   }
+  },
+  {
+   "when": {
+    "facing": "east",
+    "upgrade": "seed"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_seed",
+    "y": 90
+   }
+  },
+  {
+   "when": {
+    "facing": "south",
+    "upgrade": "seed"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_seed",
+    "y": 180
+   }
+  },
+  {
+   "when": {
+    "facing": "west",
+    "upgrade": "seed"
+   },
+   "apply": {
+    "model": "holeydigsite:block/sluice_upgrade_seed",
+    "y": 270
+   }
+  }
+ ]
+}

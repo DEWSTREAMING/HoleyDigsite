@@ -1,0 +1,109 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/mining_drill_spout",
+    "spout": "holeydigsite:block/mining_drill_spout"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        13,
+        -3
+      ],
+      "to": [
+        12,
+        16,
+        0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#spout",
+          "uv": [
+            4,
+            13,
+            12,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#spout",
+          "uv": [
+            0,
+            13,
+            3,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#spout",
+          "uv": [
+            13,
+            13,
+            16,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#spout",
+          "uv": [
+            4,
+            0,
+            12,
+            3
+          ]
+        },
+        "up": {
+          "texture": "#spout",
+          "uv": [
+            4,
+            0,
+            12,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        15.9,
+        -3
+      ],
+      "to": [
+        12,
+        17,
+        0
+      ],
+      "faces": {
+        "east": {
+          "texture": "#spout",
+          "uv": [
+            0,
+            0,
+            3,
+            1
+          ]
+        },
+        "west": {
+          "texture": "#spout",
+          "uv": [
+            13,
+            0,
+            16,
+            1
+          ]
+        },
+        "north": {
+          "texture": "#spout",
+          "uv": [
+            4,
+            0,
+            12,
+            1
+          ]
+        }
+      }
+    }
+  ]
+}
