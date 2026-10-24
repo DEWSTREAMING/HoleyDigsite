@@ -328,8 +328,8 @@ def tool_rack_elements():
     return els
 
 
-def cut_gem_elements(cx, y0, cz, scale, tile):
-    """Builds a 3D brilliant-cut gem on the velvet using the exact opaque row bands of ruby/sapphire/topaz_large.png:
+def cut_gem_ruby_elements(cx, y0, cz, scale, tile=3):
+    """Builds a 3D brilliant-cut gem on the velvet using the exact opaque row bands of ruby_large.png:
       - culet point at the bottom (rows 11..13, cols 6..10)
       - pavilion (rows 8..11, cols 4..12)
       - wide octagonal girdle in the upper-middle (rows 5..8, cols 1..15, showing the dark girdle line)
@@ -358,6 +358,70 @@ def cut_gem_elements(cx, y0, cz, scale, tile):
     ]
 
 
+def cut_gem_sapphire_elements(cx, y0, cz, scale, tile=4):
+    """Builds a 3D cushion/oval-cut sapphire on the velvet:
+      - wider than deep (rx > rz)
+      - rounded cushion girdle and star-faceted crown
+    """
+    rx_base = 0.60 * scale
+    rz_base = 0.45 * scale
+    rx_pav = 1.15 * scale
+    rz_pav = 0.90 * scale
+    rx_girdle = 1.65 * scale
+    rz_girdle = 1.30 * scale
+    rx_table = 1.10 * scale
+    rz_table = 0.85 * scale
+    h0 = y0
+    h1 = round(y0 + 0.55 * scale, 4)
+    h2 = round(y0 + 1.35 * scale, 4)
+    h3 = round(y0 + 2.35 * scale, 4)
+    h4 = round(y0 + 3.05 * scale, 4)
+    side_faces = ('north', 'east', 'south', 'west')
+    return [
+        elem((cx - rx_base, h0, cz - rz_base), (cx + rx_base, h1, cz + rz_base), tile,
+             faces=side_faces, sub_uv=(4, 10, 12, 12)),
+        elem((cx - rx_pav, h1, cz - rz_pav), (cx + rx_pav, h2, cz + rz_pav), tile,
+             faces=('north', 'east', 'south', 'west', 'down'), sub_uv=(2, 8, 14, 10)),
+        elem((cx - rx_girdle, h2, cz - rz_girdle), (cx + rx_girdle, h3, cz + rz_girdle), tile,
+             faces=FACES, sub_uv=(1, 5, 15, 8)),
+        elem((cx - rx_table, h3, cz - rz_table), (cx + rx_table, h4, cz + rz_table), tile,
+             faces=('north', 'east', 'south', 'west', 'up'),
+             sub_uv=(3, 2, 13, 5), per_uv={'up': (2, 3, 14, 6)}),
+    ]
+
+
+def cut_gem_topaz_elements(cx, y0, cz, scale, tile=5):
+    """Builds a 3D emerald-cut topaz on the velvet:
+      - elongated vertical rectangle (rz > rx)
+      - stepped parallel facets and rectangular table
+    """
+    rx_base = 0.40 * scale
+    rz_base = 0.60 * scale
+    rx_pav = 0.80 * scale
+    rz_pav = 1.15 * scale
+    rx_girdle = 1.15 * scale
+    rz_girdle = 1.60 * scale
+    rx_table = 0.75 * scale
+    rz_table = 1.10 * scale
+    h0 = y0
+    h1 = round(y0 + 0.55 * scale, 4)
+    h2 = round(y0 + 1.35 * scale, 4)
+    h3 = round(y0 + 2.35 * scale, 4)
+    h4 = round(y0 + 3.05 * scale, 4)
+    side_faces = ('north', 'east', 'south', 'west')
+    return [
+        elem((cx - rx_base, h0, cz - rz_base), (cx + rx_base, h1, cz + rz_base), tile,
+             faces=side_faces, sub_uv=(4, 12, 12, 14)),
+        elem((cx - rx_pav, h1, cz - rz_pav), (cx + rx_pav, h2, cz + rz_pav), tile,
+             faces=('north', 'east', 'south', 'west', 'down'), sub_uv=(3, 10, 13, 12)),
+        elem((cx - rx_girdle, h2, cz - rz_girdle), (cx + rx_girdle, h3, cz + rz_girdle), tile,
+             faces=FACES, sub_uv=(3, 4, 13, 10)),
+        elem((cx - rx_table, h3, cz - rz_table), (cx + rx_table, h4, cz + rz_table), tile,
+             faces=('north', 'east', 'south', 'west', 'up'),
+             sub_uv=(4, 1, 12, 4), per_uv={'up': (4, 3, 12, 7)}),
+    ]
+
+
 def gem_display_case_elements():
     # Tiles: 0=wood, 1=velvet, 2=case_glass, 3=ruby_large, 4=sapphire_large, 5=topaz_large, 6=metal_goldchro
     els = [
@@ -366,10 +430,13 @@ def gem_display_case_elements():
         elem((1, 6, 1), (15, 7, 15), 6),
         elem((2, 7, 2), (14, 8, 14), 1, faces=('north', 'east', 'south', 'west', 'up')),
     ]
-    # Three brilliant-cut gems on the velvet cushion (Ruby front-left, Sapphire front-right, Topaz back-center)
-    els.extend(cut_gem_elements(4.8, 8.0, 5.5, 1.15, 3))
-    els.extend(cut_gem_elements(11.2, 8.0, 5.5, 1.15, 4))
-    els.extend(cut_gem_elements(8.0, 8.0, 10.5, 1.15, 5))
+    # Three distinctly cut gems on the velvet cushion:
+    # - Ruby front-left: brilliant cut
+    # - Sapphire front-right: cushion / oval cut
+    # - Topaz back-center: emerald cut
+    els.extend(cut_gem_ruby_elements(4.8, 8.0, 5.5, 1.15, 3))
+    els.extend(cut_gem_sapphire_elements(11.2, 8.0, 5.5, 1.15, 4))
+    els.extend(cut_gem_topaz_elements(8.0, 8.0, 10.5, 1.15, 5))
     # Goldchro corner pillars, open-top frame, and glass panels (sides + top window)
     els.extend([
         elem((1.5, 8, 1.5), (2.5, 15, 2.5), 6, faces=('north', 'east', 'south', 'west')),

@@ -23,17 +23,17 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 
 /**
- * Locked land plots (Phase 11). While a plot isn't bought, survival/adventure players can't break or place blocks, use items
- * on blocks, interact with blocks or empty/fill buckets inside its bounds - only walk. The plot's board stays clickable (to
- * claim it with the deed). Creative players aren't restricted. Machines outside can't reach in either:
- * {@link #isLocked(Level, BlockPos)} is checked by {@code ClumpOutputs}, belts and the pan's item handler.
- * Server side only (the client predicts, the server corrects); short action-bar message on a refusal.
+ * Locked land plots. While a plot is unbought, survival and adventure players can only walk inside its bounds, and cannot
+ * break or place blocks, use items on blocks, interact with blocks, or empty and fill buckets. The plot board stays clickable
+ * to claim it with the deed, and creative players are not restricted. Machines outside cannot reach in either, as
+ * {@link #isLocked(Level, BlockPos)} is checked by {@code ClumpOutputs}, belts, and the pan's item handler.
+ * This runs server side only with client prediction and server correction, showing a short action bar message on refusal.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class PlotLock {
     private PlotLock() {}
 
-    /** True if {@code pos} is inside a plot that hasn't been bought yet (server only; always false on clients). */
+    /** True if {@code pos} is inside an unbought plot (server only, always false on clients). */
     public static boolean isLocked(LevelAccessor level, BlockPos pos) {
         return level instanceof ServerLevel sl && PlotData.get(sl).lockedAt(pos) != null;
     }
@@ -64,7 +64,7 @@ public final class PlotLock {
         }
     }
 
-    /** Right-click on a block inside, or placing against a block so the new block would land inside. */
+    /** Right-clicking on a block inside, or placing against a block so the new block lands inside. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
@@ -91,7 +91,7 @@ public final class PlotLock {
         }
     }
 
-    /** Buckets aimed into a locked plot (scooping its water / pouring into it). */
+    /** Buckets aimed into a locked plot for scooping water or pouring into it. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
@@ -109,7 +109,7 @@ public final class PlotLock {
         }
     }
 
-    /** Explosions don't touch locked plots. */
+    /** Prevent explosions from affecting locked plots. */
     @SubscribeEvent
     public static void onExplosion(ExplosionEvent.Detonate event) {
         if (event.getLevel() instanceof ServerLevel) {

@@ -45,16 +45,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Tier 1 Mining Drill: placed on Dirtrock and powered by water, it drills one Dirt Clump every
- * {@link #CYCLE_TICKS} ticks into the block in FRONT of it (a pan or a Clump Belt - see {@link ClumpOutputs}).
+ * Tier 1 Mining Drill placed on Dirtrock and powered by water. Drills one Dirt Clump every
+ * {@link #CYCLE_TICKS} ticks into the block in front of it (a pan or a Clump Belt, see {@link ClumpOutputs}).
  *
  * <ul>
- *   <li>Facing: horizontal, placed with its FRONT (output, spinning bit) towards the player and the water port
- *       (BACK) facing away. Output on the FRONT.</li>
- *   <li>Power: a {@link WaterNetworkBlock} machine; the network pushes on/off into the block entity.</li>
+ *   <li>Facing: horizontal, placed with its front (output, spinning bit) towards the player and the water port
+ *       (back) facing away.</li>
+ *   <li>Power: a {@link WaterNetworkBlock} machine, where the network pushes on or off into the block entity.</li>
  *   <li>Status ({@link #STATUS}) drives the model: working (animated bit, green light), stopped (red light,
  *       output blocked for more than {@link #STOP_AFTER_BLOCKED_TICKS} ticks), no_power (blue light).</li>
- *   <li>Cost: only a WORKING drill has a block entity ticker. Stopped / no-power drills react to neighbour
+ *   <li>Cost: only a working drill has a block entity ticker. Stopped or no-power drills react to neighbour
  *       updates and network changes, plus a slow scheduled re-check every {@link #RECHECK_TICKS} ticks.</li>
  *   <li>No inventory, no item-handler capability, never drops clumps into the world.</li>
  * </ul>
@@ -65,22 +65,22 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
             propertiesCodec()).apply(i, (ticks, props) -> new MiningDrillBlock(props, ticks)));
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<DrillStatus> STATUS = EnumProperty.create("status", DrillStatus.class);
-    /** Phase 12: drills are 2 blocks tall (like a door). The LOWER half stands on the rock, has the block entity, the
-     *  water port and the output; the UPPER half is housing + lamp + spout and mirrors the lower half's status. */
+    /** Drills are two blocks tall, like a door. The lower half stands on the rock, has the block entity, the
+     *  water port, and the output. The upper half is housing, lamp, and spout, and mirrors the lower half's status. */
     public static final EnumProperty<net.minecraft.world.level.block.state.properties.DoubleBlockHalf> HALF =
             net.minecraft.world.level.block.state.properties.BlockStateProperties.DOUBLE_BLOCK_HALF;
 
     /** Tier 1 ticks per Dirt Clump: 300 = 15 seconds. Each drill block has its own {@link #cycleTicks()}. */
     public static final int CYCLE_TICKS = com.holeydigsite.tier.Tiers.stat("mining_drill", "cycle_ticks");
-    /** Tier 2 Mining Drill (Phase 10): 150 ticks = 7.5 s, twice as fast. */
+    /** Tier 2 Mining Drill: 150 ticks (7.5 seconds), twice as fast. */
     public static final int CYCLE_TICKS_T2 = com.holeydigsite.tier.Tiers.stat("mining_drill_t2", "cycle_ticks");
-    /** Tier 3 Mining Drill (Phase 11 placeholder): 100 ticks = 5 s, three times Tier 1. */
+    /** Tier 3 Mining Drill: 100 ticks (5 seconds), three times Tier 1. */
     public static final int CYCLE_TICKS_T3 = com.holeydigsite.tier.Tiers.stat("mining_drill_t3", "cycle_ticks");
-    /** The drill switches to "stopped" once its output has been blocked for longer than this (3 s). */
+    /** The drill switches to stopped once its output has been blocked for longer than this (3 seconds). */
     public static final int STOP_AFTER_BLOCKED_TICKS = 60;
     /** While working, the output is checked this often (and always on the tick a clump is ready). */
     public static final int CHECK_INTERVAL = 5;
-    /** Slow re-check for stopped / no-power drills (backup for missed neighbour updates). */
+    /** Slow re-check for stopped or no-power drills as a backup for missed neighbour updates. */
     public static final int RECHECK_TICKS = 40;
 
     /**
@@ -125,7 +125,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         builder.add(FACING, STATUS, HALF);
     }
 
-    /** BaseEntityBlock defaults to INVISIBLE (for block entity renderers); we use a normal baked model. */
+    /** BaseEntityBlock defaults to invisible for block entity renderers, but we use a normal baked model. */
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
@@ -133,7 +133,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
 
     /**
      * The front (output, spinning bit) faces the player, so the water port on the back faces away from them
-     * (like a furnace). Players place it while looking at the spot from the side where the pan/belt goes.
+     * (like a furnace). Players place it while looking at the spot from the side where the pan or belt goes.
      */
     @Override
     @Nullable
@@ -141,7 +141,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
         if (pos.getY() >= level.getMaxBuildHeight() - 1 || !level.getBlockState(pos.above()).canBeReplaced(context)) {
-            return null; // no room for the upper half
+            return null;
         }
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
@@ -155,7 +155,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         return isLower(state) ? pos : pos.below();
     }
 
-    /** The two halves belong together: a half whose partner went away disappears (the lower half drops the drill). */
+    /** The two halves belong together, so a half whose partner went away disappears and the lower half drops the drill. */
     @Override
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighbor, net.minecraft.world.level.LevelAccessor level,
                                      BlockPos pos, BlockPos neighborPos) {
@@ -206,7 +206,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         return isLower(state) ? new MiningDrillBlockEntity(pos, state) : null;
     }
 
-    /** Only a WORKING drill ticks (vanilla re-reads this whenever the block state changes). */
+    /** Only a working drill ticks, which is re-read by vanilla whenever the block state changes. */
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
@@ -216,7 +216,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         return createTickerHelper(type, ModBlockEntities.MINING_DRILL.get(), MiningDrillBlockEntity::serverTick);
     }
 
-    /** Slow re-check for stopped / no-power drills. */
+    /** Slow re-check for stopped or no-power drills. */
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (isLower(state)) {
@@ -224,7 +224,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         }
     }
 
-    /** Something next to the drill changed (pan emptied, block below replaced...): re-evaluate right away. */
+    /** Something next to the drill changed, so re-evaluate right away. */
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
                                    BlockPos neighborPos, boolean movedByPiston) {
@@ -243,7 +243,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         return pos.relative(state.getValue(FACING));
     }
 
-    /** Tier of the clumps this drill makes: the rock it stands on (Dirtrock 1, Deep 2, Abyssal 3). */
+    /** Tier of the clumps this drill makes based on the rock it stands on. */
     public static int clumpTier(Level level, BlockPos pos) {
         return DirtTier.ofRock(level.getBlockState(pos.below()));
     }
@@ -253,8 +253,8 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
     }
 
     /**
-     * Works out the status from the current conditions and applies it. Cheap: a couple of block lookups.
-     * A stopped drill only restarts when its output has room again; a powered no-power drill starts working.
+     * Works out the status from current conditions and applies it. A stopped drill only restarts when its output
+     * has room again, and a powered no-power drill starts working.
      */
     public void refreshStatus(Level level, BlockPos pos, BlockState state) {
         if (!(level.getBlockEntity(pos) instanceof MiningDrillBlockEntity drill)) {
@@ -274,7 +274,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         setStatus(level, pos, state, drill, next);
     }
 
-    /** Applies a status change (clients get the new model; the ticker is swapped by vanilla). */
+    /** Applies a status change so clients get the new model and the ticker is swapped by vanilla. */
     void setStatus(Level level, BlockPos pos, BlockState state, MiningDrillBlockEntity drill, DrillStatus next) {
         if (state.getValue(STATUS) != next) {
             if (next == DrillStatus.WORKING) {
@@ -287,7 +287,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
             }
         }
         if (next != DrillStatus.WORKING) {
-            level.scheduleTick(pos, this, RECHECK_TICKS); // de-duplicated by vanilla
+            level.scheduleTick(pos, this, RECHECK_TICKS);
         }
     }
 
@@ -317,10 +317,9 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!oldState.is(this) || oldState.getValue(FACING) != state.getValue(FACING)) {
-            WaterNetworks.markDirty(level, pos); // also sets the first status once the block entity exists
+            WaterNetworks.markDirty(level, pos);
         }
         if (!oldState.is(this) && isLower(state) && !level.isClientSide) {
-            // the upper half (also when placed by commands, structures or tests)
             BlockPos up = pos.above();
             BlockState above = level.getBlockState(up);
             boolean otherTierUpper = above.getBlock() instanceof MiningDrillBlock && !above.is(this) && !isLower(above);
@@ -343,7 +342,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
     // Player feedback
     // ------------------------------------------------------------------------------------------------
 
-    /** Right-click with an empty hand: status and reason in the action bar. */
+    /** Right-click with an empty hand shows status and reason in the action bar. */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!player.getMainHandItem().isEmpty()) {
@@ -356,7 +355,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** "Mining Drill: <status> - <reason>". Public for tests. */
+    /** Returns the status message component. Public for tests. */
     public static Component statusMessage(Level level, BlockPos pos, BlockState state, MiningDrillBlockEntity drill) {
         String key;
         Object[] args = new Object[0];
@@ -396,8 +395,7 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
     // ------------------------------------------------------------------------------------------------
 
     /**
-     * Client random display tick (a nearby block gets this every couple of seconds): a puff of dirt at the
-     * drill's front and a quiet grinding sound while working. The spinning bit itself is an animated texture.
+     * Client random display tick that shows a puff of dirt at the drill's front and plays a grinding sound while working.
      */
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {

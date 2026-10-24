@@ -16,10 +16,10 @@ import net.neoforged.neoforge.common.crafting.IngredientType;
 import java.util.stream.Stream;
 
 /**
- * Recipe ingredient "at least X g of this item" (Phase 9, for the Phase 10 Tier 2 recipes):
+ * Recipe ingredient "at least X g of this item" (for the Tier 2 recipes):
  * <pre>{ "type": "holeydigsite:min_weight", "item": "holeydigsite:folkiron_ingot", "min_grams": 50 }</pre>
  * Matches the item when {@link Selling#grams} (the ingot's {@code holeydigsite:weight}) is at least {@code min_grams}.
- * Note: a normal crafting grid uses up the WHOLE ingot, even if it is heavier than needed - cast the right size.
+ * A normal crafting grid uses up the WHOLE ingot, even if it is heavier than needed, cast the right size.
  */
 public record MinWeightIngredient(Holder<Item> item, int minGrams) implements ICustomIngredient {
     public static final MapCodec<MinWeightIngredient> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(

@@ -17,7 +17,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /**
  * Item registrations.
  *
- * <p>Note: the shovel is the VANILLA {@code minecraft:wooden_shovel}; its "full" state is a data component
+ * <p>The shovel is the vanilla {@code minecraft:wooden_shovel} whose full state is a data component
  * ({@link ModDataComponents#SHOVEL_FULL}), so no shovel item is registered here.</p>
  */
 public final class ModItems {
@@ -26,40 +26,40 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(HoleyDigsite.MODID);
 
     static {
-        // Phase 15: every tiered item (Pan, Brush, Drill, Sluice, belts, Forge, Crucible, Mold...) is registered from data/holeydigsite/tiers/*.json
+        // Every tiered item (Pan, Brush, Drill, Sluice, belts, Forge, Crucible, Mold) is registered from tiers data.
         Tiers.registerItems(ITEMS);
     }
 
-    /** {@code holeydigsite:pan} - places the Pan block; remembers its fill level. */
+    /** {@code holeydigsite:pan}, places the Pan block and remembers its fill level. */
     public static final DeferredItem<PanBlockItem> PAN = Tiers.item("pan");
 
-    /** {@code holeydigsite:brush} - pans a waterlogged, filled pan. No durability: it can never break. */
+    /** {@code holeydigsite:brush}, pans a waterlogged, filled pan with no durability so it can never break. */
     public static final DeferredItem<BrushItem> BRUSH = Tiers.item("brush");
 
-    // Coins (stack to 64). Values in copper; tiers exchange 8:1 via crafting recipes.
+    // Coins stack to 64 with values in copper, where tiers exchange 8 to 1 via crafting recipes.
 
-    /** {@code holeydigsite:copper_coin} - worth 1. */
+    /** {@code holeydigsite:copper_coin}, worth 1. */
     public static final DeferredItem<CoinItem> COPPER_COIN = ITEMS.register("copper_coin",
             () -> new CoinItem(CoinItem.COPPER_VALUE, new Item.Properties()));
 
-    /** {@code holeydigsite:silver_coin} - worth 8 copper. */
+    /** {@code holeydigsite:silver_coin}, worth 8 copper. */
     public static final DeferredItem<CoinItem> SILVER_COIN = ITEMS.register("silver_coin",
             () -> new CoinItem(CoinItem.SILVER_VALUE, new Item.Properties()));
 
-    /** {@code holeydigsite:gold_coin} - worth 64 copper (8 silver). */
+    /** {@code holeydigsite:gold_coin}, worth 64 copper or 8 silver. */
     public static final DeferredItem<CoinItem> GOLD_COIN = ITEMS.register("gold_coin",
             () -> new CoinItem(CoinItem.GOLD_VALUE, new Item.Properties().rarity(Rarity.UNCOMMON)));
 
-    // Phase 4: drilling and water power
+    // Drilling and water power.
 
     /**
-     * {@code holeydigsite:dirt_clump} - one scoop of dirt as an item; feeds a pan (by hand, drill or hopper). Carries its
-     * tier ({@code holeydigsite:clump_tier}): Dirt Clump / Deep Dirt Clump / Abyssal Dirt Clump.
+     * {@code holeydigsite:dirt_clump}, one scoop of dirt as an item feeding a pan by hand, drill or hopper,
+     * carrying its tier in {@code holeydigsite:clump_tier} as Dirt Clump, Deep Dirt Clump, or Abyssal Dirt Clump.
      */
     public static final DeferredItem<DirtClumpItem> DIRT_CLUMP = ITEMS.register("dirt_clump",
             () -> new DirtClumpItem(new Item.Properties()));
 
-    /** {@code holeydigsite:dirtrock} - creative/building only; it can't be mined in survival. */
+    /** {@code holeydigsite:dirtrock}, creative and building only as it cannot be mined in survival. */
     public static final DeferredItem<BlockItem> DIRTROCK = ITEMS.registerSimpleBlockItem(ModBlocks.DIRTROCK);
 
     public static final DeferredItem<BlockItem> WATER_INTAKE = ITEMS.registerSimpleBlockItem(ModBlocks.WATER_INTAKE);
@@ -68,15 +68,15 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> MINING_DRILL = Tiers.item("mining_drill");
 
-    // Phase 5: Clump Belt
+    // Clump belt.
 
     public static final DeferredItem<BlockItem> CLUMP_BELT = Tiers.item("clump_belt");
 
-    // Phase 6: Sluice Box
+    // Sluice box.
 
     public static final DeferredItem<BlockItem> SLUICE_BOX = Tiers.item("sluice_box");
 
-    // Phase 7: deeper rock, resources, Sell Pad
+    // Deeper rock, resources, and Sell Pad.
 
     public static final DeferredItem<BlockItem> DEEP_DIRTROCK = ITEMS.registerSimpleBlockItem(ModBlocks.DEEP_DIRTROCK);
 
@@ -85,7 +85,7 @@ public final class ModItems {
     public static final DeferredItem<ShopBlockItem> SELL_PAD = ITEMS.register("sell_pad",
             () -> new ShopBlockItem(ModBlocks.SELL_PAD.get(), new Item.Properties()));
 
-    // Phase 8: the shop
+    // The shop.
 
     public static final DeferredItem<ShopBlockItem> BUY_PAD = ITEMS.register("buy_pad",
             () -> new ShopBlockItem(ModBlocks.BUY_PAD.get(), new Item.Properties()));
@@ -98,36 +98,36 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> SHOP_DISPLAY = ITEMS.registerSimpleBlockItem(ModBlocks.SHOP_DISPLAY);
 
-    /** {@code holeydigsite:blueprint} - names the item it buys in the {@code blueprint_target} component. */
+    /** {@code holeydigsite:blueprint}, names the item it buys in the {@code blueprint_target} component. */
     public static final DeferredItem<BlueprintItem> BLUEPRINT = ITEMS.register("blueprint",
             () -> new BlueprintItem(new Item.Properties()));
 
-    // Phase 9: lava power, melting and casting
+    // Lava power, melting, and casting.
 
-    /** Fire resistant: breaking a lava-logged intake pops the item out INTO the lava it leaves behind - it must not burn up. */
+    /** Fire resistant so breaking a lava-logged intake pops the item out into the lava it leaves behind without burning up. */
     public static final DeferredItem<BlockItem> LAVA_INTAKE = ITEMS.registerSimpleBlockItem(ModBlocks.LAVA_INTAKE, new Item.Properties().fireResistant());
     public static final DeferredItem<BlockItem> LAVA_PIPE = ITEMS.registerSimpleBlockItem(ModBlocks.LAVA_PIPE);
     public static final DeferredItem<BlockItem> FORGE = Tiers.item("forge");
     public static final DeferredItem<BlockItem> CRUCIBLE = Tiers.item("crucible");
     public static final DeferredItem<BlockItem> MOLD = Tiers.item("mold");
 
-    // Phase 13: casting upgrades (Crafting Forge only) and the Belt Splitter
+    // Casting upgrades for the Crafting Forge only, and the Belt Splitter.
     public static final DeferredItem<BlockItem> HOT_FORGE = Tiers.item("hot_forge");
     public static final DeferredItem<BlockItem> LARGE_CRUCIBLE = Tiers.item("large_crucible");
     public static final DeferredItem<BlockItem> CASTING_MOLD_T2 = Tiers.item("casting_mold_t2");
     public static final DeferredItem<BlockItem> BELT_SPLITTER = ITEMS.registerSimpleBlockItem(ModBlocks.BELT_SPLITTER);
 
-    // Phase 10: Crafting Forge
+    // Crafting Forge.
     public static final DeferredItem<BlockItem> CRAFTING_FORGE = ITEMS.registerSimpleBlockItem(ModBlocks.CRAFTING_FORGE);
 
-    // Phase 10: Tier 2 (Crafting Forge only)
+    // Tier 2 for the Crafting Forge only.
     public static final DeferredItem<BlockItem> MINING_DRILL_T2 = Tiers.item("mining_drill_t2");
     public static final DeferredItem<BlockItem> SLUICE_BOX_T2 = Tiers.item("sluice_box_t2");
     public static final DeferredItem<PanBlockItem> LARGE_PAN = Tiers.item("large_pan");
-    /** Pans twice as fast: one scoop every 20 ticks. No durability, like the Brush. */
+    /** Pans twice as fast with one scoop every 20 ticks and no durability like the brush. */
     public static final DeferredItem<BrushItem> GOLDCHRO_BRUSH = Tiers.item("goldchro_brush");
     public static final DeferredItem<BlockItem> FAST_CLUMP_BELT = Tiers.item("fast_clump_belt");
-    // Phase 12 belts
+    // Belts.
     public static final DeferredItem<BlockItem> INCLINE_BELT = Tiers.item("incline_belt");
     public static final DeferredItem<BlockItem> FAST_INCLINE_BELT = Tiers.item("fast_incline_belt");
     public static final DeferredItem<BlockItem> DOWN_INCLINE_BELT = Tiers.item("down_incline_belt");
@@ -136,26 +136,26 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> FILTER_BELT = ITEMS.registerSimpleBlockItem(ModBlocks.FILTER_BELT);
     public static final DeferredItem<BlockItem> GEM_CUTTER = ITEMS.registerSimpleBlockItem(ModBlocks.GEM_CUTTER);
 
-    // Phase 11: new rocks, clumps, resources, land deeds, Tier 3 drill
-    // ---- Phase 16: plot-exclusive shop items (each only on sale at its plot's kiosk, see ShopItem.site) ----
+    // New rocks, clumps, resources, land deeds, and Tier 3 drill.
+    // Plot-exclusive shop items, each only on sale at its plot kiosk, see ShopItem.site.
 
-    /** {@code holeydigsite:prospectors_pick} - Deep Dig: finds buried Deep / Abyssal Dirtrock nearby. */
+    /** {@code holeydigsite:prospectors_pick} for Deep Dig, finds buried Deep and Abyssal Dirtrock nearby. */
     public static final DeferredItem<com.holeydigsite.item.ProspectorPickItem> PROSPECTORS_PICK = ITEMS.register("prospectors_pick",
             () -> new com.holeydigsite.item.ProspectorPickItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)));
-    /** {@code holeydigsite:riffle_insert} - Gravel Flats: sluice upgrade, +25% from gravel clumps. */
+    /** {@code holeydigsite:riffle_insert} for Gravel Flats as a sluice upgrade giving plus 25 percent from gravel clumps. */
     public static final DeferredItem<com.holeydigsite.item.SluiceUpgradeItem> RIFFLE_INSERT = ITEMS.register("riffle_insert",
             () -> new com.holeydigsite.item.SluiceUpgradeItem(com.holeydigsite.sluice.SluiceUpgrade.RIFFLE,
                     new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
-    /** {@code holeydigsite:fine_mesh_screen} - Sand Dunes: sluice upgrade, +24% from sand clumps and more Topaz. */
+    /** {@code holeydigsite:fine_mesh_screen} for Sand Dunes as a sluice upgrade giving plus 24 percent from sand clumps and more topaz. */
     public static final DeferredItem<com.holeydigsite.item.SluiceUpgradeItem> FINE_MESH_SCREEN = ITEMS.register("fine_mesh_screen",
             () -> new com.holeydigsite.item.SluiceUpgradeItem(com.holeydigsite.sluice.SluiceUpgrade.MESH,
                     new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
-    /** {@code holeydigsite:seed_screen} - Trading Post: sluice upgrade, washed clumps sometimes give seeds. */
+    /** {@code holeydigsite:seed_screen} for Trading Post as a sluice upgrade where washed clumps sometimes give seeds. */
     public static final DeferredItem<com.holeydigsite.item.SluiceUpgradeItem> SEED_SCREEN = ITEMS.register("seed_screen",
             () -> new com.holeydigsite.item.SluiceUpgradeItem(com.holeydigsite.sluice.SluiceUpgrade.SEED,
                     new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
 
-    // ---- Phase 18: seeds and foods of the own crops ----
+    // Seeds and foods of our own crops.
     private static net.minecraft.world.food.FoodProperties.Builder food(int nutrition, float saturation) {
         return new net.minecraft.world.food.FoodProperties.Builder().nutrition(nutrition).saturationModifier(saturation);
     }
@@ -192,10 +192,10 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> GRAVELROCK = ITEMS.registerSimpleBlockItem(ModBlocks.GRAVELROCK);
     public static final DeferredItem<BlockItem> SANDROCK = ITEMS.registerSimpleBlockItem(ModBlocks.SANDROCK);
     public static final DeferredItem<BlockItem> PLOT_BOARD = ITEMS.registerSimpleBlockItem(ModBlocks.PLOT_BOARD);
-    /** Phase 14: the Site Marker (creative only). */
+    /** The Site Marker, creative only. */
     public static final DeferredItem<BlockItem> SITE_MARKER = ITEMS.registerSimpleBlockItem(ModBlocks.SITE_MARKER);
     public static final DeferredItem<BlockItem> MINING_DRILL_T3 = Tiers.item("mining_drill_t3");
-    /** One scoop of gravel / sand (Phase 11 clump kinds 4 and 5, see {@link com.holeydigsite.tier.DirtTier}). */
+    /** One scoop of gravel or sand, see {@link com.holeydigsite.tier.DirtTier}. */
     public static final DeferredItem<Item> GRAVEL_CLUMP = ITEMS.registerSimpleItem("gravel_clump");
     public static final DeferredItem<Item> SAND_CLUMP = ITEMS.registerSimpleItem("sand_clump");
     public static final DeferredItem<Item> ORCHREMIA_CHUNK_SMALL = ITEMS.registerSimpleItem("orchremia_chunk_small");
@@ -223,15 +223,14 @@ public final class ModItems {
     public static final DeferredItem<com.holeydigsite.plot.LandDeedItem> LAND_DEED_SAND_DUNES = ITEMS.register("land_deed_sand_dunes",
             () -> new com.holeydigsite.plot.LandDeedItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), "sand_dunes"));
 
-    /** Weighted ingots ({@code holeydigsite:weight} component, see {@link com.holeydigsite.item.IngotItem}). */
+    /** Weighted ingots using the {@code holeydigsite:weight} component, see {@link com.holeydigsite.item.IngotItem}. */
     public static final DeferredItem<com.holeydigsite.item.IngotItem> FOLKIRON_INGOT = ITEMS.register("folkiron_ingot",
             () -> new com.holeydigsite.item.IngotItem(new Item.Properties()));
     public static final DeferredItem<com.holeydigsite.item.IngotItem> GOLDCHRO_INGOT = ITEMS.register("goldchro_ingot",
             () -> new com.holeydigsite.item.IngotItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     /*
-     * Resources, three sizes each as SEPARATE items so they stack. Weights (grams) and prices are data-driven:
-     * data/holeydigsite/data_maps/item/resource_weights.json and data/holeydigsite/holeydigsite/sell_values/.
+     * Resources in three sizes each as separate items so they stack, with weights in grams and prices data-driven.
      */
 
     public static final DeferredItem<Item> FOLKIRON_CHUNK_SMALL = ITEMS.registerSimpleItem("folkiron_chunk_small");
@@ -250,7 +249,7 @@ public final class ModItems {
     public static final DeferredItem<Item> RUBY_LARGE = ITEMS.registerSimpleItem("ruby_large",
             new Item.Properties().rarity(Rarity.RARE));
 
-    // Phase 12: uncut gems (panning and sluicing give these; a Gem Cutter turns them into the cut gems above)
+    // Uncut gems from panning and sluicing, turned into cut gems by a Gem Cutter.
     public static final DeferredItem<Item> UNCUT_RUBY_SMALL = ITEMS.registerSimpleItem("uncut_ruby_small", new Item.Properties().rarity(Rarity.COMMON));
     public static final DeferredItem<Item> UNCUT_RUBY_MEDIUM = ITEMS.registerSimpleItem("uncut_ruby_medium", new Item.Properties().rarity(Rarity.UNCOMMON));
     public static final DeferredItem<Item> UNCUT_RUBY_LARGE = ITEMS.registerSimpleItem("uncut_ruby_large", new Item.Properties().rarity(Rarity.UNCOMMON));
@@ -260,7 +259,7 @@ public final class ModItems {
     public static final DeferredItem<Item> UNCUT_TOPAZ_SMALL = ITEMS.registerSimpleItem("uncut_topaz_small", new Item.Properties().rarity(Rarity.COMMON));
     public static final DeferredItem<Item> UNCUT_TOPAZ_MEDIUM = ITEMS.registerSimpleItem("uncut_topaz_medium", new Item.Properties().rarity(Rarity.UNCOMMON));
     public static final DeferredItem<Item> UNCUT_TOPAZ_LARGE = ITEMS.registerSimpleItem("uncut_topaz_large", new Item.Properties().rarity(Rarity.UNCOMMON));
-    // ---- Phase 19: Smithing Anvil, Blacksmith Hammer and the five smithed pieces (one item per kind; materials in the holeydigsite:smith component) ----
+    // Smithing Anvil, Blacksmith Hammer, and the five smithed pieces with materials in the holeydigsite:smith component.
     public static final DeferredItem<BlockItem> SMITHING_ANVIL = ITEMS.registerSimpleBlockItem(ModBlocks.SMITHING_ANVIL);
     public static final DeferredItem<com.holeydigsite.smith.SmithItems.Hammer> BLACKSMITH_HAMMER = ITEMS.register("blacksmith_hammer",
             () -> new com.holeydigsite.smith.SmithItems.Hammer(new Item.Properties().stacksTo(1)));
@@ -278,7 +277,7 @@ public final class ModItems {
             () -> new com.holeydigsite.smith.SmithItems.Axe(new Item.Properties().attributes(
                     net.minecraft.world.item.AxeItem.createAttributes(com.holeydigsite.smith.SmithTier.INSTANCE, 5.5F, -3.1F))));
 
-    // ---- Phase 21b: Ledger-only decorative blocks ----
+    // Ledger-only decorative blocks.
     public static final DeferredItem<BlockItem> CLAIM_FLAG = ITEMS.registerSimpleBlockItem(ModBlocks.CLAIM_FLAG);
     public static final DeferredItem<BlockItem> ORE_CART = ITEMS.registerSimpleBlockItem(ModBlocks.ORE_CART);
     public static final DeferredItem<BlockItem> TOOL_RACK = ITEMS.registerSimpleBlockItem(ModBlocks.TOOL_RACK);
@@ -286,7 +285,7 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> GEM_DISPLAY_CASE = ITEMS.registerSimpleBlockItem(ModBlocks.GEM_DISPLAY_CASE);
     public static final DeferredItem<BlockItem> GOLDEN_PAN_TROPHY = ITEMS.registerSimpleBlockItem(ModBlocks.GOLDEN_PAN_TROPHY);
 
-    // ---- Phase 21a: Prospector's Ledger ----
+    // Prospector's Ledger.
     public static final DeferredItem<com.holeydigsite.ledger.ProspectorsLedgerItem> PROSPECTORS_LEDGER = ITEMS.register("prospectors_ledger",
             () -> new com.holeydigsite.ledger.ProspectorsLedgerItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)));
 }

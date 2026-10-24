@@ -16,23 +16,23 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Phase 12 Inclined Belt (and Fast): a ramp that lifts items ONE block. Its low end (back edge, at the bottom of this
+ * Inclined Belt (and Fast), a ramp that lifts items one block. Its low end (back edge, at the bottom of this
  * block) takes items from the flat belt one block lower behind it ({@link Direction#DOWN} entry), or straight in at its
- * back (a drill, a sluice tray, a player); its high end (front edge, at the top of this block) hands over to the belt /
- * target in front at the same level - or to the next incline one up, so inclines stack into a staircase. Up only (a
- * down-slope isn't part of Phase 12). Water-powered like flat belts; inclines link their water diagonally.
+ * back like a drill, sluice tray, or player. Its high end (front edge, at the top of this block) hands over to the belt or
+ * target in front at the same level, or to the next incline one up, so inclines stack into a staircase. Up only, as
+ * down-slopes are separate. Water-powered like flat belts, inclines link their water diagonally.
  */
 public class InclineBeltBlock extends ClumpBeltBlock {
     public static final MapCodec<InclineBeltBlock> CODEC = simpleCodec(p -> new InclineBeltBlock(p, 1));
 
-    /** Collision / outline: 4 stairs following the 45 degree ramp (Phase 12.1), per facing. Front = high end. */
+    /** Collision or outline, 4 stairs following the 45 degree ramp, per facing, where front is the high end. */
     private static final Map<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class);
 
     static {
         for (Direction f : Direction.Plane.HORIZONTAL) {
             VoxelShape shape = Shapes.empty();
             for (int i = 0; i < 4; i++) {
-                // step i covers 4 px of depth measured from the FRONT edge, height 16 - 4i
+                // Step i covers 4 px of depth measured from the front edge, height 16 - 4i.
                 double a = 4 * i, b = 4 * i + 4, h = 16 - 4 * i;
                 VoxelShape step = switch (f) {
                     case NORTH -> Block.box(0, 0, a, 16, h, b);
@@ -65,7 +65,7 @@ public class InclineBeltBlock extends ClumpBeltBlock {
         return SHAPES.get(state.getValue(FACING));
     }
 
-    /** Height of the ramp surface at {@code along} (0 = back edge, 1 = front edge), in blocks above the block's bottom. */
+    /** Height of the ramp surface at {@code along} (0 is back edge, 1 is front edge), in blocks above the block's bottom. */
     public static float surfaceAt(float along) {
         return Math.clamp(along, 0F, 1F);
     }

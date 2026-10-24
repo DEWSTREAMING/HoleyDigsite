@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Phase 21c: Plot inspection and ownership commands under {@code /holeydigsite plot ...}.
+ * Plot inspection and ownership commands under {@code /holeydigsite plot ...}.
  */
 public final class PlotCommands {
     private PlotCommands() {}

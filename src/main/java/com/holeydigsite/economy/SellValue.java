@@ -7,12 +7,12 @@ import java.util.Optional;
 
 /**
  * Price of one material, an entry of the {@code holeydigsite:sell_values} datapack registry
- * ({@code data/<namespace>/holeydigsite/sell_values/<material>.json}, the file name is the material id).
- * Synced to clients, so tooltips can show "Sells for ...".
+ * ({@code data/<namespace>/holeydigsite/sell_values/<material>.json}, where the file name is the material ID).
+ * Synced to clients so tooltips can show the sell price.
  *
  * @param copperPerGram      copper coins per gram of raw material (chunks, gems)
- * @param ingotCopperPerGram copper per gram for ingots of this material (phase 8); defaults to the raw price
- * @param uncutCopperPerGram copper per gram for uncut gems (Phase 12); defaults to half the raw (cut) price
+ * @param ingotCopperPerGram copper per gram for ingots of this material, defaulting to the raw price
+ * @param uncutCopperPerGram copper per gram for uncut gems, defaulting to half the raw price
  */
 public record SellValue(double copperPerGram, Optional<Double> ingotCopperPerGram, Optional<Double> uncutCopperPerGram) {
     public static final Codec<SellValue> CODEC = RecordCodecBuilder.create(i -> i.group(

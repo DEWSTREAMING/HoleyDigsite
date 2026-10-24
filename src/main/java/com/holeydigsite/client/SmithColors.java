@@ -19,8 +19,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import java.util.Optional;
 
 /**
- * Tints of the smithed pieces (Phase 19.1): every model layer is tinted by the ingot (or gem) its recipe names for that part, so a
- * mixed piece shows each metal where it was used; plain parts (grip, handle) are not tinted. Colours come from the synced {@code smithing_materials} registry; a piece without materials is plain.
+ * Tints smithed pieces using the ingot or gem specified by their recipe.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID, value = Dist.CLIENT)
 public final class SmithColors {
@@ -38,7 +37,7 @@ public final class SmithColors {
     private static HolderLookup.Provider cachedFor;
     private static final java.util.Map<net.minecraft.world.item.Item, java.util.Optional<AnvilRecipe>> RECIPES = new java.util.HashMap<>();
 
-    /** The recipe of a piece item, cached per registry set (colours are asked for every layer of every frame). */
+    /** The recipe of a piece item, cached per registry set. */
     private static AnvilRecipe recipe(HolderLookup.Provider registries, net.minecraft.world.item.Item item) {
         if (registries != cachedFor) {
             RECIPES.clear();
@@ -47,7 +46,7 @@ public final class SmithColors {
         return RECIPES.computeIfAbsent(item, i -> java.util.Optional.ofNullable(AnvilRecipes.forItem(registries, i))).orElse(null);
     }
 
-    /** ARGB tint of a piece's layer (0 = metal, 1 = gem). */
+    /** ARGB tint of a piece's layer. */
     static int color(ItemStack stack, int tint) {
         SmithData data = SmithPieces.data(stack);
         if (data == null) {
@@ -58,7 +57,7 @@ public final class SmithColors {
         AnvilRecipe recipe = recipe(registries, stack.getItem());
         Optional<ResourceLocation> material = SmithPieces.partMaterial(recipe, data, tint);
         if (material.isEmpty()) {
-            return PLAIN_LAYER;          // wooden handle / leather grip: drawn in its own colours
+            return PLAIN_LAYER;          // Wooden handle and leather grip are drawn in their own colours
         }
         SmithMaterial m = SmithMaterial.get(registries, material.get());
         return m == null ? PLAIN : 0xFF000000 | m.color();

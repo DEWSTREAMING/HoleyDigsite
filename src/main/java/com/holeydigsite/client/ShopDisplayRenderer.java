@@ -16,9 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Draws the item a Shop Display sells, big (about a block), slowly turning, plus a small price label ("4x · 5 gold").
- * One item draw per display, only within {@link FloatingText#ITEM_RANGE}; the label is cached in the block entity and only
- * drawn for the one display the player looks at / stands next to ({@link FloatingText#focused}, Phase 12.1).
+ * Draws the item a Shop Display sells, slowly turning, plus a small price label.
  */
 public class ShopDisplayRenderer implements BlockEntityRenderer<ShopDisplayBlockEntity> {
     private final ItemRenderer itemRenderer;
@@ -30,7 +28,7 @@ public class ShopDisplayRenderer implements BlockEntityRenderer<ShopDisplayBlock
     @Override
     public void render(ShopDisplayBlockEntity display, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         Item item = display.item();
-        com.holeydigsite.shop.custom.CustomEntry custom = display.custom();   // Phase 21d: operator-made entry
+        com.holeydigsite.shop.custom.CustomEntry custom = display.custom(); // Operator-made entry
         ItemStack shownStack = custom != null ? custom.template() : item != null ? item.getDefaultInstance() : ItemStack.EMPTY;
         if (shownStack.isEmpty() || display.getLevel() == null || !FloatingText.near(display.getBlockPos(), FloatingText.ITEM_RANGE)) {
             return;

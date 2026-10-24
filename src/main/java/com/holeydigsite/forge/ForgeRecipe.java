@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 /**
- * One Crafting Forge recipe (Phase 10), an entry of the datapack registry {@code holeydigsite:forge_recipes}
+ * One Crafting Forge recipe, an entry of the datapack registry {@code holeydigsite:forge_recipes}
  * ({@code data/<namespace>/holeydigsite/forge_recipes/<name>.json}), synced to clients for the floating text:
  * <pre>{@code
  * {
@@ -27,11 +27,10 @@ import java.util.TreeMap;
  *   "result": {"item": "holeydigsite:mining_drill_t2", "count": 1}
  * }
  * }</pre>
- * Metals are EXACT grams taken from the forge's pooled grams (materials as in the {@code resource_weights} data map);
- * whatever is left is cast back into one ingot per metal. Parts are plain items (no components) and counts.
+ * Metals are exact grams taken from the forge's pooled grams. Whatever is left is cast back into one ingot per metal. Parts are plain items and counts.
  *
- * @param order    position in the forge's recipe cycle (then by id)
- * @param category radial-wheel category id (defaults to {@code "other"})
+ * @param order    position in the forge's recipe cycle
+ * @param category radial-wheel category id
  * @param variant  optional lang key distinguishing alternative recipes for the same result
  * @param metals   grams per material
  * @param parts    items consumed
@@ -77,7 +76,7 @@ public record ForgeRecipe(int order, String category, Optional<String> variant,
     public ForgeRecipe {
         category = category == null || category.isBlank() ? "other" : category;
         variant = variant != null && variant.isPresent() && !variant.get().isBlank() ? variant : Optional.empty();
-        metals = new TreeMap<>(metals); // stable, alphabetical order (folkiron before goldchro)
+        metals = new TreeMap<>(metals); // stable, alphabetical order
         parts = List.copyOf(parts);
     }
 
@@ -85,13 +84,13 @@ public record ForgeRecipe(int order, String category, Optional<String> variant,
         return result.stack();
     }
 
-    /** Base result name with count: "Tier 2 Mining Drill" or "4x Fast Conveyor Belt". */
+    /** Base result name with count. */
     public Component baseName() {
         Component n = resultStack().getHoverName();
         return result.count() > 1 ? Component.translatable("text.holeydigsite.crafting_forge.count", result.count(), n) : n;
     }
 
-    /** Explicit or automatically derived variant label (e.g. "Orchremia"), or null if not an alternative recipe. */
+    /** Explicit or automatically derived variant label, or null if not an alternative recipe. */
     @Nullable
     public Component variantLabel(@Nullable HolderLookup.Provider registries) {
         if (variant.isPresent()) {
@@ -104,7 +103,6 @@ public record ForgeRecipe(int order, String category, Optional<String> variant,
         return null;
     }
 
-    /** "Tier 2 Mining Drill" or "4x Fast Conveyor Belt (Orchremia)". */
     public Component name() {
         return name(null);
     }

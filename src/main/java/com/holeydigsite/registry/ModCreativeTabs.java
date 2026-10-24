@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/** The "Holey Digsite" creative tab. Add new items to {@code displayItems} as later phases add them. */
+/** The Holey Digsite creative tab. */
 public final class ModCreativeTabs {
     private ModCreativeTabs() {}
 
-    /** A group of creative-tab entries and where it sorts (tier slots come from the tier files). */
+    /** A group of creative tab entries and where it sorts. Tier slots come from the tier files. */
     private record Slot(int order, Runnable add) {}
 
-    /** The stack a tier's tab slot shows: the item itself, or a full pan of the slot's dirt tier. */
+    /** The stack a tier tab slot shows, either the item itself or a full pan of the slot's dirt tier. */
     private static ItemStack tabStack(TierDef def, TierDef.TabSlot slot) {
         if (slot.stack().equals("full_pan")) {
             PanBlock pan = (PanBlock) Tiers.<net.minecraft.world.level.block.Block>block(def.id()).get();
@@ -46,11 +46,10 @@ public final class ModCreativeTabs {
                     .title(Component.translatable("itemGroup." + HoleyDigsite.MODID))
                     .icon(() -> ModItems.PAN.get().getDefaultInstance())
                     .displayItems((parameters, output) -> {
-                        // Phase 15: tiered items (Pan, Brush, Drill, Sluice, belts, Forge, Crucible, Mold) come from
-                        // data/holeydigsite/tiers/*.json with a sort slot each; the hand-written groups below sit between them.
+                        // Tiered items come from data/holeydigsite/tiers/*.json with a sort slot each. The hand-written groups below sit between them.
                         List<Slot> slots = new ArrayList<>();
                         slots.add(new Slot(100, () -> {
-                            // Tools of the trade (vanilla wooden shovel included for convenience)
+                            // Tools of the trade including a vanilla wooden shovel for convenience
                             output.accept(Items.WOODEN_SHOVEL);
                             output.accept(ModItems.PROSPECTORS_LEDGER.get());
                             output.accept(ShovelHelper.createFullShovel());
@@ -60,7 +59,7 @@ public final class ModCreativeTabs {
                             output.accept(ModItems.COPPER_COIN.get());
                             output.accept(ModItems.SILVER_COIN.get());
                             output.accept(ModItems.GOLD_COIN.get());
-                            // Drilling and water power (Phase 4)
+                            // Drilling and water power
                             output.accept(ModItems.DIRT_CLUMP.get());
                         }));
                         slots.add(new Slot(220, () -> {
@@ -69,7 +68,7 @@ public final class ModCreativeTabs {
                             output.accept(ModItems.DIRTROCK.get());
                         }));
                         slots.add(new Slot(300, () -> {
-                            // Rock tiers, tiered clumps and pans, resources, selling (Phase 7)
+                            // Rock tiers, tiered clumps and pans, resources, selling
                             output.accept(ModItems.DEEP_DIRTROCK.get());
                             output.accept(ModItems.ABYSSAL_DIRTROCK.get());
                             output.accept(DirtTier.clumps(2, 1));
@@ -89,7 +88,7 @@ public final class ModCreativeTabs {
                             output.accept(ModItems.RUBY_MEDIUM.get());
                             output.accept(ModItems.RUBY_LARGE.get());
                             output.accept(ModItems.SELL_PAD.get());
-                            // The shop (Phase 8): crafted versions break normally; "Locked" ones are the unbreakable island versions
+                            // Crafted shop versions break normally. Locked ones are unbreakable island versions.
                             output.accept(ModItems.BUY_PAD.get());
                             output.accept(ModItems.MONEY_PAN.get());
                             output.accept(ModItems.SHOP_BUTTON.get());
@@ -98,7 +97,7 @@ public final class ModCreativeTabs {
                             output.accept(ShopBlockItem.locked(ModBlocks.BUY_PAD.get()));
                             output.accept(ShopBlockItem.locked(ModBlocks.MONEY_PAN.get()));
                             output.accept(ShopBlockItem.locked(ModBlocks.SHOP_BUTTON.get()));
-                            // Melting and casting (Phase 9)
+                            // Melting and casting
                             output.accept(ModItems.LAVA_INTAKE.get());
                             output.accept(ModItems.LAVA_PIPE.get());
                             output.accept(Items.LAVA_BUCKET);
@@ -112,11 +111,11 @@ public final class ModCreativeTabs {
                             }
                         }));
                         slots.add(new Slot(500, () -> {
-                            // Crafting Forge and Tier 2 (Phase 10)
+                            // Crafting Forge and Tier 2
                             output.accept(ModItems.CRAFTING_FORGE.get());
                         }));
                         slots.add(new Slot(600, () -> {
-                            // New rocks, clumps, resources, land plots, Tier 3 (Phase 11)
+                            // New rocks, clumps, resources, land plots, Tier 3
                             output.accept(ModItems.GRAVELROCK.get());
                             output.accept(ModItems.SANDROCK.get());
                             output.accept(ModItems.GRAVEL_CLUMP.get());
@@ -142,13 +141,13 @@ public final class ModCreativeTabs {
                             output.accept(ModItems.SITE_MARKER.get());
                         }));
                         slots.add(new Slot(730, () -> {
-                            // Belt overhaul, uncut gems, Gem Cutter (Phase 12), Belt Splitter (Phase 13)
+                            // Belt overhaul, uncut gems, Gem Cutter, Belt Splitter
                             output.accept(ModItems.FILTER_BELT.get());
                             output.accept(ModItems.GEM_CUTTER.get());
                             output.accept(ModItems.BELT_SPLITTER.get());
                         }));
                         slots.add(new Slot(760, () -> {
-                            // Phase 16: plot-exclusive kiosk items
+                            // Plot exclusive kiosk items
                             output.accept(ModItems.PROSPECTORS_PICK.get());
                             output.accept(ModItems.RIFFLE_INSERT.get());
                             output.accept(ModItems.FINE_MESH_SCREEN.get());
@@ -157,7 +156,7 @@ public final class ModCreativeTabs {
                             output.accept(ModItems.SANDSTONE_LAMP.get());
                         }));
                         slots.add(new Slot(765, () -> {
-                            // Phase 18: Seed Screen, seeds and foods
+                            // Seed Screen, seeds and foods
                             for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.SEED_SCREEN, ModItems.GLOWROOT_SEEDS, ModItems.GLOWROOT,
                                     ModItems.ROASTED_GLOWROOT, ModItems.RIVERBEAN_SEEDS, ModItems.RIVERBEAN, ModItems.RIVERBEAN_STEW,
                                     ModItems.DUNE_MELON_SEEDS, ModItems.DUNE_MELON_SLICE, ModItems.DUNE_MELON_JUICE}) {
@@ -165,7 +164,7 @@ public final class ModCreativeTabs {
                             }
                         }));
                         slots.add(new Slot(767, () -> {
-                            // Phase 19: Smithing Anvil, Blacksmith Hammer and example pieces (their recipes load with the world)
+                            // Smithing Anvil, Blacksmith Hammer and example pieces whose recipes load with the world
                             output.accept(ModItems.SMITHING_ANVIL.get());
                             output.accept(ModItems.BLACKSMITH_HAMMER.get());
                             var reg = parameters.holders();
@@ -195,7 +194,7 @@ public final class ModCreativeTabs {
                             }
                         }));
                         slots.add(new Slot(775, () -> {
-                            // Phase 21b: Ledger-only decorative blocks
+                            // Ledger only decorative blocks
                             for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.CLAIM_FLAG, ModItems.ORE_CART,
                                     ModItems.TOOL_RACK, ModItems.LUCKY_LANTERN, ModItems.GEM_DISPLAY_CASE, ModItems.GOLDEN_PAN_TROPHY}) {
                                 output.accept(it.get());

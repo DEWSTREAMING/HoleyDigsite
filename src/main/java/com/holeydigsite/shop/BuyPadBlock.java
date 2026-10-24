@@ -13,9 +13,9 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import java.util.List;
 
 /**
- * Buy Pad: like the Sell Pad, but it only takes Blueprints of catalogued items. Floating text shows the total cost; an
+ * Buy Pad: like the Sell Pad, but it only takes Blueprints of catalogued items. Floating text shows the total cost, and an
  * adjacent Shop Button buys everything on it with the balance of the button's adjacent Money Pan. The blueprints are used up
- * (the pad ends up empty) when a purchase completes; a failed purchase leaves them on the pad.
+ * when a purchase completes, while a failed purchase leaves them on the pad.
  */
 public class BuyPadBlock extends AbstractPadBlock {
     public static final MapCodec<BuyPadBlock> CODEC = simpleCodec(BuyPadBlock::new);
@@ -32,13 +32,12 @@ public class BuyPadBlock extends AbstractPadBlock {
     @Override
     public boolean accepts(ItemStack stack, Level level) {
         var custom = com.holeydigsite.shop.custom.CustomBlueprint.of(stack);
-        if (custom != null) {   // Phase 21d: an operator-made entry; the server also checks it is still current
+        if (custom != null) {
             return !(level instanceof net.minecraft.server.level.ServerLevel sl) || com.holeydigsite.shop.custom.CustomShops.valid(sl, custom);
         }
         return ShopCatalogue.forBlueprint(level.registryAccess(), stack).isPresent();
     }
 
-    /** Phase 16: blueprints of plot-exclusive items are only taken by Buy Pads inside that plot. */
     @Override
     public boolean accepts(ItemStack stack, Level level, BlockPos pos) {
         if (com.holeydigsite.shop.custom.CustomBlueprint.of(stack) != null) {

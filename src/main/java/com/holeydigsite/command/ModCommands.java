@@ -9,7 +9,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 
 /**
- * Phase 21c: Unified registration for operator commands under {@code /holeydigsite} (permission level 2).
+ * Unified registration for operator commands under {@code /holeydigsite} (permission level 2).
  */
 public final class ModCommands {
     private ModCommands() {}

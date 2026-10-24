@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/** Phase 12: uncut gems and what the Gem Cutter turns them into ({@code ns:uncut_x} -> {@code ns:x}, same size). */
+/** Uncut gems and what the Gem Cutter turns them into ({@code ns:uncut_x} to {@code ns:x}, same size). */
 public final class GemCutting {
     private GemCutting() {}
 

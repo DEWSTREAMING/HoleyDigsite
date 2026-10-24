@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Name-tag style text floating above a block (pads, Money Pan, Shop Display, crucible, mold, Crafting Forge): faces the
- * camera, readable through blocks (grey see-through pass + white pass, like a name tag).
+ * Name-tag style text floating above a block (pads, Money Pan, Shop Display, crucible, mold, Crafting Forge). Faces the
+ * camera and is readable through blocks using a grey see-through pass and white pass, like a name tag.
  * <p>
- * Phase 12.1: only ONE block's text is shown at a time, so labels of machines standing side by side never pile up.
- * Renderers ask {@link #focused(BlockPos, double)} (which also offers the block as a candidate); once per client tick
+ * Only one block's text is shown at a time, so labels of machines standing side by side never pile up.
+ * Renderers ask {@link #focused(BlockPos, double)}, which also offers the block as a candidate. Once per client tick
  * {@link #pickFocus()} chooses among the candidates offered since the last tick:
  * <ol>
  *   <li>the block under the crosshair, if it is a candidate;</li>
@@ -30,24 +30,24 @@ import java.util.Map;
 public final class FloatingText {
     private FloatingText() {}
 
-    /** Distance (blocks) within which floating text can be drawn (when looked at). */
+    /** Distance in blocks within which floating text can be drawn when looked at. */
     public static final double TEXT_RANGE = 8.0;
     /** Without looking at anything, the nearest text within this distance is shown. */
     public static final double NEAR_RANGE = 3.0;
-    /** "Looking at" = the labelled thing is within this angle of the view direction. */
+    /** Looking at means the labelled thing is within this angle of the view direction. */
     public static final double LOOK_DEGREES = 10.0;
-    /** Distance within which the little items on pads / displays are drawn. */
+    /** Distance within which the little items on pads or displays are drawn. */
     public static final double ITEM_RANGE = 24.0;
-    /** Text scale for labels (vanilla name tags use 0.025). */
+    /** Text scale for labels, where vanilla name tags use 0.025. */
     public static final float SMALL = 0.0125F;
-    /** Distance between two stacked label lines at {@link #SMALL} (9 px font line + 1 px gap). */
+    /** Distance between two stacked label lines at {@link #SMALL}, using a 9 px font line plus 1 px gap. */
     public static final double LINE = 10 * SMALL;
-    /** Closer than this, labels shrink so they keep about the size they have at this distance (no wall of text up close). */
+    /** Closer than this, labels shrink so they keep about the size they have at this distance. */
     public static final double FULL_SIZE_DIST = 3.0;
-    /** Ticks without any candidate before the focus is dropped (a frame rate under 20 fps has render-less ticks). */
+    /** Ticks without any candidate before the focus is dropped. */
     private static final int KEEP_TICKS = 5;
 
-    /** Candidates offered since the last pick: position -> world point of the thing the label belongs to. */
+    /** Candidates offered since the last pick, mapping position to the world point of the labelled thing. */
     private static final Map<BlockPos, Vec3> CANDIDATES = new HashMap<>();
     private static BlockPos focus;
     private static int emptyTicks;
@@ -63,8 +63,8 @@ public final class FloatingText {
     }
 
     /**
-     * Offers the block's label (if within {@link #TEXT_RANGE}) and returns whether it is the one label to draw now.
-     * {@code anchorY} = height above the block's bottom of the thing being labelled (used for "looking at").
+     * Offers the block's label if within {@link #TEXT_RANGE} and returns whether it is the one label to draw now.
+     * {@code anchorY} is the height above the block's bottom of the thing being labelled.
      */
     public static boolean focused(BlockPos pos, double anchorY) {
         if (!near(pos, TEXT_RANGE)) {
@@ -75,20 +75,19 @@ public final class FloatingText {
     }
 
     /**
-     * Label scale for a block: {@link #SMALL} from {@link #FULL_SIZE_DIST} on, smaller when closer (down to half), so a
-     * label right next to the player isn't a wall of text. Multiply {@link #LINE} by {@code scale / SMALL} for line gaps.
+     * Label scale for a block, using {@link #SMALL} from {@link #FULL_SIZE_DIST} onwards and shrinking closer down to half.
      */
     public static float labelScale(BlockPos pos) {
         double d = Math.sqrt(distSq(pos));
         return (float) (SMALL * Math.clamp(d / FULL_SIZE_DIST, 0.5, 1.0));
     }
 
-    /** The block whose label is shown (null = none); for the screenshot tool. */
+    /** The block whose label is shown, or null if none, used for the screenshot tool. */
     public static BlockPos focus() {
         return focus;
     }
 
-    /** Once per client tick: choose the label to show from the candidates the renderers offered. */
+    /** Once per client tick, choose the label to show from the candidates the renderers offered. */
     public static void pickFocus() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) {
@@ -138,8 +137,8 @@ public final class FloatingText {
     }
 
     /**
-     * Draws {@code text} centred at (x, y, z) relative to the block. {@code scale} is the vanilla name-tag scale (0.025)
-     * times a factor; use {@link #SMALL} for ordinary labels.
+     * Draws {@code text} centred at (x, y, z) relative to the block. {@code scale} is the vanilla name-tag scale
+     * times a factor, and {@link #SMALL} is used for ordinary labels.
      */
     public static void draw(PoseStack pose, MultiBufferSource buffers, Component text, double x, double y, double z,
                             float scale, int light) {

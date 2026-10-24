@@ -20,11 +20,11 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
-/** The item classes of Phase 19: smithed jewellery, weapons and axe (named and described from their {@link SmithData}) and the hammer. */
+/** Item classes for smithed jewellery, weapons, tools, and hammers. */
 public final class SmithItems {
     private SmithItems() {}
 
-    /** Ring and Necklace: only worth something. */
+    /** Jewellery items. */
     public static class Jewellery extends Item {
         public Jewellery(Properties properties) {
             super(properties);
@@ -43,9 +43,7 @@ public final class SmithItems {
     }
 
     /**
-     * The Necklace: jewellery that can also be worn in the head armour slot (right-click, dispenser, armour slot). Its head
-     * armour is a component on the stack (set when it is made; necklaces from before Phase 20 get it the first time they sit in
-     * a player's inventory on the server).
+     * Jewellery that can be worn in the head armour slot.
      */
     public static class Necklace extends Jewellery implements Equipable {
         public Necklace(Properties properties) {
@@ -72,7 +70,7 @@ public final class SmithItems {
         }
     }
 
-    /** Sword and Dagger: a real weapon, stats set on the stack when it is made. */
+    /** Sword and dagger weapons. */
     public static class Blade extends SwordItem {
         public Blade(Properties properties) {
             super(SmithTier.INSTANCE, properties);
@@ -90,7 +88,7 @@ public final class SmithItems {
         }
     }
 
-    /** The smithed axe: chops, strips and fights like an axe, with the stats of its metals. */
+    /** Smithed axe item. */
     public static class Axe extends AxeItem {
         public Axe(Properties properties) {
             super(SmithTier.INSTANCE, properties);
@@ -108,7 +106,7 @@ public final class SmithItems {
         }
     }
 
-    /** Blacksmith Hammer: right-click a Smithing Anvil to strike. No durability. */
+    /** Blacksmith hammer for striking smithing anvils. */
     public static class Hammer extends Item {
         public Hammer(Properties properties) {
             super(properties);

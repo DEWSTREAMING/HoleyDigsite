@@ -42,30 +42,28 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Lava Intake: the power source of a LAVA network. Since Phase 9.1 it works like the {@link WaterIntakeBlock}: it sits
- * INSIDE real lava ("lava-logged") and is active exactly while {@link #LAVALOGGED}.
+ * The power source of a lava network that works like the {@link WaterIntakeBlock} by sitting
+ * inside real lava as lava-logged and remaining active while {@link #LAVALOGGED} is true.
  *
  * <ul>
- *   <li>Placed into a lava SOURCE block it keeps that lava as a real source sharing the block ({@link #getFluidState}
- *       returns still lava, so the lava keeps rendering around it). Placed into FLOWING lava it just replaces the flowing
- *       lava and stays inactive - lava is never duplicated.</li>
- *   <li>A Lava Bucket emptied onto an inactive intake lava-logs it; an empty bucket on a lava-logged intake picks the
- *       lava up again ({@link LiquidBlockContainer} / {@link BucketPickup}, plus {@link #useItemOn} so the click is
- *       handled right on the block). Exactly one bucket in, one bucket out.</li>
- *   <li>Breaking the intake drops ONLY the intake (the loot table never drops a bucket); the lava stays behind as a
- *       normal lava source block, like breaking a waterlogged block leaves the water.</li>
+ *   <li>When placed into a lava source block, it keeps that lava as a real source sharing the block, where {@link #getFluidState}
+ *       returns still lava so it renders around it. Placed into flowing lava, it replaces the flowing lava and stays inactive without duplicating lava.</li>
+ *   <li>A lava bucket emptied onto an inactive intake lava-logs it, and an empty bucket on a lava-logged intake picks the
+ *       lava up again using {@link LiquidBlockContainer}, {@link BucketPickup}, and {@link #useItemOn} so the click is
+ *       handled directly on the block, resulting in exactly one bucket in and one bucket out.</li>
+ *   <li>Breaking the intake drops only the intake and leaves the lava behind as a normal lava source block, similar to how breaking a waterlogged block leaves water.</li>
  *   <li>Lava is never consumed by the network.</li>
  * </ul>
  *
- * <p>Flowing lava never lava-logs it: {@link #canPlaceLiquid} only accepts the SOURCE fluid (buckets, dispensers), so
- * lava flowing next to an empty intake can neither enter it nor turn it into a source.</p>
+ * <p>Flowing lava never lava-logs it because {@link #canPlaceLiquid} only accepts the source fluid from buckets and dispensers, preventing
+ * adjacent flowing lava from entering or turning it into a source.</p>
  *
- * <p>No block entity, never ticks: the network is marked dirty only when LAVALOGGED changes (or the block is placed /
- * removed). Collars ({@link PipeBlock} booleans) are visual, like the {@link WaterIntakeBlock}'s.</p>
+ * <p>It has no block entity and never ticks, marking the network dirty only when {@link #LAVALOGGED} changes or when placed and
+ * removed. Collar pipe booleans are visual, matching the {@link WaterIntakeBlock}.</p>
  */
 public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockContainer, WaterNetworkBlock {
     public static final MapCodec<LavaIntakeBlock> CODEC = simpleCodec(LavaIntakeBlock::new);
-    /** The intake holds a real lava source ("lava-logged"). This IS the active state of the intake. */
+    /** True when the intake holds a real lava source as its active state. */
     public static final BooleanProperty LAVALOGGED = BooleanProperty.create("lavalogged");
 
     private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 14, 15);
@@ -103,7 +101,7 @@ public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockC
         return state;
     }
 
-    /** Lava-logged only when placed into a lava SOURCE. Flowing lava is simply replaced (no source is created). */
+    /** Lava-logged only when placed into a lava source, while flowing lava is simply replaced without creating a source. */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         FluidState fluid = context.getLevel().getFluidState(context.getClickedPos());
@@ -129,7 +127,7 @@ public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockC
 
     // ---- buckets (same contract as vanilla waterlogging, for lava) ----
 
-    /** Only the lava SOURCE fluid (what a bucket holds) lava-logs it; flowing lava ({@code FLOWING_LAVA}) never does. */
+    /** Only the lava source fluid from buckets lava-logs it, while flowing lava never does. */
     @Override
     public boolean canPlaceLiquid(@Nullable Player player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid) {
         return !state.getValue(LAVALOGGED) && fluid == Fluids.LAVA;
@@ -162,9 +160,7 @@ public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockC
     }
 
     /**
-     * Lava Bucket onto an empty intake lava-logs it (the bucket becomes empty); an empty Bucket onto a lava-logged intake
-     * takes the lava out (you get the Lava Bucket). Handled right on the block so the click always lands here; it uses
-     * the same {@link #placeLiquid} / {@link #pickupBlock} as the bucket item itself, so one bucket in = one bucket out.
+     * Handles bucket interactions directly on the block using {@link #placeLiquid} and {@link #pickupBlock} so one bucket goes in and one comes out.
      */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
@@ -211,13 +207,13 @@ public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockC
         return true;
     }
 
-    /** Active = lava-logged. */
+    /** True if lava-logged. */
     @Override
     public boolean isActiveIntake(BlockState state) {
         return state.getValue(LAVALOGGED);
     }
 
-    /** Placed, or lava added/removed (bucket): recompute. Collar changes don't touch the network. */
+    /** Recomputes the network when placed or when lava is added and removed via buckets, ignoring collar changes. */
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!oldState.is(this) || oldState.getValue(LAVALOGGED) != state.getValue(LAVALOGGED)) {
@@ -227,8 +223,7 @@ public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockC
     }
 
     /**
-     * Removed: recompute. Nothing is dropped here - the lava stays in the world as a normal lava source (the block's
-     * fluid state becomes the replacement block), and the loot table only ever drops the intake itself.
+     * Recomputes the network on removal without dropping extra items, leaving the lava behind in the world as a normal source block.
      */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
@@ -240,7 +235,7 @@ public class LavaIntakeBlock extends Block implements BucketPickup, LiquidBlockC
 
     // ---- client ----
 
-    /** Now and then a lava pop above a lava-logged intake. */
+    /** Spawns lava pop particles above a lava-logged intake periodically. */
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(LAVALOGGED) && random.nextInt(6) == 0) {

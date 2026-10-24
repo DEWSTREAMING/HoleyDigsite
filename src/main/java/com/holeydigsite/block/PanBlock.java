@@ -41,41 +41,33 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * The gold pan: a shallow, waterloggable block that holds 0-{@value #MAX_FILL} scoops of dirt.
+ * The gold pan: a shallow, waterloggable block that holds 0 to MAX_FILL scoops of dirt.
  *
  * <p>Interactions:
  * <ul>
- *   <li>Right-click with a full wooden shovel: fill +1, shovel becomes empty (nothing happens at max fill).</li>
- *   <li>Right-click with a Dirt Clump: fill +1, uses one clump (exactly like a full shovel).</li>
- *   <li>Automation: a Mining Drill in front outputs clumps into it ({@link DirtClumpTarget}), and hoppers /
- *       other mods can insert clumps through the item-handler capability ({@link PanItemHandler}).</li>
- *   <li>Hold right-click with the Brush on a waterlogged pan with fill > 0: pan it for loot
- *       (see {@link com.holeydigsite.panning.Panning}).</li>
+ *   <li>Right-click with a full wooden shovel: fill increases by 1, shovel becomes empty.</li>
+ *   <li>Right-click with a Dirt Clump: fill increases by 1, uses one clump.</li>
+ *   <li>Automation: a Mining Drill outputs clumps into it, and hoppers or other mods can insert clumps.</li>
+ *   <li>Hold right-click with the Brush on a waterlogged pan with fill > 0 to pan for loot.</li>
  *   <li>Right-click with an empty main hand: pick the pan up into the inventory.</li>
- *   <li>Left-click (punch): pick the pan up - handled in {@link com.holeydigsite.event.PanEvents}
- *       so it also works instantly in creative mode.</li>
+ *   <li>Left-click (punch): pick the pan up instantly.</li>
  * </ul>
- * The picked-up item stores the fill level (and tier) in the vanilla {@code minecraft:block_state} component,
- * which vanilla {@code BlockItem} re-applies automatically when the pan is placed again.</p>
+ * The picked-up item stores the fill level and tier in the block state component,
+ * which the block item re-applies automatically when placed again.</p>
  *
- * <p>Phase 7 - one dirt tier at a time ({@link #TIER}): a pan with dirt in it only takes more dirt of the same tier
- * (shovel dirt is tier 1; clumps carry theirs) and shows a hint otherwise. When it is panned empty it goes back to
- * tier 1 and takes anything again. The tier picks the loot table and darkens the dirt in the model.</p>
+ * <p>Pans only take more dirt of the same tier if already containing dirt.
+ * When emptied, it resets to tier 1 and accepts anything again.</p>
  */
 public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClumpTarget {
     public static final MapCodec<PanBlock> CODEC = simpleCodec(PanBlock::new);
 
-    /** Maximum number of dirt scoops a pan holds. Models exist for fill 0..4 - add more if you raise this. */
     public static final int MAX_FILL = 4;
     public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, MAX_FILL);
-    /** Phase 10 Large Pan: 8 scoops. Same property NAME ("fill"), so blockstates, loot tables and items work alike. */
     public static final int LARGE_MAX_FILL = 8;
     public static final IntegerProperty LARGE_FILL = IntegerProperty.create("fill", 0, LARGE_MAX_FILL);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    /** Tier of the dirt inside (1-3). Meaningless (always reset to 1) while the pan is empty. */
     public static final IntegerProperty TIER = IntegerProperty.create("tier", DirtTier.MIN, DirtTier.MAX);
 
-    /** Outline/collision: 14x14 pixels wide, 4 pixels tall (the pan's rim height). */
     private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 4, 15);
 
     public PanBlock(Properties properties) {
@@ -83,32 +75,22 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         registerDefaultState(stateDefinition.any().setValue(fillProperty(), 0).setValue(WATERLOGGED, false).setValue(TIER, 1));
     }
 
-    /**
-     * The fill property of this pan: {@link #FILL} (0-4) or, for the Large Pan, {@link #LARGE_FILL} (0-8). Overridden by
-     * {@link LargePanBlock}; it must only return a static constant (it is called from the constructor).
-     */
     public IntegerProperty fillProperty() {
         return FILL;
     }
 
-    /** Scoops this pan holds. */
     public int maxFill() {
         return MAX_FILL;
     }
 
-    // ---- fill helpers that work for every pan size (use these, not the FILL constant, on any pan state) ----
-
-    /** The fill property of the pan in {@code state}. */
     public static IntegerProperty fillProp(BlockState state) {
         return state.getBlock() instanceof PanBlock p ? p.fillProperty() : FILL;
     }
 
-    /** Scoops of dirt in the pan in {@code state}. */
     public static int fill(BlockState state) {
         return state.getValue(fillProp(state));
     }
 
-    /** Capacity of the pan in {@code state}. */
     public static int maxFill(BlockState state) {
         return state.getBlock() instanceof PanBlock p ? p.maxFill() : MAX_FILL;
     }
@@ -132,16 +114,6 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         return SHAPE;
     }
 
-    // ------------------------------------------------------------------------------------------------
-    // Placement & waterlogging
-    // ------------------------------------------------------------------------------------------------
-
-    /**
-     * Waterlogs the pan when placed in ANY water - source or flowing - so it always "sits in water"
-     * (Phase 2 panning only needs to check {@link #WATERLOGGED}). Note a waterlogged block holds a water
-     * source, so placing a pan in flowing water turns that spot into a source block.
-     * The fill level is applied afterwards by BlockItem from the item's block_state component.
-     */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         FluidState fluid = context.getLevel().getFluidState(context.getClickedPos());
@@ -157,40 +129,31 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                      LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
-            // let the water inside the pan keep flowing into neighbours
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
-    // ------------------------------------------------------------------------------------------------
-    // Interaction
-    // ------------------------------------------------------------------------------------------------
-
-    /** Right-click with an item: the brush starts panning, a full wooden shovel or a Dirt Clump adds dirt. */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.getItem() instanceof com.holeydigsite.item.BrushItem) {
-            // CONSUME (not success) so the arm doesn't swing - the brush use animation takes over
             Panning.tryStartPanning(state, level, pos, player, hand);
             return ItemInteractionResult.CONSUME;
         }
         boolean clump = DirtTier.isClump(stack);
         if (!clump && !ShovelHelper.isFull(stack)) {
-            // Anything else (incl. empty hand) falls through to useWithoutItem / normal item use.
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
         if (fill(state) >= maxFill(state)) {
-            // Pan is full: do nothing, but consume the click so the item doesn't try anything else.
             if (!level.isClientSide) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.pan_full"), true);
             }
             return ItemInteractionResult.CONSUME;
         }
 
-        int tier = clump ? DirtTier.ofClump(stack) : ShovelHelper.kind(stack); // Phase 11: the shovel carries dirt, gravel or sand
+        int tier = clump ? DirtTier.ofClump(stack) : ShovelHelper.kind(stack);
         if (!acceptsTier(state, tier)) {
             if (!level.isClientSide) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.pan_other_tier",
@@ -202,7 +165,7 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         if (!level.isClientSide) {
             addDirt(level, pos, state, 1, tier);
             if (clump) {
-                stack.consume(1, player); // creative players keep the clump, like other vanilla item uses
+                stack.consume(1, player);
             } else {
                 ShovelHelper.setFull(stack, false);
             }
@@ -211,23 +174,15 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** True if dirt of {@code tier} may go in: the pan is empty, or already holds that tier. */
     public static boolean acceptsTier(BlockState state, int tier) {
         return fill(state) == 0 || state.getValue(TIER) == tier;
     }
 
-    /**
-     * Server: adds {@code amount} scoops of {@code tier} dirt (caller checks there is room and the tier fits). One place
-     * for the block update
-     * and the sound, shared by shovel, clump, drill and hopper input.
-     */
     public static void addDirt(Level level, BlockPos pos, BlockState state, int amount, int tier) {
         int fill = Math.min(maxFill(state), fill(state) + amount);
         level.setBlock(pos, withFill(state, fill).setValue(TIER, DirtTier.clamp(tier)), Block.UPDATE_ALL);
         level.playSound(null, pos, SoundEvents.ROOTED_DIRT_PLACE, SoundSource.BLOCKS, 1.0F, 0.9F);
     }
-
-    // ---- Mining Drill output ----
 
     @Override
     public boolean canAcceptClump(Level level, BlockPos pos, BlockState state, Direction from, int tier) {
@@ -239,9 +194,6 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         addDirt(level, pos, state, 1, tier);
     }
 
-    // ---- capability bookkeeping ----
-
-    /** Hoppers query the item handler fresh each time, but other mods may cache it: tell them when a pan appears/goes. */
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
@@ -258,10 +210,6 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         }
     }
 
-    /**
-     * Right-click with nothing in the main hand: pick the pan up.
-     * (Vanilla also calls this after useItemOn passes while holding an item, so the hand check matters.)
-     */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
                                                BlockHitResult hitResult) {
@@ -274,11 +222,6 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /**
-     * Removes the pan from the world and puts it (with its fill level) straight into the player's inventory,
-     * dropping it at their feet if the inventory is full. A waterlogged pan leaves its water behind.
-     * Server side only.
-     */
     public void pickUp(BlockState state, Level level, BlockPos pos, Player player) {
         ItemStack stack = createStack(fill(state), state.getValue(TIER));
         BlockState replacement = state.getValue(WATERLOGGED) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
@@ -293,19 +236,10 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         }
     }
 
-    // ------------------------------------------------------------------------------------------------
-    // Item <-> fill level
-    // ------------------------------------------------------------------------------------------------
-
-    /** A pan item with tier 1 dirt (or empty). */
     public ItemStack createStack(int fill) {
         return createStack(fill, 1);
     }
 
-    /**
-     * A pan item with the given fill level and dirt tier. Empty pans get no component so they stack with fresh pans;
-     * tier 1 pans store only the fill.
-     */
     public ItemStack createStack(int fill, int tier) {
         ItemStack stack = new ItemStack(this);
         if (fill > 0) {
@@ -318,14 +252,12 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         return stack;
     }
 
-    /** Reads the dirt tier stored on a pan item (1 if none). */
     public static int getTier(ItemStack stack) {
         BlockItemStateProperties props = stack.get(DataComponents.BLOCK_STATE);
         Integer tier = props == null ? null : props.get(TIER);
         return tier == null ? 1 : DirtTier.clamp(tier);
     }
 
-    /** Reads the fill level stored on a pan item (0 if none); works for both pan sizes. */
     public static int getFill(ItemStack stack) {
         BlockItemStateProperties props = stack.get(DataComponents.BLOCK_STATE);
         IntegerProperty prop = stack.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof PanBlock p
@@ -334,12 +266,10 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
         return fill == null ? 0 : fill;
     }
 
-    /** Capacity of a pan item (4, or 8 for the Large Pan). */
     public static int getMaxFill(ItemStack stack) {
         return stack.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof PanBlock p ? p.maxFill() : MAX_FILL;
     }
 
-    /** Middle-click (pick block) in creative gives a pan with the same fill level. */
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         return createStack(fill(state), state.getValue(TIER));

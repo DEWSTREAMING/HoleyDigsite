@@ -14,19 +14,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 /**
- * Phase 16: the one upgrade slot of a Sluice Box (the {@code upgrade} block state, so it shows on the model and costs
- * nothing to store). Both inserts only affect their own clump kind: each wash of that kind has {@code extraChance} to be
- * washed a second time for free (expected +{@code extraChance} value per clump), and the Fine Mesh Screen also rolls a small
- * extra Topaz table. Keep the numbers in sync with {@code tools/EconomySim.java} (Phase 16 section).
+ * The upgrade slot of a Sluice Box (the {@code upgrade} block state, so it shows on the model and costs
+ * nothing to store). Both inserts only affect their own clump kind, where each wash of that kind has {@code extraChance} to be
+ * washed a second time for free, and the Fine Mesh Screen also rolls a small
+ * extra Topaz table. Keep the numbers in sync with {@code tools/EconomySim.java}.
  */
 public enum SluiceUpgrade implements StringRepresentable {
     NONE("none", 0, 0.0, null, () -> null),
-    /** Riffle Insert (Gravel Flats kiosk): gravel clumps, +25% value. */
+    /** Riffle Insert for gravel clumps, +25% value. */
     RIFFLE("riffle", DirtTier.GRAVEL, 0.25, null, () -> ModItems.RIFFLE_INSERT.get()),
-    /** Fine Mesh Screen (Sand Dunes kiosk): sand clumps, +24% value and a slightly better Topaz chance. */
+    /** Fine Mesh Screen for sand clumps, +24% value and a slightly better Topaz chance. */
     MESH("mesh", DirtTier.SAND, 0.24, "panning/sand_mesh_bonus", () -> ModItems.FINE_MESH_SCREEN.get()),
     /**
-     * Seed Screen (Phase 18, Trading Post): every clump kind; no extra wash, but one extra seed roll per clump from the table of
+     * Seed Screen for every clump kind, with no extra wash but one extra seed roll per clump from the table of
      * that kind ({@code panning/seeds_<kind>}, see {@link #seedTable}).
      */
     SEED("seed", 0, 0.0, null, () -> ModItems.SEED_SCREEN.get());

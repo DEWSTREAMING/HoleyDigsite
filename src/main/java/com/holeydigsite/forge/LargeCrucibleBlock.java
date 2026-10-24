@@ -27,19 +27,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.List;
 
 /**
- * Phase 13 Large Crucible (Tier 2, made in the Crafting Forge): a {@link CrucibleBlock} that holds {@link #CAPACITY} g
- * (2.5 x) and melts twice as fast ({@link #TICKS_PER_GRAM} ticks per gram). Everything else is the same: one metal at a
- * time, insert-only, belts and hoppers feed it, it auto-faces the forge's front, pours by click or redstone.
+ * A larger version of the {@link CrucibleBlock} that holds more capacity and melts faster,
+ * while keeping the same basic mechanics of inserting metal and pouring into molds.
  *
- * <p><b>Auto-pour</b> ({@link #AUTO}): sneak + empty-hand right-click on the SPOUT side switches it on or off. While on, it pours
- * by itself whenever the mold in front is empty (or can be topped up) and enough metal is molten for the mold's target -
- * it looks about every half second, and only while it holds metal.</p>
+ * <p><b>Auto-pour</b> (see {@link #AUTO}): sneak and empty-hand right-click on the spout side switches it on or off.
+ * While active, it pours automatically whenever the mold in front is empty or can be topped up and enough metal is molten.</p>
  */
 public class LargeCrucibleBlock extends CrucibleBlock {
     public static final MapCodec<LargeCrucibleBlock> CODEC = simpleCodec(LargeCrucibleBlock::new);
     public static final BooleanProperty AUTO = BooleanProperty.create("auto");
 
-    /** Defaults for the codec constructor only: the real values are the tier file's ({@code tiers/crucible.json}). */
     public static final int CAPACITY = com.holeydigsite.tier.Tiers.stat("large_crucible", "capacity");
     public static final int TICKS_PER_GRAM = com.holeydigsite.tier.Tiers.stat("large_crucible", "ticks_per_gram");
 
@@ -81,7 +78,6 @@ public class LargeCrucibleBlock extends CrucibleBlock {
         return COLLISION;
     }
 
-    /** Sneak + empty hand on the spout side: auto-pour on/off. Every other click is the normal Crucible's. */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (player.isShiftKeyDown() && hit.getDirection() == state.getValue(FACING)) {
@@ -93,7 +89,6 @@ public class LargeCrucibleBlock extends CrucibleBlock {
         return super.useWithoutItem(state, level, pos, player, hit);
     }
 
-    /** Switches auto-pour. Public for tests. Returns the new state. */
     public static BlockState toggleAuto(Level level, BlockPos pos, BlockState state, Player player) {
         BlockState next = state.setValue(AUTO, !state.getValue(AUTO));
         level.setBlock(pos, next, Block.UPDATE_CLIENTS);

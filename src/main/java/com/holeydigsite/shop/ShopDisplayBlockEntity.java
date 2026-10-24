@@ -17,16 +17,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-/** The item a Shop Display shows and hands out blueprints for. Synced to clients for the renderer. */
+/** The item shown by a Shop Display and used for blueprints, synced to clients for the renderer. */
 public class ShopDisplayBlockEntity extends BlockEntity {
     @Nullable
     private Item shown;
-    /** Phase 14: display slot number in a store (1, 2, ...; 0 = none). A store layout file maps slots to items. */
+    /** The display slot number in a store, where 0 is none and a store layout file maps slots to items. */
     private int slot;
-    /** Phase 21d: operator-made entry (only on a display without a catalogue item); synced for the renderer. */
+    /** The operator-made entry on a display without a catalogue item, synced for the renderer. */
     @Nullable
     private com.holeydigsite.shop.custom.CustomEntry custom;
-    /** Client-side cache of the price label (cleared whenever the data changes). */
+    /** Client-side cache of the price label cleared when data changes. */
     @Nullable
     public Component clientLabel;
 

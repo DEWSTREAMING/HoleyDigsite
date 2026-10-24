@@ -10,11 +10,11 @@ import net.minecraft.world.item.TooltipFlag;
 import java.util.List;
 
 /**
- * Folkiron / Goldchro Ingot (Phase 9): cast in a Mold, weight in grams in the {@code holeydigsite:weight} data component
- * (default {@link #DEFAULT_GRAMS}). Ingots of the same weight stack, different weights don't (it's a component).
- * The Sell Pad pays the material's {@code ingot_copper_per_gram} x grams (see {@link com.holeydigsite.economy.Selling}).
- * Ingots can go back into a Crucible (re-melting at no gain), so weights can be combined or split.
- * Name: "Folkiron Ingot – 50 g".
+ * Folkiron or Goldchro ingot cast in a mould, with its weight in grams stored in the {@code holeydigsite:weight} data component
+ * (default {@link #DEFAULT_GRAMS}). Ingots of the same weight stack, while different weights do not.
+ * The Sell Pad pays the material's {@code ingot_copper_per_gram} multiplied by grams (see {@link com.holeydigsite.economy.Selling}).
+ * Ingots can go back into a Crucible for re-melting at no gain, so weights can be combined or split.
+ * Example name: "Folkiron Ingot, 50 g".
  */
 public class IngotItem extends Item {
     /** Weight of an ingot without the component (e.g. from the creative tab or /give). */

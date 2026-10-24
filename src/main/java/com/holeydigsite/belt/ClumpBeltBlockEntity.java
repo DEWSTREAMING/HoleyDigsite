@@ -578,7 +578,7 @@ public class ClumpBeltBlockEntity extends BlockEntity {
         BlockState target = level.getBlockState(front);
         Direction from = out.getOpposite();
         if (com.holeydigsite.plot.PlotLock.isLocked(level, front)) {
-            return false; // Phase 11: a locked land plot takes nothing - the item waits
+            return false; // A locked land plot takes nothing, the item waits
         }
         boolean frontExit = out == state.getValue(ClumpBeltBlock.FACING);
         if (frontExit && target.getBlock() instanceof PanBlock) {

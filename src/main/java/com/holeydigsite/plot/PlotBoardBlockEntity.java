@@ -15,10 +15,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A plot board's data (Phase 11), written by the island template:
- * {@code {id:"holeydigsite:plot_board", Plot:"deep_dig", Min:[I;-4,-3,-1], Max:[I;8,40,11]}} - the plot id and its bounds
- * relative to the board (inclusive). On load (and one tick after placement, when a structure has filled in the NBT) the
- * board registers its plot in {@link PlotData} and shows the saved ownership.
+ * Data for a plot board, written by the island template with the plot ID and relative bounds.
+ * Registers the plot in {@link PlotData} on load and after placement.
  */
 public class PlotBoardBlockEntity extends BlockEntity {
     private String plotId = "";
@@ -40,7 +38,7 @@ public class PlotBoardBlockEntity extends BlockEntity {
                 p.getX() + max[0], p.getY() + max[1], p.getZ() + max[2]);
     }
 
-    /** Sets the plot (tests, creative setup). */
+    /** Sets the plot. */
     public void setPlot(String id, BlockPos relMin, BlockPos relMax) {
         plotId = id;
         min = new int[]{Math.min(relMin.getX(), relMax.getX()), Math.min(relMin.getY(), relMax.getY()), Math.min(relMin.getZ(), relMax.getZ())};
@@ -52,13 +50,12 @@ public class PlotBoardBlockEntity extends BlockEntity {
     @Override
     public void onLoad() {
         super.onLoad();
-        // don't change blocks while the chunk is still being added: register one tick later (PlotBoardBlock#tick)
         if (level instanceof ServerLevel sl) {
             sl.scheduleTick(getBlockPos(), getBlockState().getBlock(), 1);
         }
     }
 
-    /** Server: puts the plot into {@link PlotData} and syncs the board's OWNED state with it. */
+    /** Puts the plot into {@link PlotData} and syncs the board's owned state. */
     public void register() {
         if (!(level instanceof ServerLevel sl) || plotId.isEmpty()) {
             return;

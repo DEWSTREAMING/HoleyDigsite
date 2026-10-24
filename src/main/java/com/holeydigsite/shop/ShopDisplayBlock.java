@@ -30,9 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Shop Display: looks like the item it sells (client renderer) on a small plinth, with a price label. Always unbreakable
- * in survival (hardness -1, explosion / piston proof). Right-click: a free, unlimited Blueprint of the shown item.
- * Creative players set the item by sneak-right-clicking with it (or with a Blueprint of it).
+ * A shop display that renders the sold item on a plinth with a price label, and gives a free blueprint on right-click.
  */
 public class ShopDisplayBlock extends BaseEntityBlock {
     public static final MapCodec<ShopDisplayBlock> CODEC = simpleCodec(ShopDisplayBlock::new);
@@ -81,15 +79,14 @@ public class ShopDisplayBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Click logic (public for tests): creative sneak-click with an item sets it, anything else gives a Blueprint. */
-    /** Blueprints given by a sneak-right-click. */
+    /** Click logic for setting items or getting blueprints. */
+    /** Blueprints given by a sneak right-click. */
     public static final int SNEAK_BLUEPRINTS = 16;
 
     public static void interact(Level level, BlockPos pos, Player player, ItemStack held) {
         if (!(level.getBlockEntity(pos) instanceof ShopDisplayBlockEntity display)) {
             return;
         }
-        // Phase 21d: an op sneak-using an empty or custom display opens the setup screen (a creative op holding an item keeps the old "set the item" click)
         if (player.isShiftKeyDown() && player instanceof net.minecraft.server.level.ServerPlayer sp && com.holeydigsite.shop.custom.CustomShops.isOp(sp)
                 && display.item() == null && !(player.getAbilities().instabuild && !held.isEmpty())) {
             com.holeydigsite.shop.custom.ShopSetupNetwork.open(sp, pos, held);

@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import java.util.List;
 
 /**
- * Phase 21c: World admin commands under {@code /holeydigsite world ...}.
+ * World admin commands under {@code /holeydigsite world ...}.
  */
 public final class WorldCommands {
     private WorldCommands() {}

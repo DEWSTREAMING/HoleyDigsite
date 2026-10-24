@@ -23,7 +23,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /**
- * Phase 21j: C2S networking for the recipe radial wheel on the Crafting Forge and Smithing Anvil.
+ * Handles client to server networking for the recipe radial wheel on the Crafting Forge and Smithing Anvil.
  * The server validates range, plot ownership, workstation state and recipe existence before switching.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
@@ -56,15 +56,10 @@ public final class RecipeWheelNetwork {
         });
     }
 
-    /** Sends a recipe wheel selection from the client to the server. */
     public static void sendToServer(BlockPos pos, ResourceLocation recipeId) {
         PacketDistributor.sendToServer(new SelectRecipePayload(pos, recipeId));
     }
 
-    /**
-     * Server-side validation and recipe switch for {@link SelectRecipePayload}.
-     * Returns {@code true} if the selection was valid and applied, or {@code false} if refused.
-     */
     public static boolean handleSelect(ServerPlayer player, SelectRecipePayload payload) {
         if (player == null || player.isSpectator() || payload == null || payload.pos() == null || payload.recipeId() == null) {
             return false;

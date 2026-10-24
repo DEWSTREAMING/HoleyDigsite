@@ -57,22 +57,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Conveyor Belt (id {@code clump_belt}; Fast: {@code fast_clump_belt}): since Phase 12 a FULL-HEIGHT, water-powered belt
- * that carries any item along the direction it faces (the direction the player looked when placing it). See
+ * Conveyor belt (id {@code clump_belt}, Fast: {@code fast_clump_belt}) that is a full-height, water-powered belt
+ * carrying any item along the direction it faces (the direction the player looked when placing it). See
  * {@link ClumpBeltBlockEntity} for the movement rules and the cost model. Subclasses: {@link InclineBeltBlock},
  * {@link FilterBeltBlock}, {@link GemCutterBlock}.
  *
  * <ul>
- *   <li>Power: a water {@link WaterNetworkBlock#waterRole() CONDUIT} - belts pass water on to each other (every face but
- *       the top), so one pipe or intake touching any belt powers the whole line. No water, or a redstone signal: the
- *       belt freezes (nothing moves, enters or leaves). {@link #WATER} / {@link #POWERED}.</li>
+ *   <li>Power: a water {@link WaterNetworkBlock#waterRole() CONDUIT} (belts pass water on to each other on every face except
+ *       the top, so one pipe or intake touching any belt powers the whole line). Without water or with a redstone signal, the
+ *       belt freezes (nothing moves, enters or leaves). See {@link #WATER} and {@link #POWERED}.</li>
  *   <li>In: a Mining Drill or Sluice tray facing it, the belt behind it, a belt pointing into its side, or a player
- *       (right-click with any non-block item: 1; sneak: as many as fit). It is an {@link ItemTarget}.</li>
- *   <li>Out (front): next belt, a pan (spout, drop animation, +1 fill; a full pan bounces a clump off and voids it),
- *       any other {@link ItemTarget}, an Inclined Belt one block up; otherwise the items wait and the belt backs up.</li>
- *   <li>Corners: fed only from one side, it shows a curved piece ({@link #SHAPE}) and items follow the curve.</li>
- *   <li>Empty-hand right-click takes the items on this block. Breaking it drops the belt and its items.</li>
- *   <li>No item handler: hoppers, chests and other mods can't put items on or take them off.</li>
+ *       (right-click with any non-block item adds 1, or sneaking adds as many as fit). It acts as an {@link ItemTarget}.</li>
+ *   <li>Out (front): next belt, a pan (spout, drop animation, +1 fill, where a full pan bounces a clump off and voids it),
+ *       any other {@link ItemTarget}, or an inclined belt one block up. Otherwise items wait and the belt backs up.</li>
+ *   <li>Corners: when fed only from one side, it shows a curved piece ({@link #SHAPE}) and items follow the curve.</li>
+ *   <li>Empty-hand right-click takes the items on this block, and breaking it drops the belt and its items.</li>
+ *   <li>No item handler: hoppers, chests and other mods cannot put items on or take them off.</li>
  * </ul>
  */
 public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, WaterNetworkBlock {
@@ -80,40 +80,37 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
             com.mojang.serialization.Codec.intRange(1, 4).optionalFieldOf("speed", 1).forGetter(ClumpBeltBlock::speed),
             propertiesCodec()).apply(i, (speed, props) -> new ClumpBeltBlock(props, speed)));
 
-    /** Steps per tick: 1 = one block per second, 2 = two blocks per second (Fast belts). */
+    /** Steps per tick (1 is one block per second, 2 is two blocks per second for fast belts). */
     private final int speed;
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<BeltMode> MODE = EnumProperty.create("mode", BeltMode.class);
-    /** Redstone signal: stopped. */
+    /** Redstone signal stops the belt. */
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    /** The block in front is a pan: the belt end shows a funnel/spout. */
+    /** Indicates the block in front is a pan, showing a funnel/spout at the belt end. */
     public static final BooleanProperty SPOUT = BooleanProperty.create("spout");
-    /** Phase 12: connected to a water network with an active intake (runs only with water). */
+    /** Connected to a water network with an active intake, running only with water. */
     public static final BooleanProperty WATER = BooleanProperty.create("water");
-    /** Phase 12: straight or curved corner (flat belts only). */
+    /** Straight or curved corner for flat belts only. */
     public static final EnumProperty<BeltShape> SHAPE = EnumProperty.create("shape", BeltShape.class);
-    /** Phase 21j: Filter Belt, Belt Splitter and Gem Cutter match the speed of the belt feeding into their back. */
+    /** Filter Belt, Belt Splitter and Gem Cutter match the speed of the belt feeding into their back. */
     public static final IntegerProperty INPUT_SPEED = IntegerProperty.create("input_speed", 1, 4);
 
-    /** Block event id: a clump bounced off a full pan (param = clump seed | tier << 8). */
+    /** Block event id when a clump bounces off a full pan. */
     public static final int EVENT_BOUNCE = 1;
 
-    /** Top of the belt surface in blocks (where items sit): full height since Phase 12. */
+    /** Top of the belt surface in blocks where items sit. */
     public static final float SURFACE = 1.0F;
 
-    /** The normal belt (1 block per second). */
     public ClumpBeltBlock(Properties properties) {
         this(properties, 1);
     }
 
-    /** A belt moving {@code speed} steps per tick (Fast: 2). Everything else is identical; mixes with any belt. */
     public ClumpBeltBlock(Properties properties, int speed) {
         super(properties);
         this.speed = speed;
         registerDefaultState(defaults(stateDefinition.any()));
     }
 
-    /** Default values for whichever belt properties the state has. */
     protected static BlockState defaults(BlockState s) {
         s = s.setValue(FACING, Direction.NORTH).setValue(MODE, BeltMode.EMPTY).setValue(POWERED, false)
                 .setValue(SPOUT, false).setValue(WATER, false);
@@ -136,7 +133,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return speed;
     }
 
-    /** Steps per tick of the belt in {@code state} (1 if it isn't a belt). */
     public static int speed(BlockState state) {
         if (state.hasProperty(INPUT_SPEED)) {
             return state.getValue(INPUT_SPEED);
@@ -144,7 +140,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return state.getBlock() instanceof ClumpBeltBlock b ? b.speed : 1;
     }
 
-    /** Display name of a belt speed tier: "Normal" (1), "Fast" (2), etc. */
     public static Component speedTierName(int speed) {
         return switch (speed) {
             case 1 -> Component.translatable("text.holeydigsite.belt.speed.1");
@@ -153,17 +148,14 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         };
     }
 
-    /** "Speed: matches input – Fast" / "Speed: matches input – Normal". */
     public static Component speedLabel(BlockState state) {
         return Component.translatable("text.holeydigsite.belt.input_speed", speedTierName(speed(state)));
     }
 
-    /** Phase 12: the belt moves - it has water and no redstone signal. */
     public static boolean running(BlockState state) {
         return state.getValue(WATER) && !state.getValue(POWERED);
     }
 
-    /** Straight or corner (only flat belts have corners). */
     public static BeltShape shape(BlockState state) {
         return state.hasProperty(SHAPE) ? state.getValue(SHAPE) : BeltShape.STRAIGHT;
     }
@@ -202,7 +194,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
     // Placement, neighbours, redstone, corners
     // ------------------------------------------------------------------------------------------------
 
-    /** Items travel the way the player is looking. */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getHorizontalDirection();
@@ -225,10 +216,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return state.getBlock() instanceof com.holeydigsite.block.PanBlock;
     }
 
-    /**
-     * Does the block at {@code p} put items out in direction {@code dir} (towards {@code p + dir})? Belts through their
-     * front (Filter Belts also through their side), drills and sluice trays through their front.
-     */
     public static boolean feeds(BlockGetter level, BlockPos p, Direction dir) {
         BlockState b = level.getBlockState(p);
         if (b.getBlock() instanceof ClumpBeltBlock) {
@@ -244,7 +231,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return false;
     }
 
-    /** Straight unless fed only from one side (nothing feeding the back). */
     public static BeltShape computeShape(BlockGetter level, BlockPos pos, Direction facing) {
         if (feeds(level, pos.relative(facing.getOpposite()), facing)) {
             return BeltShape.STRAIGHT;
@@ -259,7 +245,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return left && !right ? BeltShape.LEFT : right && !left ? BeltShape.RIGHT : BeltShape.STRAIGHT;
     }
 
-    /** Position of the belt feeding into the back of {@code pos} (facing {@code facing}), or null if none (or fed by a machine). */
     @Nullable
     private static BlockPos feedingBeltPos(BlockGetter level, BlockPos pos, Direction facing) {
         BlockPos backPos = pos.relative(facing.getOpposite());
@@ -276,10 +261,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return null;
     }
 
-    /**
-     * Phase 21j: speed of the belt feeding into the back of {@code pos} (normal = 1, Fast = 2, or any future tier);
-     * fed by a machine (drill, sluice tray...) or nothing -> 1 (normal). Follows chains of input-matching belts.
-     */
     public static int computeInputSpeed(BlockGetter level, BlockPos pos, Direction facing) {
         BlockPos curPos = pos;
         Direction curFacing = facing;
@@ -301,7 +282,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return 1;
     }
 
-    /** Keeps the spout, corner shape and matched input speed in sync with the neighbours. */
     @Override
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                      LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
@@ -318,7 +298,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return state;
     }
 
-    /** Redstone on/off and matched input speed recalculation. */
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
                                    BlockPos neighborPos, boolean movedByPiston) {
@@ -339,7 +318,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         }
     }
 
-    /** Sets POWERED or WATER and handles the start/stop (drops land at once, empty mode, client resync). */
     private static void setStopFlag(Level level, BlockPos pos, BlockState state, ClumpBeltBlockEntity belt,
                                      BooleanProperty flag, boolean value) {
         boolean wasRunning = running(state);
@@ -368,7 +346,7 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
     }
 
     // ------------------------------------------------------------------------------------------------
-    // Water (Phase 12)
+    // Water
     // ------------------------------------------------------------------------------------------------
 
     @Override
@@ -376,16 +354,11 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return Role.CONDUIT;
     }
 
-    /** Water passes through every face but the top (where the items ride). */
     @Override
     public boolean hasWaterConnection(BlockState state, Direction side) {
         return side != Direction.UP;
     }
 
-    /**
-     * Inclined Belts link diagonally: an incline to the belt at its low end (back, one down), and every belt to the
-     * inclines whose low end it is (front, one up).
-     */
     @Override
     public void addExtraLinks(BlockGetter level, BlockPos pos, BlockState state, List<BlockPos> out) {
         if (state.getBlock() instanceof InclineBeltBlock) {
@@ -472,10 +445,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         return new ClumpBeltBlockEntity(pos, state);
     }
 
-    /**
-     * Server: ticks while it holds something and runs. Client: ticks only while MOVING and running (to advance the
-     * items between server updates). Empty or stopped belts don't tick at all.
-     */
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
@@ -510,12 +479,10 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
     // Player
     // ------------------------------------------------------------------------------------------------
 
-    /** Items a player can put on a belt by hand: anything that isn't a placeable block (so belts can still be extended). */
     public static boolean playerInsertable(ItemStack stack) {
         return !stack.isEmpty() && !(stack.getItem() instanceof BlockItem);
     }
 
-    /** Right-click with an item: put 1 on (sneaking: as many as fit). Block items are placed as usual instead. */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
@@ -533,14 +500,13 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
                 player.displayClientMessage(Component.translatable("message.holeydigsite.belt_full"), true);
                 return ItemInteractionResult.CONSUME;
             }
-            stack.consume(added, player); // creative players keep their items
+            stack.consume(added, player);
             level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 0.6F, 1.1F);
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Empty hand: take the items on this belt block. */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!player.getMainHandItem().isEmpty() || !(level.getBlockEntity(pos) instanceof ClumpBeltBlockEntity belt)
@@ -576,7 +542,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
     // Breaking
     // ------------------------------------------------------------------------------------------------
 
-    /** The belt itself drops through its loot table; the items on it (and dropping off it) drop here. */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide) {
@@ -594,10 +559,6 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
     // Client effects
     // ------------------------------------------------------------------------------------------------
 
-    /**
-     * {@link #EVENT_BOUNCE}: a clump hit a full pan. The server just forwards the event (returns true); the client
-     * starts the hop animation and puffs a little dirt at the pan's rim.
-     */
     @Override
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         if (id != EVENT_BOUNCE) {

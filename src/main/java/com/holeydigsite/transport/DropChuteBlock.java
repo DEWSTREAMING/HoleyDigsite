@@ -22,11 +22,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Phase 21i Drop Chute: an unpowered, vertical tube with an open top. It accepts items from a belt/incline/machine
- * pointing INTO its side or from above, and passes them straight DOWN through any number of stacked chutes to the
+ * An unpowered, vertical tube with an open top. It accepts items from a belt, incline, or machine
+ * pointing into its side or from above, and passes them straight down through any number of stacked chutes to the
  * first non-chute block below.
  *
- * <p>No ticking and no storage: pass-through only. If the target below cannot take the item right now, or is missing/invalid
+ * <p>No ticking and no storage, pass-through only. If the target below cannot take the item right now, or is missing or invalid
  * (chests, hoppers, air, locked plots), the chute refuses the item, making the feeding belt wait so nothing is ever lost.</p>
  */
 public class DropChuteBlock extends Block implements ItemTarget {
@@ -48,7 +48,7 @@ public class DropChuteBlock extends Block implements ItemTarget {
         return SHAPE;
     }
 
-    /** Finds the first non-chute block position directly beneath this chute (or stack of chutes). */
+    /** Finds the first non-chute block position directly beneath this chute or stack of chutes. */
     @Nullable
     public static BlockPos findBottomTarget(Level level, BlockPos pos) {
         BlockPos cur = pos.below();

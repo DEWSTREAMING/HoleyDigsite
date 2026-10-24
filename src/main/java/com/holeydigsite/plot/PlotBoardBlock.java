@@ -36,9 +36,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A land plot's board (Phase 11): "For Sale" (red strip) until its Land Deed is used on it, then "Owned" (green strip).
- * Unbreakable in survival. Right-click with the matching deed claims the plot: the deed is used up, {@link PlotData} marks the
- * plot owned (the lock in {@link PlotLock} lifts at once), sound + particles. Floating text: plot name + price / "Owned".
+ * A land plot board, showing "For Sale" until its Land Deed is used, then "Owned".
+ * Unbreakable in survival. Right-clicking with the matching deed claims the plot, using the deed,
+ * updating {@link PlotData}, and playing effects.
  */
 public class PlotBoardBlock extends BaseEntityBlock {
     public static final MapCodec<PlotBoardBlock> CODEC = simpleCodec(PlotBoardBlock::new);
@@ -99,7 +99,7 @@ public class PlotBoardBlock extends BaseEntityBlock {
         return level.getBlockEntity(pos) instanceof PlotBoardBlockEntity b ? b : null;
     }
 
-    /** Placed by any means (template, /setblock, test): register the plot one tick later, once the NBT is in. */
+    /** Registers the plot one tick after placement once NBT is loaded. */
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
@@ -142,7 +142,7 @@ public class PlotBoardBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Claims the plot with a deed. Public for tests. Returns true if the plot became owned (the deed is used up). */
+    /** Claims the plot with a deed. Returns true if the plot became owned. */
     public static boolean claim(Level level, BlockPos pos, Player player, ItemStack deed) {
         PlotBoardBlockEntity b = board(level, pos);
         BlockState state = level.getBlockState(pos);

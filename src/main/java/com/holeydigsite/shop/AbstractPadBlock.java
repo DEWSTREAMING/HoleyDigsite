@@ -32,20 +32,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A shop pad (Sell Pad / Buy Pad): a low counter that holds up to 9 stacks on top ({@link PadBlockEntity}), shown in a
- * 3x3 grid with a floating total (client renderer). Nothing happens on the pad itself - an adjacent Shop Button acts on
+ * A shop pad (Sell Pad or Buy Pad) is a low counter that holds up to 9 stacks on top ({@link PadBlockEntity}), shown in a
+ * 3x3 grid with a floating total. Nothing happens on the pad itself as an adjacent Shop Button acts on
  * it.
  * <ul>
- *   <li>Right-click with an accepted stack: puts it on the pad (merging); refused items get a red message.</li>
- *   <li>Sneak-right-click (with anything / nothing): moves every accepted stack from the inventory onto it, as many as
- *       fit.</li>
- *   <li>Items thrown onto it are added (if accepted and there's room - otherwise they stay items).</li>
- *   <li>Empty-hand right-click: takes everything back into the inventory.</li>
- *   <li>Breaking drops the pad plus its contents. {@code locked=true} (the island shop) can't be broken in survival.</li>
+ *   <li>Right-click with an accepted stack puts it on the pad, while refused items get a red message.</li>
+ *   <li>Sneak-right-click moves every accepted stack from the inventory onto it, as many as fit.</li>
+ *   <li>Items thrown onto it are added if accepted and there is room.</li>
+ *   <li>Empty-hand right-click takes everything back into the inventory.</li>
+ *   <li>Breaking drops the pad plus its contents, though locked pads cannot be broken in survival.</li>
  * </ul>
  */
 public abstract class AbstractPadBlock extends BaseEntityBlock {
-    /** A low counter: 4 px high, so dropped items rest inside the block space ({@link #entityInside}). */
+    /** A low counter 4 pixels high so dropped items rest inside the block space. */
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 4, 16);
 
     protected AbstractPadBlock(Properties properties) {
@@ -53,18 +52,18 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
         registerDefaultState(stateDefinition.any().setValue(ShopLock.LOCKED, false));
     }
 
-    /** Whether this pad takes {@code stack} (Sell Pad: has a price; Buy Pad: a catalogued blueprint). */
+    /** Whether this pad takes the stack, such as a Sell Pad having a price or a Buy Pad having a catalogued blueprint. */
     public abstract boolean accepts(ItemStack stack, Level level);
 
-    /** Position-aware version (Phase 16: a Buy Pad only takes plot-exclusive blueprints inside that plot). */
+    /** Position-aware version where a buy pad only takes plot-exclusive blueprints inside that plot. */
     public boolean accepts(ItemStack stack, Level level, BlockPos pos) {
         return accepts(stack, level);
     }
 
-    /** Translation key of the red "doesn't take that" message. */
+    /** Translation key of the red refused message. */
     protected abstract String refusedKey();
 
-    /** Translation key of the yellow how-to shown on an empty-hand click of an empty pad. */
+    /** Translation key of the yellow help message shown on an empty-hand click of an empty pad. */
     protected abstract String helpKey();
 
     @Override
@@ -101,7 +100,7 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.isEmpty()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // -> useWithoutItem
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         if (!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
             if (player.isShiftKeyDown()) {
@@ -110,7 +109,6 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
                 placeHeld(level, pos, player, stack);
             }
         }
-        // consume the click either way, so a held block is never placed on top of the pad
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
@@ -126,7 +124,7 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Puts the held stack on the pad (as much as fits). Public for tests. Returns how many went on. */
+    /** Puts the held stack on the pad as much as fits. Public for tests. Returns how many went on. */
     public int placeHeld(Level level, BlockPos pos, Player player, ItemStack stack) {
         PadBlockEntity pad = pad(level, pos);
         if (pad == null) {
@@ -145,7 +143,7 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
         return n;
     }
 
-    /** Moves every accepted stack of the inventory (main, hotbar, off hand) onto the pad. Public for tests. */
+    /** Moves every accepted stack of the inventory onto the pad. Public for tests. */
     public int placeInventory(Level level, BlockPos pos, Player player) {
         PadBlockEntity pad = pad(level, pos);
         if (pad == null) {
@@ -173,7 +171,7 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
         return moved;
     }
 
-    /** Empty hand: everything on the pad back into the inventory (overflow at the player's feet). */
+    /** Empty hand: everything on the pad back into the inventory with overflow at the player's feet. */
     public void takeBack(Level level, BlockPos pos, Player player) {
         PadBlockEntity pad = pad(level, pos);
         if (pad == null) {
@@ -200,7 +198,7 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
     // Thrown items
     // ------------------------------------------------------------------------------------------------
 
-    /** An item entity touching the pad: put it on if accepted and there's room (the rest stays an item). */
+    /** An item entity touching the pad is put on if accepted and there is room. */
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (!(level instanceof ServerLevel) || !(entity instanceof ItemEntity item) || !item.isAlive()) {

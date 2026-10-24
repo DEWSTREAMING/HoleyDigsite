@@ -681,10 +681,13 @@ def main():
     seed = 100
     for gem in GEMS:
         for size in SIZES:
-            save(uncut_gem(gem, size, seed), TI, 'uncut_%s_%s.png' % (gem, size))
+            if gem == 'ruby':
+                save(uncut_gem(gem, size, seed), TI, 'uncut_%s_%s.png' % (gem, size))
             dump({'parent': 'minecraft:item/generated', 'textures': {'layer0': '%s:item/uncut_%s_%s' % (NS, gem, size)}},
                  MI, 'uncut_%s_%s.json' % (gem, size))
             seed += 1
+    import make_gem_shapes
+    make_gem_shapes.main()
     print('Phase 12 assets written')
 
 

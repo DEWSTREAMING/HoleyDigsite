@@ -37,16 +37,15 @@ import java.util.List;
 
 /**
  * Shop Button: a small post with a big button on top. Pressing it (right-click, with anything in hand) acts on every
- * Sell Pad, Buy Pad and Money Pan DIRECTLY NEXT TO IT (the 4 horizontal sides):
+ * Sell Pad, Buy Pad and Money Pan directly next to it on the four horizontal sides:
  * <ol>
- *   <li><b>Sell:</b> everything on the adjacent Sell Pads is sold; the coins go into the adjacent Money Pan's balance.
- *       With no Money Pan next to the button nothing is sold (red "Put a Money Pan next to the button").</li>
- *   <li><b>Buy:</b> the blueprints on the adjacent Buy Pads are bought with the Money Pan's balance (never with
- *       inventory coins) and the items go into the presser's inventory (overflow at their feet). Blueprints stay on the
- *       pad. Not enough balance: red message with the missing amount, nothing changes.</li>
+ *   <li><b>Sell:</b> everything on the adjacent Sell Pads is sold, and the coins go into the adjacent Money Pan's balance.
+ *       With no Money Pan next to the button nothing is sold, showing a red message.</li>
+ *   <li><b>Buy:</b> the blueprints on the adjacent Buy Pads are bought with the Money Pan's balance and the items go into the presser's inventory.
+ *       Blueprints stay on the pad. Not enough balance shows a red message with the missing amount.</li>
  * </ol>
  * Selling runs first so sale money can pay for the purchase in the same press. With several Money Pans adjacent, the
- * first in N-E-S-W order is used. The press animation is the {@link #PRESSED} state, reset by one scheduled tick.
+ * first in N-E-S-W order is used. The press animation uses the {@link #PRESSED} state, reset by one scheduled tick.
  */
 public class ShopButtonBlock extends Block {
     public static final MapCodec<ShopButtonBlock> CODEC = simpleCodec(ShopButtonBlock::new);
@@ -88,7 +87,7 @@ public class ShopButtonBlock extends Block {
         if (!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
             press(level, pos, player);
         }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide); // never place a held block on the button
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
@@ -107,10 +106,10 @@ public class ShopButtonBlock extends Block {
         }
     }
 
-    /** What a press did (for tests). */
+    /** Result of a button press for tests. */
     public record Result(long sold, int itemsSold, long spent, int boughtStacks) {}
 
-    /** Presses the button: animation + sell + buy. Public for tests. */
+    /** Presses the button, running the animation, selling, and buying. Public for tests. */
     public static Result press(Level level, BlockPos pos, Player player) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof ShopButtonBlock && !state.getValue(PRESSED)) {
@@ -133,7 +132,6 @@ public class ShopButtonBlock extends Block {
             }
         }
 
-        // what is on the pads
         List<PadBlockEntity> sells = new ArrayList<>(), buys = new ArrayList<>();
         for (BlockPos p : sellPads) {
             PadBlockEntity pad = AbstractPadBlock.pad(level, p);
@@ -152,13 +150,13 @@ public class ShopButtonBlock extends Block {
             return new Result(0, 0, 0, 0);
         }
 
-        // 1. sell
+        // Sell items.
         long sold = 0;
         long maxSingle = 0;
         int itemsSold = 0;
         for (PadBlockEntity pad : sells) {
             for (ItemStack s : pad.contents()) {
-                long v = com.holeydigsite.shop.custom.CustomShops.stackValue(level, pad.getBlockPos(), s);   // Phase 21d: the store's buy-back price first
+                long v = com.holeydigsite.shop.custom.CustomShops.stackValue(level, pad.getBlockPos(), s);
                 if (v > 0) {
                     sold += v;
                     maxSingle = Math.max(maxSingle, com.holeydigsite.shop.custom.CustomShops.unitValue(level, pad.getBlockPos(), s));
@@ -179,14 +177,14 @@ public class ShopButtonBlock extends Block {
                     Selling.format(sold)).withStyle(ChatFormatting.GOLD), true);
         }
 
-        // 2. buy (all adjacent Buy Pads at once; all or nothing)
+        // Buy all adjacent buy pads at once.
         long cost = 0;
         List<ItemStack> delivery = new ArrayList<>();
         int stacks = 0;
         for (PadBlockEntity pad : buys) {
             for (ItemStack bp : pad.contents()) {
                 var custom = com.holeydigsite.shop.custom.CustomBlueprint.of(bp);
-                if (custom != null) {   // Phase 21d: operator-made entry; an out-of-date blueprint stops the whole purchase
+                if (custom != null) {
                     if (!(level instanceof net.minecraft.server.level.ServerLevel sl) || !com.holeydigsite.shop.custom.CustomShops.valid(sl, custom)) {
                         error(player, "message.holeydigsite.button.stale", ChatFormatting.RED);
                         level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 0.6F, 1.0F);
@@ -215,7 +213,7 @@ public class ShopButtonBlock extends Block {
             }
             spent = cost;
             for (PadBlockEntity pad : buys) {
-                pad.takeAll(); // Phase 8.1: the blueprints are used up by a completed purchase
+                pad.takeAll();
             }
             for (ItemStack d : delivery) {
                 ItemStack rest = d.copy();

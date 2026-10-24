@@ -35,14 +35,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Op commands (permission 2) for sites (Phase 14):
+ * Op commands for sites:
  * <ul>
- *   <li>{@code /holeydigsite store rebuild [home|<plot>|all]} - rebuild the home store / a plot's kiosk now (state kept)</li>
- *   <li>{@code /holeydigsite store status} - every site: id, anchor, built version vs the mod's version</li>
- *   <li>{@code /holeydigsite plot rebuild <plot>} - rebuild an UNOWNED plot (owned plots are refused)</li>
- *   <li>{@code /holeydigsite site place <site>} - build a site at your feet (creative design work)</li>
- *   <li>{@code /holeydigsite site export <site> <name>} - save the nearest such site's zone as
- *       {@code <world>/generated/holeydigsite/structures/<name>.nbt} plus {@code <name>_layout.json} (numbers new displays)</li>
+ *   <li>{@code /holeydigsite store rebuild [home|<plot>|all]}, rebuild the home store or a plot's kiosk now</li>
+ *   <li>{@code /holeydigsite store status}, show every site's id, anchor, and built version</li>
+ *   <li>{@code /holeydigsite plot rebuild <plot>}, rebuild an unowned plot</li>
+ *   <li>{@code /holeydigsite site place <site>}, build a site at your feet</li>
+ *   <li>{@code /holeydigsite site export <site> <name>}, save the nearest such site's zone as
+ *       {@code <world>/generated/holeydigsite/structures/<name>.nbt} plus {@code <name>_layout.json}</li>
  * </ul>
  */
 public final class SiteCommands {
@@ -89,7 +89,7 @@ public final class SiteCommands {
         return SiteDefs.all().stream().filter(d -> d.kind() == SiteDef.Kind.PLOT && d.plot() != null).map(SiteDef::plot).toList();
     }
 
-    /** Store / kiosk sites matching "home", a plot id ("deep_dig" = its kiosk), a full id, or "all". */
+    /** Store or kiosk sites matching home, a plot id, a full id, or all. */
     static boolean matchesStore(SiteDef def, String target) {
         if (def.kind() != SiteDef.Kind.STORE) {
             return false;
@@ -98,7 +98,7 @@ public final class SiteCommands {
                 || target.equals(def.plot());
     }
 
-    /** Rebuilds every matching store site in the source's level; returns how many. */
+    /** Rebuilds every matching store site in the source's level. */
     public static int rebuildStores(ServerLevel level, String target) {
         int n = 0;
         SiteData data = SiteData.getIfExists(level);
@@ -146,7 +146,7 @@ public final class SiteCommands {
         return n;
     }
 
-    /** Phase 16.1: re-applies every shipped world fix-up (e.g. an island placed from an outdated pack template). Details in the log. */
+    /** Re-applies every shipped world fix-up, with details in the log. */
     private static int fixup(CommandContext<CommandSourceStack> c) {
         int n = 0;
         for (String name : WorldFixups.ALL) {
@@ -209,9 +209,8 @@ public final class SiteCommands {
     }
 
     /**
-     * Saves the site's zone as a structure file (+ a layout file with the displays' current items). Displays without a slot
-     * number get the next free numbers (bottom-up, north-west first). Player state is stripped (pads, Money Pan balance,
-     * container items) and shop blocks are saved locked.
+     * Saves the site's zone as a structure file and a layout file with the displays' current items. Displays without a slot
+     * number get the next free numbers. Player state is stripped and shop blocks are saved locked.
      */
     public static Path export(ServerLevel level, SiteData.Site site, String name) throws java.io.IOException {
         BoundingBox z = site.zone();

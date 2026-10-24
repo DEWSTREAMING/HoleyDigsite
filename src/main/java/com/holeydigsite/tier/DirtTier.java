@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 /**
- * Clump <b>kinds</b> (Phase 11 generalisation of the Phase 7 dirt tiers). One small int travels everywhere a tier used to
+ * Clump kinds (a generalisation of dirt tiers). One small int travels everywhere a tier used to
  * (pan {@code tier} block state, belt clumps, sluice queue, drill output, shovel), so every "one tier at a time" rule now
  * means "one kind at a time":
  * <pre>
@@ -24,8 +24,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
  *   kind 4 = Gravel (Gravelrock, vanilla gravel) -> Gravel Clump (own item)          -> panning/gravel
  *   kind 5 = Sand (Sandrock, vanilla sand)       -> Sand Clump (own item)            -> panning/sand
  * </pre>
- * Rock -> kind is tag based ({@code rock_tier_2/3}, {@code rock_gravel}, {@code rock_sand}); deep gravel/sand variants later
- * = new kinds + new tags + rows in {@link #KINDS}. Same kind = same item + components = stacks.
+ * Rock to kind is tag based ({@code rock_tier_2/3}, {@code rock_gravel}, {@code rock_sand}); deep gravel or sand variants later
+ * mean new kinds, new tags, and rows in {@link #KINDS}. Same kind means same item plus components equals stacks.
  */
 public final class DirtTier {
     private DirtTier() {}
@@ -38,7 +38,7 @@ public final class DirtTier {
     public static final TagKey<Block> ROCK_GRAVEL = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_gravel"));
     public static final TagKey<Block> ROCK_SAND = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_sand"));
 
-    /** One row per kind: name used in lang keys / loot table path. */
+    /** One row per kind, with the name used in language keys and loot table paths. */
     private record Kind(String loot, String key) {}
 
     private static final Kind[] KINDS = {
@@ -96,7 +96,7 @@ public final class DirtTier {
         return stack.is(ModItems.DIRT_CLUMP.get()) || stack.is(ModItems.GRAVEL_CLUMP.get()) || stack.is(ModItems.SAND_CLUMP.get());
     }
 
-    /** Kind of a clump stack (Dirt Clump: its tier component, 1 if none). */
+    /** Kind of a clump stack (Dirt Clump uses its tier component, or 1 if none). */
     public static int ofClump(ItemStack stack) {
         if (stack.is(ModItems.GRAVEL_CLUMP.get())) return GRAVEL;
         if (stack.is(ModItems.SAND_CLUMP.get())) return SAND;
@@ -134,7 +134,7 @@ public final class DirtTier {
         return LOOT[clamp(kind)];
     }
 
-    /** "Dirt" / "Deep dirt" / "Abyssal dirt" / "Gravel" / "Sand" translation key (pan tooltip and hints). */
+    /** Translation key for the dirt, deep dirt, abyssal dirt, gravel, or sand used in pan tooltips and hints. */
     public static String dirtKey(int kind) {
         return "tier.holeydigsite." + KINDS[clamp(kind)].key();
     }

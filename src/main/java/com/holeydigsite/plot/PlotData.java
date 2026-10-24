@@ -16,17 +16,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Land plots of one dimension (Phase 11), saved with the world ({@code data/holeydigsite_plots.dat}).
+ * Land plots of one dimension, saved with the world ({@code data/holeydigsite_plots.dat}).
  *
- * <p>A plot is registered by its {@link PlotBoardBlockEntity} (plot id + bounds stored in the board's NBT by the island
- * template) the first time the board loads; from then on the bounds are known even while the board's chunk isn't loaded.
- * Key = {@code id@boardPos}, so every island copy (one per Skyblock Builder team) has its own plots. Ownership is a single
- * flag per plot: once a deed is claimed, the plot is open for everyone (single-player first).</p>
+ * <p>A plot is registered by its {@link PlotBoardBlockEntity} the first time the board loads,
+ * so bounds are known even while the board's chunk isn't loaded.
+ * Key = {@code id@boardPos}, so every island copy has its own plots. Ownership is a single
+ * flag per plot.</p>
  */
 public class PlotData extends SavedData {
     public static final String NAME = "holeydigsite_plots";
 
-    /** One plot: its id ("deep_dig"), board position, world-space bounds, whether it has been bought, and who owns it. */
+    /** A plot, its board position, world-space bounds, purchase status, and owner. */
     public record Plot(String id, BlockPos board, BoundingBox box, boolean owned, String owner) {
         public Plot(String id, BlockPos board, BoundingBox box, boolean owned) {
             this(id, board, box, owned, "");
@@ -46,7 +46,7 @@ public class PlotData extends SavedData {
         return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(PlotData::new, PlotData::load, null), NAME);
     }
 
-    /** Adds the plot (locked) or updates its bounds; keeps the owned flag. Returns the stored plot. */
+    /** Adds the plot or updates its bounds, keeping the owned flag. Returns the stored plot. */
     public Plot register(String id, BlockPos board, BoundingBox box) {
         String key = keyOf(id, board);
         Plot old = plots.get(key);
@@ -78,14 +78,14 @@ public class PlotData extends SavedData {
         setOwned(id, board, owned, "");
     }
 
-    /** Forgets a plot (tests; a removed board). */
+    /** Forgets a plot. */
     public void remove(String id, BlockPos board) {
         if (plots.remove(keyOf(id, board)) != null) {
             setDirty();
         }
     }
 
-    /** The id of the plot (owned or not) whose bounds contain {@code pos}, or null. */
+    /** The ID of the plot containing {@code pos}, or null. */
     @Nullable
     public String plotIdAt(BlockPos pos) {
         for (Plot p : plots.values()) {
@@ -96,7 +96,7 @@ public class PlotData extends SavedData {
         return null;
     }
 
-    /** The locked (not yet bought) plot containing {@code pos}, or null. */
+    /** The unbought plot containing {@code pos}, or null. */
     @Nullable
     public Plot lockedAt(BlockPos pos) {
         for (Plot p : plots.values()) {

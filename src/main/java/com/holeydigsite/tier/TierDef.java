@@ -18,19 +18,19 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * One tier of a machine / tool family, read from {@code data/holeydigsite/tiers/<family>.json} (Phase 15). The same file feeds
- * the Java registration (this class), the asset generator ({@code tools/make_tiers.py}) and the generic GameTests.
+ * One tier of a machine or tool family, read from {@code data/holeydigsite/tiers/<family>.json}. The same file feeds
+ * the Java registration (this class), the asset generator ({@code tools/make_tiers.py}), and the generic GameTests.
  *
- * <p>Fields: {@code id} (registry name), {@code name} (English display name), {@code kind} (which block/item class the family
- * builds - see {@link TierKinds}), {@code mark} (I/II/III/IV drawn on the textures), {@code block} (properties), {@code item}
- * (properties), {@code stats} (numbers the block / block entity reads), {@code tab} (creative-tab slots) and {@code obtain}
- * (shop price and/or Crafting Forge recipes). Registries cannot change at runtime, so this is read once from the bundled jar.</p>
+ * <p>Fields include {@code id} for the registry name, {@code name} for the English display name, {@code kind} for which block or item class the family
+ * builds (see {@link TierKinds}), {@code mark} for I, II, III, or IV drawn on the textures, {@code block} and {@code item} for properties,
+ * {@code stats} for numbers the block or block entity reads, {@code tab} for creative-tab slots, and {@code obtain}
+ * for shop prices and Crafting Forge recipes. Registries cannot change at runtime, so this is read once from the bundled jar.</p>
  */
 public final class TierDef {
-    /** One creative-tab slot: sort {@code order}, {@code stack} kind ("item", "full_pan") and an optional dirt tier. */
+    /** One creative-tab slot with sort {@code order}, {@code stack} kind ("item" or "full_pan"), and an optional dirt tier. */
     public record TabSlot(int order, String stack, int dirtTier) {}
 
-    /** One Crafting Forge recipe: file name (without .json), sort order, category, variant, grams per metal, parts, result count. */
+    /** One Crafting Forge recipe containing the file name, sort order, category, variant, grams per metal, parts, and result count. */
     public record Recipe(String file, int order, String category, String variant, java.util.LinkedHashMap<String, Integer> metals,
                          List<Part> parts, int count) {
         public record Part(String item, int count) {}
@@ -55,7 +55,7 @@ public final class TierDef {
     public JsonObject json() { return json; }
     public ResourceLocation location() { return HoleyDigsite.id(id()); }
 
-    /** Does this tier register a block (false for items-only families like the Brush)? */
+    /** Indicates whether this tier registers a block, which is false for items-only families like the brush. */
     public boolean hasBlock() { return json.has("block"); }
 
     // ---- stats ----
@@ -140,8 +140,8 @@ public final class TierDef {
     // ---- block / item properties ----
 
     /**
-     * Builds the block properties from the {@code block} section. {@code lightWhen} is the family's "active" state test
-     * (lit forge, filled crucible...); the {@code light} level applies while it holds.
+     * Builds the block properties from the {@code block} section. {@code lightWhen} is the family's active state test
+     * (such as a lit forge or filled crucible), and the {@code light} level applies while it holds.
      */
     public BlockBehaviour.Properties blockProperties(Predicate<BlockState> lightWhen) {
         JsonObject b = json.getAsJsonObject("block");

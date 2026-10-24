@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Contents of a Smithing Anvil (Phase 19): up to {@link AnvilRecipe#MAX_INGOTS} whole ingots and one cut gem in the order they were
- * laid (one item each, with the ingot's own weight), the selected recipe and the valid hammer hits so far. Any change to the
- * contents or the recipe restarts the hits. Never ticks. Nothing is lost: take-back and breaking return every item.
+ * Contents of a Smithing Anvil: up to {@link AnvilRecipe#MAX_INGOTS} whole ingots and one cut gem in the order they were
+ * laid, the selected recipe and the valid hammer hits so far. Any change to the
+ * contents or the recipe restarts the hits. Never ticks, and nothing is lost since take-back and breaking return every item.
  */
 public class SmithingAnvilBlockEntity extends BlockEntity {
     public static final int MAX_ITEMS = AnvilRecipe.MAX_INGOTS + 1;
@@ -36,7 +36,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
     @Nullable
     private ResourceLocation selected;
     private int hits;
-    /** Client: bumped on every data update, so the renderer knows when to rebuild its cached text. */
+    /** Bumped on every data update so the renderer knows when to rebuild its cached text. */
     private int clientVersion;
 
     public SmithingAnvilBlockEntity(BlockPos pos, BlockState state) {
@@ -89,7 +89,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         return s.getItem() instanceof IngotItem;
     }
 
-    /** What the contents are as a {@link SmithData}: the ingots with their metal and grams, the gem. */
+    /** What the contents are as a {@link SmithData}. */
     public SmithData data() {
         List<SmithData.Ingot> ingots = new ArrayList<>();
         for (ItemStack s : ingots()) {
@@ -111,7 +111,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         return level == null ? null : level.registryAccess();
     }
 
-    /** The selected recipe; falls back to the first one (null only when there are no recipes). */
+    /** The selected recipe, falling back to the first one. */
     @Nullable
     public AnvilRecipes.Entry recipe() {
         List<AnvilRecipes.Entry> all = AnvilRecipes.all(registries());
@@ -123,7 +123,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         return all.isEmpty() ? null : all.get(0);
     }
 
-    /** Next ({@code step} = 1) or previous (-1) recipe, wrapping; restarts the hits. Returns the new one (or null). */
+    /** Selects the next or previous recipe and restarts the hits. */
     @Nullable
     public AnvilRecipes.Entry cycle(int step) {
         List<AnvilRecipes.Entry> all = AnvilRecipes.all(registries());
@@ -139,7 +139,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         return next;
     }
 
-    /** Selects a recipe by id (tests). */
+    /** Selects a recipe by id. */
     public void select(ResourceLocation id) {
         selected = id;
         hits = 0;
@@ -173,13 +173,13 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
             }
             return Refusal.NONE;
         }
-        if (!info.meltable() && ResourceInfo.RAW.equals(info.form())) { // a cut gem
+        if (!info.meltable() && ResourceInfo.RAW.equals(info.form())) {
             return gem().isPresent() ? Refusal.SECOND_GEM : Refusal.NONE;
         }
         return Refusal.NOT_ACCEPTED;
     }
 
-    /** Lays ONE item (a copy of one of {@code stack}; the caller shrinks the stack) after a successful {@link #check}. */
+    /** Lays one item after a successful check. */
     public boolean lay(ItemStack stack) {
         if (check(stack) != Refusal.NONE) {
             return false;
@@ -190,7 +190,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         return true;
     }
 
-    /** Takes the item laid last (empty if there is none); restarts the hits. */
+    /** Takes the item laid last and restarts the hits. */
     public ItemStack takeLast() {
         if (items.isEmpty()) {
             return ItemStack.EMPTY;
@@ -206,7 +206,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
     /** What is wrong with the contents for a recipe. */
     public enum Problem { NONE, FEW_INGOTS, MANY_INGOTS, LIGHT, NEEDS_GEM, NO_GEM }
 
-    /** Checks the contents against {@code recipe}: exactly its number of whole ingots, each heavy enough, and the gem rule. */
+    /** Checks the contents against a recipe. */
     public Problem problem(AnvilRecipe recipe) {
         List<ItemStack> ingots = ingots();
         if (ingots.size() < recipe.ingots()) {
@@ -230,7 +230,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         return Problem.NONE;
     }
 
-    /** Counts one valid hit; returns the hits so far. */
+    /** Counts one valid hit and returns the hits so far. */
     int addHit() {
         hits++;
         changed();
@@ -244,7 +244,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
         }
     }
 
-    /** The finished piece for {@code recipe}; the contents are used up. The caller checked {@link #problem}. */
+    /** The finished piece for a recipe, using up the contents. */
     ItemStack finish(AnvilRecipe recipe) {
         ItemStack piece = SmithPieces.create(recipe.result(), data(), registries());
         items.clear();
@@ -255,7 +255,7 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
 
     // ------------------------------------------------------------------------------------------------ breaking
 
-    /** Everything laid on the anvil, emptied (for breaking the block). */
+    /** Everything laid on the anvil, emptied. */
     public List<ItemStack> dropContents() {
         List<ItemStack> out = new ArrayList<>(items);
         items.clear();

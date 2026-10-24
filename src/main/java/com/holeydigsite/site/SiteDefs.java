@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Server-side tables for sites (Phase 14), reloaded with the datapacks:
+ * Server-side tables for sites, reloaded with datapacks:
  * <ul>
  *   <li>{@code data/<ns>/site/<name>.json} - {@link SiteDef}s (structure, version, zone, ...)</li>
  *   <li>{@code data/<ns>/store_layout/<name>.json} - {@code {"slots": {"1": "minecraft:dirt", ...}}}: which catalogue item each
@@ -51,7 +51,7 @@ public final class SiteDefs {
         return Collections.unmodifiableCollection(m.values());
     }
 
-    /** Slot -> item id of a layout (empty map if unknown). */
+    /** Returns the slot to item ID mapping of a layout, or an empty map if unknown. */
     public static Map<Integer, ResourceLocation> layout(@Nullable ResourceLocation id) {
         if (id == null) {
             return Map.of();
@@ -81,7 +81,7 @@ public final class SiteDefs {
         layoutOverrides.remove(id);
     }
 
-    /** Parses a layout file's JSON ({@code {"slots": {"1": "<item>"}}}). */
+    /** Parses a layout file's JSON. */
     public static Map<Integer, ResourceLocation> parseLayout(JsonObject o) {
         Map<Integer, ResourceLocation> m = new TreeMap<>();
         JsonObject slots = o.getAsJsonObject("slots");
@@ -95,7 +95,7 @@ public final class SiteDefs {
         return Collections.unmodifiableMap(m);
     }
 
-    /** The datapack reload listener (registered in {@link SiteEvents}). */
+    /** The datapack reload listener. */
     public static final class Loader extends SimplePreparableReloadListener<Object[]> {
         @Override
         protected Object[] prepare(ResourceManager rm, ProfilerFiller profiler) {

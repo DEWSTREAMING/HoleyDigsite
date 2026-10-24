@@ -18,19 +18,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Contents of a Crucible: ONE metal at a time, in two buffers that together hold at most {@link #CAPACITY} grams -
+ * Contents of a Crucible. Holds one metal at a time in two buffers up to {@link #CAPACITY} grams,
  * {@link #unmelted()} (solid chunks waiting) and {@link #molten()} (ready to pour). While the Forge below is lit, unmelted
  * grams turn molten at one gram every {@link #TICKS_PER_GRAM} ticks (1 s per 5 g, constant). When both buffers are empty
  * the crucible forgets its metal and accepts any meltable again.
  *
  * <p>Ticks only while melting (the block's ticker exists only for {@code chunks=true, heated=true}). Clients get the
- * numbers (for the floating text) once a second while melting and on every change otherwise.</p>
+ * numbers for the floating text every time a gram melts and on every other change.</p>
  */
 public class CrucibleBlockEntity extends BlockEntity {
     public static final int CAPACITY = com.holeydigsite.tier.Tiers.stat("crucible", "capacity");
-    /** 4 ticks per gram = 1 second per 5 g; a full 200 g crucible melts in 40 s. */
+    /** 4 ticks per gram is 1 second per 5 g. A full 200 g crucible melts in 40 s. */
     public static final int TICKS_PER_GRAM = com.holeydigsite.tier.Tiers.stat("crucible", "ticks_per_gram");
-    /** Phase 13: the Large Crucible holds more and melts faster - see {@link CrucibleBlock#capacity()}. */
+    /** The Large Crucible holds more and melts faster. See {@link CrucibleBlock#capacity()}. */
 
     @Nullable
     private ResourceLocation metal;
@@ -73,9 +73,9 @@ public class CrucibleBlockEntity extends BlockEntity {
         return capacity() - total();
     }
 
-    // ---- input ----
+    // input
 
-    /** Why an item can't go in, or {@link Refusal#NONE}. */
+    /** Why an item cannot go in, or {@link Refusal#NONE}. */
     public enum Refusal { NONE, NOT_METAL, GEM, OTHER_METAL, FULL }
 
     /** Checks one item of {@code stack} against the current contents. */
@@ -118,11 +118,11 @@ public class CrucibleBlockEntity extends BlockEntity {
         return n;
     }
 
-    // ---- melting ----
+    // melting
 
     /**
-     * Server tick while melting: one gram every {@link #ticksPerGram()} ticks at heat 1. A Hot Forge below (heat 2) doubles
-     * the speed (Phase 13); the speeds multiply with the Large Crucible's.
+     * Server tick while melting. One gram every {@link #ticksPerGram()} ticks at heat 1. A Hot Forge below (heat 2) doubles
+     * the speed, multiplying with the Large Crucible's speed.
      */
     public static void serverTick(Level level, BlockPos pos, BlockState state, CrucibleBlockEntity crucible) {
         if (crucible.unmelted <= 0) {
@@ -152,7 +152,7 @@ public class CrucibleBlockEntity extends BlockEntity {
         }
     }
 
-    // ---- output ----
+    // output
 
     /** Takes up to {@code grams} molten metal out; returns how much was taken. Forgets the metal when empty. */
     public int takeMolten(int grams) {
@@ -172,7 +172,7 @@ public class CrucibleBlockEntity extends BlockEntity {
         changed(true);
     }
 
-    // ---- sync / visuals ----
+    // sync / visuals
 
     /** Marks dirty; with {@code sync}, updates the block state visuals (fill, metal, chunks) and tells clients. */
     private void changed(boolean sync) {
@@ -196,7 +196,7 @@ public class CrucibleBlockEntity extends BlockEntity {
         }
     }
 
-    // ---- save/load ----
+    // save/load
 
     private void write(CompoundTag tag) {
         if (metal != null) {

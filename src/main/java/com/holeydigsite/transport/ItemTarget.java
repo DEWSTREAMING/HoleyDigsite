@@ -7,8 +7,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Phase 12: a block that belts (and drills, sluice trays) may deliver ONE item into. Implemented by OUR blocks only:
- * belts (all kinds), pans and the Sluice Box (clumps, via {@link com.holeydigsite.drill.DirtClumpTarget}), the Crucible
+ * A block that belts, drills and sluice trays may deliver one item into. Implemented by our blocks only, including
+ * belts of all kinds, pans and the Sluice Box (clumps, via {@link com.holeydigsite.drill.DirtClumpTarget}), the Crucible
  * (meltables), the Crafting Forge (ingots and parts) and the Sell Pad (sellable items). Hoppers, chests and other mods'
  * storage are deliberately not targets (see {@link ItemOutputs}).
  */

@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import java.util.List;
 
 /**
- * Phase 13 Casting Mold (Tier 2, made in the Crafting Forge): an adjustable {@link MoldBlock} that
+ * Adjustable {@link MoldBlock} made in the Crafting Forge that
  * <ul>
  *   <li>cools three times faster ({@link #COOL_TICKS} ticks) and takes targets up to the Large Crucible's 500 g;</li>
  *   <li><b>ejects</b> the finished ingot by itself into the {@link com.holeydigsite.transport.ItemTarget} in front of it
@@ -80,13 +80,12 @@ public class CastingMoldBlock extends MoldBlock {
     @Override
     protected void solidTick(ServerLevel level, BlockPos pos, BlockState state, MoldBlockEntity mold) {
         if (!eject(level, pos, mold)) {
-            level.scheduleTick(pos, this, RETRY_TICKS);   // blocked or nothing there yet: look again soon
+            level.scheduleTick(pos, this, RETRY_TICKS);
         }
     }
 
     /**
-     * Pushes the finished ingot into the target in front. Public for tests. Returns true if the mold is empty afterwards
-     * (it ejected, or there was nothing to eject).
+     * Pushes the finished ingot into the target in front. Public for tests. Returns true if the mold is empty afterwards.
      */
     public static boolean eject(ServerLevel level, BlockPos pos, MoldBlockEntity mold) {
         BlockState state = level.getBlockState(pos);

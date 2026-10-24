@@ -37,7 +37,7 @@ import java.util.Optional;
  * @param parts     the item model's layers in order (layer N of the piece's model = parts[N]): which ingot slot (1-3) or the gem
  *                  tints it, or none (plain wood / leather); empty = layer 0 main metal, layer 1 gem. Example:
  *                  {@code "parts": [{"name": "blade", "from": "ingot1"}, {"name": "grip", "from": "none"}]}
- * @param wear      Phase 20: armour of worn jewellery (see {@link Wear}); empty = not wearable
+ * @param wear      armour of worn jewellery (see {@link Wear}); empty = not wearable
  */
 public record AnvilRecipe(int order, String category, Optional<String> variant, int ingots, GemRule gem, int hits, Item result,
                           double bonus, Optional<Double> gemBonus, int minGrams, Optional<Gear> gear, List<Part> parts, Optional<Wear> wear) {
@@ -68,8 +68,8 @@ public record AnvilRecipe(int order, String category, Optional<String> variant, 
     }
 
     /**
-     * Stats of a weapon or tool: {@code full_grams} = total ingot weight at which the metals' stats are fully reached;
-     * lighter pieces get {@code floor + (1 - floor) * total / full_grams} of them (never below {@code floor}).
+     * Stats of a weapon or tool where {@code full_grams} is the total ingot weight at which the metals' stats are fully reached,
+     * and lighter pieces get a scaled fraction of them never below {@code floor}.
      */
     public record Gear(int fullGrams, double baseDamage, double attackSpeed, double damageScale, double durabilityScale, double floor) {
         public static final Codec<Gear> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -82,7 +82,7 @@ public record AnvilRecipe(int order, String category, Optional<String> variant, 
         ).apply(i, Gear::new));
     }
 
-    /** Multipliers of the metals' helmet-level armour / toughness for one way of wearing a piece. */
+    /** Multipliers of the metals' helmet-level armour and toughness for one way of wearing a piece. */
     public record WearSlot(double armor, double toughness) {
         public static final Codec<WearSlot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.doubleRange(0, 10).fieldOf("armor").forGetter(WearSlot::armor),

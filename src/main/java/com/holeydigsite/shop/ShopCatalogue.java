@@ -17,15 +17,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The data-driven shop catalogue: datapack registry {@code holeydigsite:shop_items} (registered in
- * {@link com.holeydigsite.economy.ModEconomy}). A new shop item is just a JSON file - no code.
+ * The data-driven shop catalogue using the datapack registry {@code holeydigsite:shop_items} registered in
+ * {@link com.holeydigsite.economy.ModEconomy}. A new shop item is just a JSON file with no code needed.
  */
 public final class ShopCatalogue {
     private ShopCatalogue() {}
 
     public static final ResourceKey<Registry<ShopItem>> SHOP_ITEMS = ResourceKey.createRegistryKey(HoleyDigsite.id("shop_items"));
 
-    /** The catalogue entry selling {@code item}, if any. */
+    /** The catalogue entry selling the item, if any. */
     public static Optional<ShopItem> find(HolderLookup.Provider registries, Item item) {
         if (registries == null || item == null) {
             return Optional.empty();
@@ -40,7 +40,7 @@ public final class ShopCatalogue {
         return target == null ? Optional.empty() : find(registries, target);
     }
 
-    /** Whether a Buy Pad at {@code pos} takes this blueprint: catalogued, and (Phase 16) exclusive items only inside their plot. */
+    /** Whether a buy pad at pos takes this blueprint being catalogued and exclusive items only inside their plot. */
     public static boolean buyableAt(Level level, BlockPos pos, ItemStack blueprint) {
         Optional<ShopItem> entry = forBlueprint(level.registryAccess(), blueprint);
         if (entry.isEmpty()) {
@@ -52,22 +52,22 @@ public final class ShopCatalogue {
         return level instanceof ServerLevel sl && entry.get().availableAt(PlotData.get(sl).plotIdAt(pos));
     }
 
-    /** True if the stack is a blueprint of a catalogued item that is exclusive to some plot (the home store refuses it). */
+    /** True if the stack is a blueprint of a catalogued item exclusive to some plot. */
     public static boolean isExclusive(Level level, ItemStack blueprint) {
         return forBlueprint(level.registryAccess(), blueprint).map(e -> e.site().isPresent()).orElse(false);
     }
 
-    /** Phase 21b: true if {@code item} is catalogued as a Ledger item (its Blueprint only comes from a Ledger reward). */
+    /** True if the item is catalogued as a ledger item where its blueprint only comes from a ledger reward. */
     public static boolean isLedgerItem(HolderLookup.Provider registries, Item item) {
         return find(registries, item).map(ShopItem::ledger).orElse(false);
     }
 
-    /** Every catalogue entry (unordered). */
+    /** Every catalogue entry in no particular order. */
     public static List<ShopItem> all(HolderLookup.Provider registries) {
         return registries.lookup(SHOP_ITEMS).map(r -> r.listElements().map(Holder::value).toList()).orElse(List.of());
     }
 
-    /** Total price of the blueprints in {@code stacks} (each blueprint = one purchase); unknown blueprints cost 0. */
+    /** Total price of the blueprints in stacks where each blueprint is one purchase and unknown blueprints cost zero. */
     public static long totalCost(HolderLookup.Provider registries, List<ItemStack> stacks) {
         long total = 0;
         for (ItemStack s : stacks) {

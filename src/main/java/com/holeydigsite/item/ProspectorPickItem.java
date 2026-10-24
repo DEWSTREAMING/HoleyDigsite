@@ -21,9 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Prospector's Pick (Phase 16, Deep Dig kiosk): right-click the ground to find the nearest buried Deep or Abyssal Dirtrock within
- * {@link #RANGE} blocks - particles at the rock, a sound and an action-bar line such as "Abyssal rock: ~6 blocks down-east".
- * Only scans when used (a cube of 25^3 blocks, nearest wins), has a short cooldown and never wears out.
+ * Prospector's Pick from the Deep Dig kiosk. Right-click the ground to find the nearest buried Deep or Abyssal Dirtrock within
+ * {@link #RANGE} blocks, showing particles at the rock, a sound, and an action-bar line. Only scans when used within a cube of 25 cubed blocks,
+ * with a short cooldown and infinite durability.
  */
 public class ProspectorPickItem extends Item {
     public static final int RANGE = 12;
@@ -33,14 +33,14 @@ public class ProspectorPickItem extends Item {
         super(properties);
     }
 
-    /** One scan result: where, which kind (2 = Deep, 3 = Abyssal) and the offset from the scan origin. */
+    /** A single scan result containing the position, rock kind, and offset from the scan origin. */
     public record Find(BlockPos pos, int kind, int dx, int dy, int dz) {
         public double distance() {
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
     }
 
-    /** The nearest Deep / Abyssal Dirtrock within {@link #RANGE} blocks of {@code origin}, or null. */
+    /** Finds the nearest Deep or Abyssal Dirtrock within {@link #RANGE} blocks of the origin, or returns null. */
     @Nullable
     public static Find scan(Level level, BlockPos origin) {
         Find best = null;
@@ -71,7 +71,7 @@ public class ProspectorPickItem extends Item {
 
     private static final String[] COMPASS = {"north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"};
 
-    /** "down-east", "north-west", "up", ... built from lang entries. */
+    /** Builds direction strings like down-east or north-west from language entries. */
     public static Component direction(Find f) {
         int horizontal = Math.max(Math.abs(f.dx()), Math.abs(f.dz()));
         String vertical = f.dy() <= -2 ? "down" : f.dy() >= 2 ? "up" : null;
@@ -95,7 +95,7 @@ public class ProspectorPickItem extends Item {
                 Component.translatable("message.holeydigsite.prospect.dir." + compass));
     }
 
-    /** The action-bar line for a scan result (or "Nothing nearby"). Public for tests. */
+    /** The action-bar line for a scan result or a message indicating nothing is nearby. Public for tests. */
     public static Component message(@Nullable Find f) {
         if (f == null) {
             return Component.translatable("message.holeydigsite.prospect.none").withStyle(ChatFormatting.YELLOW);

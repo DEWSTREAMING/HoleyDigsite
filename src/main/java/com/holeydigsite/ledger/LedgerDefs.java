@@ -27,14 +27,12 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Phase 21a: Loads and holds the Prospector's Ledger definitions from {@code data/holeydigsite/ledger/}:
- * <ul>
- *   <li>{@code curve.json} – the 50 level Renown costs, coin reward sizes (S/M/L), reward ingot weight, and ongoing Renown rates/caps</li>
- *   <li>{@code milestones/*.json} – the 38 milestones across 8 chapters</li>
- *   <li>{@code levels/*.json} – the 50 reward levels</li>
- * </ul>
- * Pre-loads built-in defaults from the mod classpath at startup (so client UI and unit checks work immediately) and reloads
- * from the server {@link ResourceManager} on datapack load/reload.
+ * Loads and holds the Prospector's Ledger definitions from {@code data/holeydigsite/ledger/},
+ * including {@code curve.json} (the 50 level Renown costs, coin reward sizes (S/M/L), reward ingot weight, and ongoing Renown rates and caps),
+ * {@code milestones/*.json} (the 38 milestones across 8 chapters),
+ * and {@code levels/*.json} (the 50 reward levels).
+ * Pre-loads built-in defaults from the mod classpath at startup so client UI and unit checks work immediately, and reloads
+ * from the server {@link ResourceManager} on datapack load or reload.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class LedgerDefs {
@@ -166,7 +164,7 @@ public final class LedgerDefs {
         return LEVELS.get(lvl);
     }
 
-    /** Phase 21b: the title ids from {@code ledger/titles.json}, in level order (display names: lang ledger.holeydigsite.title.<id>). */
+    /** The title ids from {@code ledger/titles.json}, in level order, with display names under the lang key ledger.holeydigsite.title.<id>. */
     public static List<String> titles() {
         return TITLES;
     }
@@ -180,12 +178,12 @@ public final class LedgerDefs {
         return "ledger.holeydigsite.title." + id;
     }
 
-    /** Test hook: replace the level definitions (keep a copy of {@link #levels()} to restore them afterwards). */
+    /** Test hook to replace the level definitions, keeping a copy of {@link #levels()} to restore them afterwards. */
     public static void setLevelsForTest(Map<Integer, LevelDef> levels) {
         LEVELS = Map.copyOf(levels);
     }
 
-    /** Test hook: replace the title definitions (keep a copy of {@link #titles()} to restore them afterwards). */
+    /** Test hook to replace the title definitions, keeping a copy of {@link #titles()} to restore them afterwards. */
     public static void setTitlesForTest(List<String> titles) {
         TITLES = List.copyOf(titles);
     }

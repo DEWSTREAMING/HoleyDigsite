@@ -22,17 +22,17 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Phase 12 Filter Belt (Hydroneer-style sorter). Items that match the filter ({@link com.holeydigsite.transport.FilterMatch})
- * leave through the filter's SIDE at the middle of the belt; everything else carries on straight.
+ * Filter Belt, a Hydroneer-style sorter. Items that match the filter ({@link com.holeydigsite.transport.FilterMatch})
+ * leave through the filter's side at the middle of the belt, while everything else carries on straight.
  *
  * <ul>
- *   <li>Right-click with any item: that item becomes the filter (the item stays in your hand).</li>
- *   <li>Sneak + empty hand: clears the filter.</li>
- *   <li>Empty hand on the left or right EDGE (outer quarter of the top, or a side face): matches leave through that side
- *       ({@link #OUT_RIGHT}). Empty hand in the middle: take the items off, like any belt.</li>
+ *   <li>Right-click with any item, that item becomes the filter and stays in your hand.</li>
+ *   <li>Sneak and empty hand clears the filter.</li>
+ *   <li>Empty hand on the left or right edge (outer quarter of the top, or a side face) matches leave through that side
+ *       ({@link #OUT_RIGHT}). Empty hand in the middle takes items off like any belt.</li>
  * </ul>
- * The side output delivers into whatever is there (belt, crucible, pan, Gem Cutter, Sell Pad...); if it refuses, the item
- * waits at the middle (and the belt backs up).
+ * The side output delivers into whatever is there like a belt, crucible, pan, Gem Cutter, or Sell Pad. If it refuses, the item
+ * waits at the middle and the belt backs up.
  */
 public class FilterBeltBlock extends ClumpBeltBlock {
     public static final MapCodec<FilterBeltBlock> CODEC = simpleCodec(FilterBeltBlock::new);
@@ -112,7 +112,7 @@ public class FilterBeltBlock extends ClumpBeltBlock {
         return InteractionResult.CONSUME;
     }
 
-    /** TRUE = right edge, FALSE = left edge, null = the middle half of the belt. Public for tests. */
+    /** True for right edge, false for left edge, null for the middle half of the belt. Public for tests. */
     public static Boolean clickedEdge(BlockState state, BlockPos pos, BlockHitResult hit) {
         Direction f = state.getValue(FACING);
         Direction right = f.getClockWise();

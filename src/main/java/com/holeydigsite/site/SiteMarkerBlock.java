@@ -23,10 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Site Marker (Phase 14): an invisible block in the island template that says "build site X here". Its block entity holds
- * the site id ({@code {id:"holeydigsite:site_marker",Site:"holeydigsite:home"}}). On the first level tick after it is placed or
- * loaded ({@link Sites#queueMarker}), the mod builds the site with the structure's origin at this block ({@link Sites#buildFromMarker}); the structure replaces the
- * marker. Unbreakable, no collision; creative players can place one and set the site with the NBT.
+ * An invisible block in the island template that designates where to build a site. Its block entity holds
+ * the site ID. On the first level tick after it is placed or
+ * loaded ({@link Sites#queueMarker}), the mod builds the site with the structure's origin at this block ({@link Sites#buildFromMarker}), and the structure replaces the
+ * marker. It is unbreakable and has no collision.
  */
 public class SiteMarkerBlock extends BaseEntityBlock {
     public static final MapCodec<SiteMarkerBlock> CODEC = simpleCodec(SiteMarkerBlock::new);

@@ -36,29 +36,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Adjustable Mold (Phase 9): an open ingot cast with a player-set target weight ({@link #TARGETS}). Contents:
- * {@link MoldBlockEntity}.
+ * An adjustable open ingot cast with a player-set target weight (see {@link #TARGETS}), backed by {@link MoldBlockEntity}.
  *
  * <ul>
- *   <li>Empty mold, empty hand: right-click cycles the target 10 / 25 / 50 / 75 / 100 / 150 / 200 g, sneak-right-click
- *       backwards. Floating text "Mold: 50 g".</li>
- *   <li>A Crucible pours {@code min(target - grams, molten)}; further pours of the same metal top it up to the target.
- *       Every pour restarts cooling ({@link #COOL_TICKS}, one scheduled tick): glowing, then {@link #SOLID}.</li>
- *   <li>Cooled: empty-hand right-click gives the Ingot with exactly the grams in the mold (also when below the target) -
- *       a mold holding metal never changes its target. Still hot: a "cooling" message.</li>
- *   <li>Breaking a mold with metal in it drops the ingot.</li>
+ *   <li>Empty mold, empty hand: right-click cycles the target (10, 25, 50, 75, 100, 150, 200 g), and sneak-right-click goes backwards.</li>
+ *   <li>A Crucible pours up to the target weight, restarting cooling on each pour.</li>
+ *   <li>Cooled: empty-hand right-click retrieves the ingot.</li>
+ *   <li>Breaking a mold with metal inside drops the ingot.</li>
  * </ul>
  */
 public class MoldBlock extends BaseEntityBlock {
     public static final MapCodec<MoldBlock> CODEC = simpleCodec(MoldBlock::new);
     public static final EnumProperty<MoltenMetal> METAL = EnumProperty.create("metal", MoltenMetal.class);
-    /** 0 empty, 1 under half the target, 2 under the target, 3 at the target. */
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
     public static final BooleanProperty SOLID = BooleanProperty.create("solid");
 
     public static final int[] TARGETS = com.holeydigsite.tier.Tiers.def("mold").statArray("targets", null);
     public static final int DEFAULT_TARGET = 50;
-    /** 3 seconds from the last pour. */
     public static final int COOL_TICKS = com.holeydigsite.tier.Tiers.stat("mold", "cool_ticks");
 
     private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 4, 15);
@@ -70,7 +64,6 @@ public class MoldBlock extends BaseEntityBlock {
         this(properties, COOL_TICKS, TARGETS);
     }
 
-    /** A mold with its own cooling time and target weights (Phase 15: from the tier's stats). */
     public MoldBlock(Properties properties, int coolTicks, int[] targets) {
         super(properties);
         this.coolTicks = coolTicks;
@@ -78,12 +71,10 @@ public class MoldBlock extends BaseEntityBlock {
         registerDefaultState(stateDefinition.any().setValue(METAL, MoltenMetal.NONE).setValue(LEVEL, 0).setValue(SOLID, false));
     }
 
-    /** Ticks from the last pour until the metal is solid (Phase 13: the Casting Mold cools 3x faster). */
     public int coolTicks() {
         return coolTicks;
     }
 
-    /** The selectable target weights of this mold. */
     public int[] targets() {
         return targets;
     }
@@ -97,7 +88,6 @@ public class MoldBlock extends BaseEntityBlock {
         return DEFAULT_TARGET;
     }
 
-    /** Next (or previous) target of this mold, wrapping round. */
     public int nextTargetFor(int current, boolean backwards) {
         int[] ts = targets();
         int i = 0;
@@ -148,7 +138,6 @@ public class MoldBlock extends BaseEntityBlock {
         return level.getBlockEntity(pos) instanceof MoldBlockEntity m ? m : null;
     }
 
-    /** The mold a crucible at {@code crucible} facing {@code facing} pours into: in front, or in front and one lower. */
     @Nullable
     public static BlockPos findInFront(BlockGetter level, BlockPos crucible, Direction facing) {
         BlockPos front = crucible.relative(facing);
@@ -170,7 +159,6 @@ public class MoldBlock extends BaseEntityBlock {
         return DEFAULT_TARGET;
     }
 
-    /** Next (or previous) target in {@link #TARGETS}, wrapping round. */
     public static int nextTarget(int current, boolean backwards) {
         int i = 0;
         for (int k = 0; k < TARGETS.length; k++) {
@@ -182,13 +170,10 @@ public class MoldBlock extends BaseEntityBlock {
         return TARGETS[i];
     }
 
-    /** Visual metal + level for the contents (SOLID is handled by the caller). */
     public static BlockState withContents(BlockState state, MoldBlockEntity m) {
         int level = m.isEmpty() ? 0 : m.grams() >= m.target() ? 3 : m.grams() * 2 < m.target() ? 1 : 2;
         return state.setValue(METAL, m.isEmpty() ? MoltenMetal.NONE : MoltenMetal.of(m.metal())).setValue(LEVEL, level);
     }
-
-    // ---- cooling ----
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
@@ -211,13 +196,9 @@ public class MoldBlock extends BaseEntityBlock {
         solidTick(level, pos, state.setValue(SOLID, true), m);
     }
 
-    /** Called when the ingot has just gone solid and on every later scheduled tick while it is still in the mold. */
     protected void solidTick(ServerLevel level, BlockPos pos, BlockState state, MoldBlockEntity mold) {
     }
 
-    // ---- player ----
-
-    /** Holding something: let the item do its thing (place a block against the mold...). */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
                                               InteractionHand hand, BlockHitResult hitResult) {
@@ -232,7 +213,6 @@ public class MoldBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Empty-hand click: cycle the target (empty mold), take the ingot (cooled) or say it's still cooling. Public for tests. */
     public static void click(Level level, BlockPos pos, Player player, boolean sneaking) {
         MoldBlockEntity m = mold(level, pos);
         if (m == null) {
@@ -269,8 +249,6 @@ public class MoldBlock extends BaseEntityBlock {
         level.playSound(null, pos, SoundEvents.ARMOR_EQUIP_IRON.value(), SoundSource.BLOCKS, 0.6F, 1.2F);
     }
 
-    // ---- breaking ----
-
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide) {
@@ -285,9 +263,6 @@ public class MoldBlock extends BaseEntityBlock {
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    // ---- client ----
-
-    /** Hot metal smokes a little. */
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(LEVEL) > 0 && !state.getValue(SOLID) && random.nextInt(2) == 0) {

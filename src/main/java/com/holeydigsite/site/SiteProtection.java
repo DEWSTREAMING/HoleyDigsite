@@ -36,13 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Protected site zones (Phase 14): the whole footprint of a store or kiosk (foundation, building, roof and a margin of air
- * above) can't be changed by survival players - no breaking (incl. shovel scoops), placing, buckets, fire, tool conversions
- * (axe stripping, hoe, shovel paths), pistons or explosions. Using the shop (displays, pads, button, Money Pan, doors) still
- * works. Creative players are not restricted (that is how designs are edited in place, then exported).
+ * The protected footprint of a store or kiosk (foundation, building, roof, and a margin of air above) cannot be changed by survival players (no breaking including shovel scoops, placing, buckets, fire, tool conversions like axe stripping, hoe, and shovel paths, pistons, or explosions). Using the shop (displays, pads, button, Money Pan, doors) still works. Creative players are not restricted so designs can be edited in place and exported.
  *
- * <p>Fire can't be blocked with an event when it spreads from outside, so fire that appears inside a zone or right next to
- * one is put out on the next tick, long before it can burn anything (fire needs 30+ ticks to act).</p>
+ * <p>Fire cannot be blocked with an event when it spreads from outside, so fire appearing inside a zone or right next to it is put out on the next tick before it can burn anything.</p>
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class SiteProtection {
@@ -104,7 +100,7 @@ public final class SiteProtection {
         }
     }
 
-    /** Axe stripping, hoe tilling, shovel paths, ... */
+    /** Axe stripping, hoe tilling, and shovel paths. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onToolModification(BlockEvent.BlockToolModificationEvent event) {
         if (!event.isSimulated() && restricted(event.getPlayer()) && isProtected(event.getLevel(), event.getPos())) {
@@ -112,7 +108,7 @@ public final class SiteProtection {
         }
     }
 
-    /** Fire starters used on / against a zone. */
+    /** Fire starters used on or against a zone. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
@@ -122,8 +118,8 @@ public final class SiteProtection {
         BlockPos pos = event.getPos();
         ItemStack held = event.getItemStack();
         BlockPos against = pos.relative(event.getFace() == null ? Direction.UP : event.getFace());
-        // block placement itself is refused by onPlace (EntityPlaceEvent) - cancelling every right-click with a block in hand
-        // here would also stop players from using the displays / pads while holding something
+        // Block placement itself is refused by onPlace (EntityPlaceEvent), cancelling every right-click with a block in hand
+        // here would also stop players from using the displays or pads while holding something.
         boolean fire = held.getItem() instanceof FlintAndSteelItem || held.getItem() instanceof FireChargeItem;
         if (fire && (isProtected(event.getLevel(), pos) || isProtected(event.getLevel(), against))) {
             event.setCanceled(true);
@@ -132,7 +128,7 @@ public final class SiteProtection {
         }
     }
 
-    /** Buckets aimed into a zone (scooping / pouring). */
+    /** Buckets aimed into a zone for scooping or pouring. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
@@ -184,7 +180,7 @@ public final class SiteProtection {
         }
     }
 
-    /** Lava setting things alight inside / next to a zone. */
+    /** Lava setting things alight inside or next to a zone. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onFluidPlace(BlockEvent.FluidPlaceBlockEvent event) {
         if (event.getNewState().getBlock() instanceof BaseFireBlock && zoneAt(event.getLevel(), event.getPos(), 1) != null) {
@@ -192,7 +188,7 @@ public final class SiteProtection {
         }
     }
 
-    /** Fire spreading from outside: remember it, put it out next tick. */
+    /** Fire spreading from outside, remembered and put out on the next tick. */
     @SubscribeEvent
     public static void onNeighborNotify(BlockEvent.NeighborNotifyEvent event) {
         if (event.getState().getBlock() instanceof BaseFireBlock && event.getLevel() instanceof ServerLevel

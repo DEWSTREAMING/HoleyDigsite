@@ -19,14 +19,14 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /**
- * Phase 21d: networking of the operator's shop display setup screen. The server opens it ({@link OpenPayload}), the client
- * answers with {@link SavePayload} (save or clear). Every save re-checks permission, distance and the display on the server.
+ * Networking of the operator's shop display setup screen. The server opens it ({@link OpenPayload}) and the client
+ * answers with {@link SavePayload}. Every save re-checks permission, distance and the display on the server.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class ShopSetupNetwork {
     private ShopSetupNetwork() {}
 
-    /** Server -> client: open the screen for the display at {@code pos}; {@code hasEntry} = editing an existing custom entry. */
+    /** Open the screen for the display at {@code pos}. */
     public record OpenPayload(BlockPos pos, ItemStack template, boolean hasEntry, int count, long price, long buyBack)
             implements CustomPacketPayload {
         public static final Type<OpenPayload> TYPE = new Type<>(HoleyDigsite.id("shop_setup_open"));
@@ -43,7 +43,7 @@ public final class ShopSetupNetwork {
         public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 
-    /** Client -> server: save the entry (or {@code clear}). {@code buyBack} 0 = no buy-back. */
+    /** Save the entry or clear it. */
     public record SavePayload(BlockPos pos, boolean clear, ItemStack template, int count, long price, long buyBack)
             implements CustomPacketPayload {
         public static final Type<SavePayload> TYPE = new Type<>(HoleyDigsite.id("shop_setup_save"));
@@ -73,7 +73,7 @@ public final class ShopSetupNetwork {
                 }));
     }
 
-    /** Opens the setup screen for an op at the display {@code pos}; {@code held} is the starting template for a new entry. */
+    /** Opens the setup screen for an op at the display {@code pos}. */
     public static void open(ServerPlayer op, BlockPos pos, ItemStack held) {
         ServerLevel level = op.serverLevel();
         if (!CustomShops.isOp(op) || !(level.getBlockEntity(pos) instanceof ShopDisplayBlockEntity display) || display.item() != null) {
@@ -88,7 +88,7 @@ public final class ShopSetupNetwork {
         }
     }
 
-    /** The server side of Save / Clear. Public for tests. Returns the result (BAD_VALUES / NO_DISPLAY also for refused players). */
+    /** The server side of save or clear, made public for tests. */
     public static CustomShops.Result handleSave(ServerPlayer sp, SavePayload p) {
         if (!CustomShops.isOp(sp)) {
             sp.displayClientMessage(Component.translatable("message.holeydigsite.display.not_op").withStyle(ChatFormatting.RED), true);

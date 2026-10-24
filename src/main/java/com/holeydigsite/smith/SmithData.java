@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * What a smithed piece is made of (Phase 19), the {@code holeydigsite:smith} data component: every ingot in the order it
- * was laid on the anvil (metal + grams, mixed metals allowed) and the gem (material + grams) if there was one.
+ * Data component storing ingots and gems comprising a smithed piece.
  */
 public record SmithData(List<Ingot> ingots, Optional<Gem> gem) {
-    /** One ingot: its metal ({@code holeydigsite:folkiron}) and the grams it was cast at. */
+    /** An individual ingot component with metal and grams. */
     public record Ingot(ResourceLocation metal, int grams) {
         public static final Codec<Ingot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 ResourceLocation.CODEC.fieldOf("metal").forGetter(Ingot::metal),
@@ -26,7 +25,7 @@ public record SmithData(List<Ingot> ingots, Optional<Gem> gem) {
                 ResourceLocation.STREAM_CODEC, Ingot::metal, ByteBufCodecs.VAR_INT, Ingot::grams, Ingot::new);
     }
 
-    /** The gem: its material ({@code holeydigsite:sapphire}) and grams. */
+    /** An individual gem component with material and grams. */
     public record Gem(ResourceLocation material, int grams) {
         public static final Codec<Gem> CODEC = RecordCodecBuilder.create(i -> i.group(
                 ResourceLocation.CODEC.fieldOf("material").forGetter(Gem::material),
@@ -58,7 +57,7 @@ public record SmithData(List<Ingot> ingots, Optional<Gem> gem) {
         return n;
     }
 
-    /** The metal with the most grams in total (the first one on a tie), or null without ingots. */
+    /** The metal with the most grams in total. */
     @Nullable
     public ResourceLocation mainMetal() {
         ResourceLocation best = null;

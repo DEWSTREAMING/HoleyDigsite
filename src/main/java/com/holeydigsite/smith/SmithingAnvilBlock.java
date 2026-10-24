@@ -39,19 +39,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Smithing Anvil (Phase 19, placeholder name): lay whole ingots (and a cut gem) on it, pick a recipe, strike it with the Blacksmith
- * Hammer, get a piece that remembers its materials. See {@link SmithingAnvilBlockEntity} for the contents and {@link AnvilRecipe}.
+ * Smithing Anvil. Lay whole ingots and a cut gem on it, pick a recipe, strike it with the Blacksmith
+ * Hammer, and get a piece that remembers its materials. See {@link SmithingAnvilBlockEntity} for the contents and {@link AnvilRecipe}.
  *
  * <h2>Controls</h2>
  * <ul>
- *   <li><b>Lay</b>: right-click with an ingot or a cut gem puts ONE on the anvil (even from a stack); uncut gems, unknown metals,
+ *   <li><b>Lay</b>: right-click with an ingot or a cut gem puts one on the anvil, even from a stack. Uncut gems, unknown metals,
  *       too light ingots, a second gem and a fourth ingot are refused with a short message.</li>
- *   <li><b>Take back</b>: empty-hand right-click returns the item laid last. <b>Recipe</b>: sneak + empty hand cycles.</li>
- *   <li><b>Hammer</b>: right-click with the Blacksmith Hammer. Each valid hit counts; the last one makes the piece (into the
- *       player's inventory). A mismatching recipe says what is wrong and uses nothing up.</li>
+ *   <li><b>Take back</b>: empty-hand right-click returns the item laid last. <b>Recipe</b>: sneak and empty hand cycles.</li>
+ *   <li><b>Hammer</b>: right-click with the Blacksmith Hammer. Each valid hit counts, and the last one makes the piece into the
+ *       player's inventory. A mismatching recipe says what is wrong and uses nothing up.</li>
  *   <li><b>Break</b>: drops the anvil plus everything on it.</li>
  * </ul>
- * No ticking: all state is in the block entity.
+ * All state is in the block entity.
  */
 public class SmithingAnvilBlock extends BaseEntityBlock {
     public static final MapCodec<SmithingAnvilBlock> CODEC = simpleCodec(SmithingAnvilBlock::new);
@@ -71,7 +71,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
         }
     }
 
-    /** A box given for the NORTH-facing model (long axis along x), rotated to {@code facing}. */
+    /** A box given for the NORTH-facing model with the long axis along x, rotated to {@code facing}. */
     private static VoxelShape rotated(Direction facing, double x1, double y1, double z1, double x2, double y2, double z2) {
         return switch (facing) {
             case SOUTH -> Block.box(16 - x2, y1, 16 - z2, 16 - x1, y2, 16 - z1);
@@ -132,7 +132,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
         return new SmithingAnvilBlockEntity(pos, state);
     }
 
-    /** Breaking drops the anvil (loot table) plus everything on it. */
+    /** Breaking drops the anvil plus everything on it. */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide && anvil(level, pos) instanceof SmithingAnvilBlockEntity a) {
@@ -160,7 +160,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
         }
         SmithingAnvilBlockEntity a = anvil(level, pos);
         if (a == null || a.check(stack) == SmithingAnvilBlockEntity.Refusal.NOT_ACCEPTED) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // an ordinary item: let blocks be placed against it
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         if (!level.isClientSide) {
             layHeld(level, pos, player, stack);
@@ -183,7 +183,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Lays one item of the held stack on the anvil. Public for tests; returns whether it was laid. */
+    /** Lays one item of the held stack on the anvil. Returns whether it was laid. */
     public static boolean layHeld(Level level, BlockPos pos, Player player, ItemStack stack) {
         SmithingAnvilBlockEntity a = anvil(level, pos);
         if (a == null) {
@@ -213,7 +213,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
         return true;
     }
 
-    /** Gives the item laid last back. Public for tests; returns it (empty if the anvil was empty). */
+    /** Gives the item laid last back, or empty if the anvil was empty. */
     public static ItemStack takeBack(Level level, BlockPos pos, Player player) {
         SmithingAnvilBlockEntity a = anvil(level, pos);
         if (a == null) {
@@ -230,7 +230,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
         return s;
     }
 
-    /** Selects the next recipe (sneak = empty hand). Public for tests. */
+    /** Selects the next recipe. */
     public static void cycle(Level level, BlockPos pos, Player player) {
         SmithingAnvilBlockEntity a = anvil(level, pos);
         if (a == null) {
@@ -249,9 +249,9 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
     public enum Hit { NO_ANVIL, NO_RECIPE, MISMATCH, HIT, MADE }
 
     /**
-     * One hammer hit (the cooldown is the caller's business). A hit counts only if the contents match the selected recipe
-     * ({@link SmithingAnvilBlockEntity#problem}); otherwise a short red message says what is wrong and nothing changes. The
-     * last needed hit makes the piece, which goes to the player. Public for tests.
+     * One hammer hit. A hit counts only if the contents match the selected recipe
+     * ({@link SmithingAnvilBlockEntity#problem}). Otherwise a short red message says what is wrong and nothing changes. The
+     * last needed hit makes the piece, which goes to the player.
      */
     public static Hit hammer(Level level, BlockPos pos, Player player) {
         SmithingAnvilBlockEntity a = anvil(level, pos);

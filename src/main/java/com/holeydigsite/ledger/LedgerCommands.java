@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Phase 21c: Prospector's Ledger admin and test commands under {@code /holeydigsite ledger ...}.
+ * Prospector's Ledger admin and test commands under {@code /holeydigsite ledger ...}.
  */
 public final class LedgerCommands {
     private LedgerCommands() {}

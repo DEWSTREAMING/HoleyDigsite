@@ -15,9 +15,9 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import java.util.List;
 
 /**
- * Sell Pad (Phase 8 rework): holds up to 9 stacks of sellable items on top, shows their total value floating above it,
- * and is sold by pressing an adjacent Shop Button (coins into the button's adjacent Money Pan). Prices are data-driven
- * ({@link Selling}); items without a price (coins, machines, clumps, tools, blueprints, vanilla items) are refused.
+ * Sell Pad, holds up to 9 stacks of sellable items on top, shows their total value floating above it,
+ * and is sold by pressing an adjacent Shop Button. Prices are data-driven
+ * ({@link Selling}), and items without a price are refused.
  * See {@link AbstractPadBlock} for the clicks.
  */
 public class SellPadBlock extends AbstractPadBlock implements com.holeydigsite.transport.ItemTarget {
@@ -37,7 +37,7 @@ public class SellPadBlock extends AbstractPadBlock implements com.holeydigsite.t
         return Selling.isSellable(stack, level.registryAccess());
     }
 
-    /** Phase 21d: also takes items the store's operator entries buy back. */
+    /** Also takes items the store operator entries buy back. */
     @Override
     public boolean accepts(ItemStack stack, Level level, net.minecraft.core.BlockPos pos) {
         return accepts(stack, level) || (level instanceof net.minecraft.server.level.ServerLevel sl
@@ -54,7 +54,7 @@ public class SellPadBlock extends AbstractPadBlock implements com.holeydigsite.t
         return "message.holeydigsite.sell_pad.help";
     }
 
-    /** Total copper value of the stacks on a Sell Pad (what the floating text shows and the button pays). */
+    /** Total copper value of the stacks on a Sell Pad shown by floating text and paid by the button. */
     public static long value(List<ItemStack> stacks, HolderLookup.Provider registries) {
         long total = 0;
         for (ItemStack s : stacks) {
@@ -70,7 +70,7 @@ public class SellPadBlock extends AbstractPadBlock implements com.holeydigsite.t
         tooltip.add(Component.translatable("tooltip.holeydigsite.sell_pad.how").withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    // ---- Phase 12: belts put sellable items on the pad (selling still needs the Shop Button) ----
+    // Belts put sellable items on the pad, though selling still needs the Shop Button.
 
     @Override
     public boolean canAcceptItem(Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state,

@@ -21,8 +21,8 @@ import net.minecraft.world.phys.HitResult;
 import java.util.Map;
 
 /**
- * Phase 21d: {@code /holeydigsite display set <price> [count] [buyprice]} (looking at a display; the held stack is the
- * template), {@code display clear}, {@code display info}, {@code display list [site]}. Permission level 2.
+ * Commands for {@code /holeydigsite display set <price> [count] [buyprice]} when looking at a display with the template in hand,
+ * alongside {@code display clear}, {@code display info}, and {@code display list [site]}. Requires permission level 2.
  */
 public final class DisplayCommands {
     private DisplayCommands() {}
@@ -45,7 +45,7 @@ public final class DisplayCommands {
                                         .executes(c -> list(c, StringArgumentType.getString(c, "site")))))));
     }
 
-    /** The display the player is looking at, or null (with an error message). */
+    /** Returns the display the player is looking at, or null with an error message. */
     private static BlockPos target(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer p = c.getSource().getPlayerOrException();
         HitResult hit = p.pick(8.0, 1.0F, false);

@@ -5,9 +5,9 @@ import com.holeydigsite.economy.Selling;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Phase 12 Filter Belt matching. A filter item with a material in {@code resource_weights} matches the whole material
- * (any Folkiron chunk size or ingot weight; a cut Ruby matches cut AND uncut Rubies). A filter set with an UNCUT gem
- * matches only uncut gems of that kind ("uncut only"). Any other filter item matches the exact item incl. its data (so a
+ * Filter Belt matching. A filter item with a material in {@code resource_weights} matches the whole material
+ * (any Folkiron chunk size or ingot weight, where a cut Ruby matches cut and uncut Rubies). A filter set with an UNCUT gem
+ * matches only uncut gems of that kind ("uncut only"). Any other filter item matches the exact item including its data (so a
  * Deep Dirt Clump filter takes only Deep clumps).
  */
 public final class FilterMatch {

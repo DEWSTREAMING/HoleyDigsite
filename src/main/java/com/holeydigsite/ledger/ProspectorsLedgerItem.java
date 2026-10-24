@@ -16,8 +16,8 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Phase 21a: The Prospector's Ledger ({@code holeydigsite:prospectors_ledger}).
- * Given free on first join; right-clicking checks old-world milestones on the server, syncs data, and opens the Ledger screen on the client.
+ * The Prospector's Ledger ({@code holeydigsite:prospectors_ledger}).
+ * Given free on first join, right-clicking checks old-world milestones on the server, syncs data, and opens the Ledger screen on the client.
  */
 public class ProspectorsLedgerItem extends Item {
     public ProspectorsLedgerItem(Properties properties) {

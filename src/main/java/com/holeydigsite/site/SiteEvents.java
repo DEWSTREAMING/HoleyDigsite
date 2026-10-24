@@ -12,7 +12,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
-/** Phase 14 wiring: site tables, the world-load checks, "store updated" messages on login, commands. */
+/** Wires up site tables, world load checks, store updated messages on login, and commands. */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class SiteEvents {
     private SiteEvents() {}
@@ -25,7 +25,7 @@ public final class SiteEvents {
         event.addListener(new SiteDefs.Loader());
     }
 
-    /** World load: content-version upgrades first, then every site's version check / layout refresh. */
+    /** Handles world load by running content version upgrades first, then checking versions and refreshing layouts for every site. */
     @SubscribeEvent
     public static void onStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();

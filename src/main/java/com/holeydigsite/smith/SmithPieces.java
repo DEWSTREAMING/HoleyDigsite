@@ -25,18 +25,17 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Everything about a smithed piece (Phase 19): creating the stack from its ingredients (stats from the metals), its name and
- * tooltip, and its sell value.
+ * Creates smithed pieces from ingredients, sets stats, names, tooltips, and sell values.
  */
 public final class SmithPieces {
     private SmithPieces() {}
 
     private static final ResourceLocation BASE_DAMAGE_ID = ResourceLocation.withDefaultNamespace("base_attack_damage");
     private static final ResourceLocation BASE_SPEED_ID = ResourceLocation.withDefaultNamespace("base_attack_speed");
-    /** A tool never mines slower than this (wood level). */
+    /** A tool never mines slower than this. */
     private static final double MIN_MINING_SPEED = 2.0;
 
-    /** Computed stats of a weapon / tool: {@code scale} = share of the metals' full stats reached through the weight. */
+    /** Computed stats of a weapon or tool. */
     public record Stats(double scale, double damage, double speed, int durability) {}
 
     @Nullable
@@ -45,13 +44,7 @@ public final class SmithPieces {
     }
 
     /**
-     * Stats from the ingots: the metals' values averaged by grams, scaled by {@code floor + (1 - floor) * min(1, total / full_grams)}.
-     * Damage = base + average bonus x scale x damage_scale; durability = average x scale x durability_scale; speed = average x scale.
-     */
-    /**
-     * The material (metal or gem id) that tints layer {@code layer} of a piece's item model, or empty for a plain layer (wood, leather).
-     * Follows the recipe's {@code parts}; an ingot slot the piece has fewer ingots for uses its last ingot. Without parts: layer 0 =
-     * main metal, layer 1 = gem.
+     * The material ID that tints a layer of an item model, or empty for plain layers.
      */
     public static Optional<ResourceLocation> partMaterial(@Nullable AnvilRecipe recipe, SmithData data, int layer) {
         List<AnvilRecipe.Part> parts = recipe == null ? List.of() : recipe.parts();
@@ -91,7 +84,7 @@ public final class SmithPieces {
                 (int) Math.max(1, Math.round(durability / total * scale * gear.durabilityScale())));
     }
 
-    /** A piece of {@code item} made of {@code data}: the component plus (weapons / tools) durability, damage, speed and mining speed. */
+    /** A piece made of data, including durability, damage, and speed. */
     public static ItemStack create(Item item, SmithData data, HolderLookup.Provider registries) {
         ItemStack stack = new ItemStack(item);
         stack.set(ModDataComponents.SMITH.get(), data);
@@ -117,8 +110,6 @@ public final class SmithPieces {
         return stack;
     }
 
-    // ------------------------------------------------------------------------------------------------ wearing (Phase 20)
-
     /** Armour and toughness a worn piece gives. */
     public record Armor(double armor, double toughness) {
         public static final Armor NONE = new Armor(0, 0);
@@ -134,14 +125,14 @@ public final class SmithPieces {
     private static final ResourceLocation WEAR_ARMOR_ID = ResourceLocation.fromNamespaceAndPath("holeydigsite", "jewellery_armor");
     private static final ResourceLocation WEAR_TOUGHNESS_ID = ResourceLocation.fromNamespaceAndPath("holeydigsite", "jewellery_toughness");
 
-    /** The recipe's wear block of the piece's item, if it is wearable at all. */
+    /** The recipe wear block of the item if wearable. */
     @Nullable
     public static AnvilRecipe.Wear wearRule(Item item, HolderLookup.Provider registries) {
         AnvilRecipe recipe = AnvilRecipes.forItem(registries, item);
         return recipe == null ? null : recipe.wear().orElse(null);
     }
 
-    /** Armour of a piece worn at {@code where} (NONE if the stack has no materials or the recipe does not allow that place). */
+    /** Armour of a piece worn at the given location. */
     public static Armor wearStats(ItemStack stack, HolderLookup.Provider registries, WearWhere where) {
         SmithData data = data(stack);
         AnvilRecipe.Wear wear = data == null ? null : wearRule(stack.getItem(), registries);
@@ -151,7 +142,6 @@ public final class SmithPieces {
         return wearStats(wear, data, registries, where);
     }
 
-    /** Mirror in tools/EconomySim.java (phase20). */
     public static Armor wearStats(AnvilRecipe.Wear wear, SmithData data, HolderLookup.Provider registries, WearWhere where) {
         AnvilRecipe.WearSlot slot = (where == WearWhere.HEAD ? wear.head() : wear.curio()).orElse(null);
         double total = data.ingotGrams();
@@ -170,7 +160,7 @@ public final class SmithPieces {
         return new Armor(armor / total * scale * slot.armor(), toughness / total * scale * slot.toughness());
     }
 
-    /** The item attribute modifiers of a necklace worn in the head slot (empty if it gives none). */
+    /** The item attribute modifiers of a necklace worn in the head slot. */
     public static ItemAttributeModifiers headModifiers(Armor a) {
         ItemAttributeModifiers.Builder b = ItemAttributeModifiers.builder();
         if (a.armor() > 0) {
@@ -180,11 +170,10 @@ public final class SmithPieces {
             b.add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(WEAR_TOUGHNESS_ID, a.toughness(), AttributeModifier.Operation.ADD_VALUE),
                     EquipmentSlotGroup.HEAD);
         }
-        // the piece's own tooltip tells the numbers, so the vanilla attribute block stays hidden
         return b.build().withTooltip(false);
     }
 
-    /** Sets the head-slot armour component on a stack that has materials and a head wear rule; returns true if it changed anything. */
+    /** Sets the head slot armour component on a stack. */
     public static boolean applyHeadArmor(ItemStack stack, HolderLookup.Provider registries) {
         Armor a = wearStats(stack, registries, WearWhere.HEAD);
         if (a.isEmpty()) {
@@ -198,11 +187,8 @@ public final class SmithPieces {
         return true;
     }
 
-    // ------------------------------------------------------------------------------------------------ value
-
     /**
-     * Copper value of one piece: (sum of ingot grams x the metal's ingot price + gem grams x the gem's cut price) x (1 + the recipe's
-     * bonus), times the remaining durability for weapons / tools. 0 for an item without materials.
+     * Copper value of one piece based on ingredients, recipe bonus, and remaining durability.
      */
     public static long value(ItemStack stack, HolderLookup.Provider registries) {
         SmithData data = data(stack);
@@ -219,7 +205,7 @@ public final class SmithPieces {
         return (long) Math.floor(v + 1e-9);
     }
 
-    /** Sell value of the ingredients alone (no bonus, no wear). */
+    /** Sell value of the ingredients alone. */
     public static double ingredientValue(SmithData data, HolderLookup.Provider registries) {
         double sum = 0;
         for (SmithData.Ingot ing : data.ingots()) {
@@ -234,16 +220,13 @@ public final class SmithPieces {
         return sum;
     }
 
-    // ------------------------------------------------------------------------------------------------ name + tooltip
-
-    /** "Goldchro Sword": the main metal (most grams) in front of the piece's plain name. */
+    /** The main metal in front of the plain name. */
     public static Component name(ItemStack stack, Component plain) {
         SmithData data = data(stack);
         ResourceLocation main = data == null ? null : data.mainMetal();
         return main == null ? plain : Component.translatable("item.holeydigsite.smith_named", Metals.name(main), plain);
     }
 
-    /** "Goldchro 120 g, Silvane 90 g · Sapphire 4 g". */
     public static MutableComponent materials(SmithData data) {
         MutableComponent line = Component.empty();
         boolean first = true;
@@ -259,7 +242,6 @@ public final class SmithPieces {
         return line;
     }
 
-    /** "+2.6 Armour when worn on the head" / "+1.3 Armour in a Curios slot" and where the piece can be worn. */
     private static void wearTooltip(ItemStack stack, HolderLookup.Provider registries, List<Component> tooltip) {
         AnvilRecipe.Wear wear = wearRule(stack.getItem(), registries);
         if (wear == null) {
@@ -292,7 +274,7 @@ public final class SmithPieces {
         return String.format(java.util.Locale.ROOT, "%.1f", v);
     }
 
-    /** Tooltip lines of a smithed piece: its materials and what it sells for. */
+    /** Tooltip lines of a smithed piece showing materials and sell price. */
     public static void tooltip(ItemStack stack, Item.TooltipContext context, List<Component> tooltip) {
         SmithData data = data(stack);
         if (data == null) {

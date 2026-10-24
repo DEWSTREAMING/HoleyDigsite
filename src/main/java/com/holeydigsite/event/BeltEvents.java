@@ -14,11 +14,10 @@ import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
- * Sneak-right-click with Dirt Clumps on a Clump Belt or a Sluice Box should put as many in as fit, and sneak-right-click
- * with anything on a shop pad / Money Pan moves everything onto it, and on a Shop Display (creative) sets its
- * item (Phase 8), and sneak-right-click on a Crucible adds all chunks of its metal (Phase 9). Vanilla skips the
- * block's interaction when a player sneaks with an item in hand, so we tell it to use the block anyway in that case.
- * Runs on both sides (the client decides whether to send the click).
+ * Sneak-right-clicking with Dirt Clumps on a Clump Belt or Sluice Box inserts as many as fit, while sneak-right-clicking
+ * with anything on a shop pad or Money Pan moves everything onto it. On a Shop Display it sets its item,
+ * and on a Crucible it adds all chunks of its metal. Vanilla skips block interaction when a player sneaks with
+ * an item in hand, so this forces block usage in that case. Runs on both sides.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class BeltEvents {
@@ -30,11 +29,11 @@ public final class BeltEvents {
         if (block instanceof AbstractPadBlock || block instanceof MoneyPanBlock || block instanceof ShopButtonBlock
                 || block instanceof ShopDisplayBlock || block instanceof com.holeydigsite.forge.CrucibleBlock
                 || block instanceof com.holeydigsite.forge.CraftingForgeBlock || block instanceof com.holeydigsite.smith.SmithingAnvilBlock) {
-            event.setUseBlock(TriState.TRUE); // sneak-right-click with anything: pads/pan take everything, display sets its item
+            event.setUseBlock(TriState.TRUE); // pads/pan take everything, display sets its item
             return;
         }
         if (block instanceof ClumpBeltBlock && ClumpBeltBlock.playerInsertable(event.getItemStack())) {
-            event.setUseBlock(TriState.TRUE); // Phase 12: sneak puts the whole stack on (any non-block item); Filter Belt: sets the filter
+            event.setUseBlock(TriState.TRUE); // sneak puts the whole stack on, or sets the filter for a Filter Belt
             return;
         }
         if (!com.holeydigsite.tier.DirtTier.isClump(event.getItemStack())) {

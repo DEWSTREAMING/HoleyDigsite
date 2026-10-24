@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 /**
  * Holey Digsite - a Hydroneer-style dirt panning mod.
  *
- * <p>Gameplay loop (built up over several phases):
+ * <p>Gameplay loop:
  * dig dirt with a wooden shovel (or drill Dirt Clumps from Dirtrock) -> fill a gold pan -> pan it in water with a brush
  * (or belt the clumps into a Sluice Box) -> Folkiron, Goldchro and Rubies -> sell them on the Sell Pad for coins, or melt the
  * metal in a Crucible on a lava-lit Forge and cast weighted ingots in a Mold (worth more per gram).
@@ -23,11 +23,11 @@ import org.slf4j.Logger;
  * <p>This class only wires the registries to the mod event bus. Game logic lives in:
  * <ul>
  *   <li>{@code block/}    - the Pan block and its clumps-only item handler</li>
- *   <li>{@code power/}    - fluid power: water and (Phase 9) lava intakes, pipes and the on/off networks</li>
+ *   <li>{@code power/}    - fluid power: water and lava intakes, pipes and the on/off networks</li>
  *   <li>{@code drill/}    - the Tier 1 Mining Drill and where it may output Dirt Clumps</li>
  *   <li>{@code belt/}     - the Clump Belt conveyor (block, contents/movement block entity)</li>
  *   <li>{@code sluice/}   - the Tier 1 Sluice Box (water-powered auto-panning into a tray)</li>
- *   <li>{@code forge/}    - Phase 9 melting and casting: Forge (lava powered), Crucible, adjustable Mold, ingot helpers</li>
+ *   <li>{@code forge/}    - melting and casting: Forge (lava powered), Crucible, adjustable Mold, ingot helpers</li>
  *   <li>{@code crafting/} - the "at least X g" recipe ingredient for weighted ingots</li>
  *   <li>{@code tier/}     - dirt tiers: rock -> clump tier -> pan tier -> loot table</li>
  *   <li>{@code economy/}  - data-driven resource weights (item data map) and sell values (datapack registry), coins</li>

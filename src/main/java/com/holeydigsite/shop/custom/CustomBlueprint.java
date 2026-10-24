@@ -11,9 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Phase 21d: the data component ({@code holeydigsite:custom_blueprint}) of a Blueprint for an operator-made display entry. It
- * names the entry by its stable id and revision and carries a snapshot of what it buys (template, count, price) so clients
- * can show the tooltip and the Buy Pad's total. The server only honours it while {@code rev} still matches the entry.
+ * The custom blueprint data component for an operator-made display entry, carrying a snapshot of what it buys for clients and validation.
  */
 public record CustomBlueprint(String id, int rev, ItemStack template, int count, long price) {
     public static final Codec<CustomBlueprint> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -32,13 +30,13 @@ public record CustomBlueprint(String id, int rev, ItemStack template, int count,
             ByteBufCodecs.VAR_LONG, CustomBlueprint::price,
             CustomBlueprint::new);
 
-    /** The custom data of a blueprint stack, or null (not a blueprint / a normal catalogue blueprint). */
+    /** The custom data of a blueprint stack, or null if not applicable. */
     @Nullable
     public static CustomBlueprint of(ItemStack stack) {
         return stack.is(ModItems.BLUEPRINT.get()) ? stack.get(ModDataComponents.CUSTOM_BLUEPRINT.get()) : null;
     }
 
-    /** A Blueprint stack for the entry {@code id}. */
+    /** Creates a blueprint stack for the given entry. */
     public static ItemStack stackFor(String id, CustomEntry entry, int amount) {
         ItemStack bp = new ItemStack(ModItems.BLUEPRINT.get(), amount);
         bp.set(ModDataComponents.CUSTOM_BLUEPRINT.get(),

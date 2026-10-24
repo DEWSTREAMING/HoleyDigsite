@@ -14,7 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Phase 21a: Per-player Prospector's Ledger state attached to {@link Player} via NeoForge data attachments.
+ * Per-player Prospector's Ledger state attached to {@link Player} via NeoForge data attachments.
  * Saved to player NBT and copied across death ({@code copyOnDeath}).
  */
 public final class LedgerData implements INBTSerializable<CompoundTag> {
@@ -163,7 +163,7 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     public String chosenTitle() { return chosenTitle; }
     public void setChosenTitle(String chosenTitle) { this.chosenTitle = chosenTitle == null ? "" : chosenTitle; }
 
-    /** Phase 21b: titles unlocked by claiming the level that grants them. */
+    /** Titles unlocked by claiming the level that grants them. */
     public Set<String> unlockedTitles() { return unlockedTitles; }
     public boolean hasTitle(String id) { return unlockedTitles.contains(id); }
     public boolean unlockTitle(String id) { return unlockedTitles.add(id); }
@@ -171,7 +171,7 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     /** Chosen title if it is still unlocked, else empty string (no title). */
     public String activeTitle() { return unlockedTitles.contains(chosenTitle) ? chosenTitle : ""; }
 
-    /** Phase 21c: resets the 5 ongoing-Renown play caps and remainders back to 0. */
+    /** Resets the five ongoing renown play caps and remainders back to zero. */
     public void resetCaps() {
         this.panRenown = 0;
         this.panRemainder = 0;
@@ -185,7 +185,7 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.sellRemainder = 0;
     }
 
-    /** Phase 21c: wipes all Ledger progress (Renown, claims, milestones, titles, caps, lifetime sales). */
+    /** Wipes all Ledger progress, including renown, claims, milestones, titles, caps, and lifetime sales. */
     public void resetAll() {
         this.renown = 0;
         this.claimedLevels.clear();

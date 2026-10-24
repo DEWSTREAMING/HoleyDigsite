@@ -50,28 +50,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Crafting Forge (Phase 10): a lava-powered workstation. Load ingots (pooled as grams per metal) and recipe parts, pick a
+ * Crafting Forge, a lava-powered workstation. Load ingots (pooled as grams per metal) and recipe parts, pick a
  * recipe, pull the cast handle. See {@link CraftingForgeBlockEntity} for the contents and {@link ForgeRecipe} for recipes.
  *
  * <h2>Controls</h2>
  * <ul>
- *   <li><b>Load</b>: right-click the forge (not the handle) with ingots (whole stack) or a recipe part (whole stack);
+ *   <li><b>Load</b>: right-click the forge (not the handle) with ingots (whole stack) or a recipe part (whole stack),
  *       sneak-right-click with anything loads every ingot from the inventory. Hoppers insert too. Chunks, rubies and
  *       other items are refused with a short message.</li>
- *   <li><b>Recipe</b>: empty-hand right-click (not the handle) = next recipe, sneak + empty hand = previous.</li>
+ *   <li><b>Recipe</b>: empty-hand right-click (not the handle) equals next recipe, sneak plus empty hand equals previous.</li>
  *   <li><b>Cast</b>: right-click the HANDLE on the front (any hand) or a redstone rising edge. Needs the forge lit, all
  *       requirements and no waiting output. Takes {@link CraftingForgeBlockEntity#CAST_TICKS} ticks.</li>
- *   <li><b>Collect</b>: empty-hand right-click anywhere while output is waiting - product + leftover ingots + parts.</li>
- *   <li><b>Take back</b> without casting: sneak + empty-hand right-click on the handle.</li>
+ *   <li><b>Collect</b>: empty-hand right-click anywhere while output is waiting (product, leftover ingots, parts).</li>
+ *   <li><b>Take back</b> without casting: sneak plus empty-hand right-click on the handle.</li>
  *   <li><b>Break</b>: drops the forge plus everything inside (pool as ingots, parts, output).</li>
  * </ul>
- * Lava port on the BACK, like the Forge. {@link #LIT} is pushed in by the lava network; no fuel, never ticks unless casting.
+ * Lava port on the back, like the Forge. {@link #LIT} is pushed in by the lava network, no fuel, never ticks unless casting.
  */
 public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkBlock, com.holeydigsite.transport.ItemTarget {
     public static final MapCodec<CraftingForgeBlock> CODEC = simpleCodec(CraftingForgeBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
-    /** A cast is running: handle pulled down, glow + sparks. */
+    /** A cast is running, handle pulled down, glow and sparks. */
     public static final BooleanProperty CASTING = BooleanProperty.create("casting");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -90,7 +90,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         }
     }
 
-    /** A box given for the NORTH-facing model (front = low z), rotated to {@code facing}. */
+    /** A box given for the NORTH-facing model where front is low z, rotated to {@code facing}. */
     private static VoxelShape rotated(Direction facing, double x1, double y1, double z1, double x2, double y2, double z2) {
         return switch (facing) {
             case SOUTH -> Block.box(16 - x2, y1, 16 - z2, 16 - x1, y2, 16 - z1);
@@ -148,7 +148,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return level.getBlockEntity(pos) instanceof CraftingForgeBlockEntity f ? f : null;
     }
 
-    // ---- block entity / ticking ----
+    // block entity and ticking
 
     @Nullable
     @Override
@@ -156,7 +156,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return new CraftingForgeBlockEntity(pos, state);
     }
 
-    /** Only a casting, lit forge ticks (a cast pauses while the lava is gone). */
+    /** Only a casting, lit forge ticks, a cast pauses while the lava is gone. */
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
@@ -166,7 +166,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return createTickerHelper(type, ModBlockEntities.CRAFTING_FORGE.get(), CraftingForgeBlockEntity::serverTick);
     }
 
-    // ---- lava network ----
+    // lava network
 
     @Override
     public Role waterRole() {
@@ -203,7 +203,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }
 
-    /** Breaking drops the forge (loot table) plus everything inside: pool as ingots, parts, output. */
+    /** Breaking drops the forge (loot table) plus everything inside (pool as ingots, parts, output). */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
@@ -218,7 +218,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    /** Redstone: one cast per rising edge (silently does nothing when it can't cast). */
+    /** Redstone, one cast per rising edge, silently does nothing when it can't cast. */
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
@@ -234,9 +234,9 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         }
     }
 
-    // ---- player ----
+    // player
 
-    /** True if the hit is on the cast handle: the front {@link #HANDLE_DEPTH} pixels of the block. */
+    /** True if the hit is on the cast handle, the front {@link #HANDLE_DEPTH} pixels of the block. */
     public static boolean isHandle(BlockState state, BlockPos pos, Vec3 hit) {
         Direction facing = state.getValue(FACING);
         double local = switch (facing) {
@@ -301,7 +301,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** The handle: collect if output is waiting, else try to cast. */
+    /** The handle, collect if output is waiting, else try to cast. */
     private static void handle(Level level, BlockPos pos, Player player) {
         CraftingForgeBlockEntity f = forge(level, pos);
         if (f != null && f.hasOutput()) {
@@ -313,7 +313,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
 
     /**
      * Starts a cast if the forge is lit, has no output waiting, isn't casting and the selected recipe's requirements are all
-     * loaded. With a player, a refusal shows a short red reason; from redstone ({@code player == null}) nothing happens.
+     * loaded. With a player, a refusal shows a short red reason, from redstone ({@code player == null}) nothing happens.
      * Public for tests. Returns true if a cast started.
      */
     public static boolean tryCast(Level level, BlockPos pos, @Nullable Player player) {
@@ -361,7 +361,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return true;
     }
 
-    /** Loads the held stack (ingots of any weight, or a recipe part). Public for tests; returns items taken. */
+    /** Loads the held stack (ingots of any weight, or a recipe part). Public for tests, returns items taken. */
     public static int loadHeld(Level level, BlockPos pos, Player player, ItemStack stack) {
         CraftingForgeBlockEntity f = forge(level, pos);
         if (f == null) {
@@ -388,7 +388,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return n;
     }
 
-    /** Sneak-click: every ingot in the inventory (main, hotbar, off hand). Public for tests; returns grams loaded. */
+    /** Sneak-click, every ingot in the inventory (main, hotbar, off hand). Public for tests, returns grams loaded. */
     public static int loadAllIngots(Level level, BlockPos pos, Player player) {
         CraftingForgeBlockEntity f = forge(level, pos);
         if (f == null) {
@@ -428,7 +428,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return grams;
     }
 
-    /** Collects the output into the inventory (overflow at the feet). Public for tests; returns the stacks given. */
+    /** Collects the output into the inventory (overflow at the feet). Public for tests, returns the stacks given. */
     public static List<ItemStack> collect(Level level, BlockPos pos, Player player) {
         CraftingForgeBlockEntity f = forge(level, pos);
         if (f == null) {
@@ -446,7 +446,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         return items;
     }
 
-    /** Takes everything back out without casting. Public for tests; returns the stacks given. */
+    /** Takes everything back out without casting. Public for tests, returns the stacks given. */
     public static List<ItemStack> takeBack(Level level, BlockPos pos, Player player) {
         CraftingForgeBlockEntity f = forge(level, pos);
         if (f == null) {
@@ -505,9 +505,9 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         player.displayClientMessage(Component.translatable(key).withStyle(color), true);
     }
 
-    // ---- client visuals ----
+    // client visuals
 
-    /** Embers while lit; sparks and flames around the basin while casting. */
+    /** Embers while lit, sparks and flames around the basin while casting. */
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (!state.getValue(LIT)) {
@@ -537,7 +537,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
         tooltip.add(Component.translatable("tooltip.holeydigsite.crafting_forge.cast").withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    // ---- Phase 12: belts deliver ingots and recipe parts (same rules as hoppers) ----
+    // belts deliver ingots and recipe parts (same rules as hoppers)
 
     @Override
     public boolean canAcceptItem(Level level, BlockPos pos, BlockState state, Direction from, ItemStack one) {

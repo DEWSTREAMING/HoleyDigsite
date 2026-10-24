@@ -22,16 +22,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Phase 21j: Reusable two-level radial menu screen rendered around the crosshair without pausing the game.
+ * Reusable two-level radial menu screen rendered around the crosshair without pausing the game.
  *
  * <ul>
  *   <li>Inner ring: categories ({@link Category}). A category with a single {@link Slice} can be picked directly from
- *       the inner ring; hovering a multi-slice category opens its slices in the outer ring.</li>
+ *       the inner ring, while hovering a multi-slice category opens its slices in the outer ring.</li>
  *   <li>Outer ring: the slices of the currently opened multi-slice category, arranged in an arc centred on that category.</li>
  *   <li>Each slice renders its result item icon, tinted green if {@link Slice#usable()} or greyed if not.</li>
- *   <li>The highlighted slice shows an info panel with result name + count, alt-recipe variant label, required
- *       metals/parts and readiness status.</li>
- *   <li>Releasing right-click selects the highlighted slice; releasing in the centre dead zone or pressing Escape cancels.</li>
+ *   <li>The highlighted slice shows an info panel with result name and count, alt-recipe variant label, required
+ *       metals or parts, and readiness status.</li>
+ *   <li>Releasing right-click selects the highlighted slice, whereas releasing in the centre dead zone or pressing Escape cancels.</li>
  * </ul>
  */
 public class RadialMenu extends Screen {
@@ -54,7 +54,7 @@ public class RadialMenu extends Screen {
     private static final int COL_ACCENT_UNUSABLE_HOVER = 0xFFD0D0D8;
     private static final int COL_ACCENT_CURRENT = 0xFFFFD84A;
 
-    /** One selectable recipe/option slice in the radial wheel. */
+    /** One selectable recipe or option slice in the radial wheel. */
     public record Slice(
             ResourceLocation id,
             ItemStack icon,
@@ -145,7 +145,7 @@ public class RadialMenu extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // Keep the world crisp behind the wheel; no full-screen blur or dim overlay.
+        // Keep the world crisp behind the wheel without full-screen blur or dim overlays.
     }
 
     /** Updates the hovered category and slice from GUI-scaled cursor coordinates. */
@@ -204,7 +204,7 @@ public class RadialMenu extends Screen {
                         playTickSound(1.0F);
                     }
                 } else {
-                    // Cursor moved far around the wheel outside the open arc -> switch to the category at this angle
+                    // If the cursor moves far around the wheel outside the open arc, switch to the category at this angle.
                     int newCat = Mth.clamp((int) Math.floor(angle / catStep), 0, nCats - 1);
                     if (newCat != activeCategory) {
                         activeCategory = newCat;

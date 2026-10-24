@@ -4,10 +4,10 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.world.level.block.PipeBlock;
 
 /**
- * Lava Pipe (Phase 9): the lava twin of the {@link WaterPipeBlock} - same shape, same connection rule and the same
- * {@link WaterPipeBlock#FILLED} "network is live" state (the model shows an orange glow window then), but it carries
- * {@link NetworkFluid#LAVA}: it only connects to lava pipes, Lava Intakes and lava ports (the Forge), never to anything
- * on a water network. No block entity, never ticks.
+ * The lava twin of the {@link WaterPipeBlock} (same shape, same connection rule, and the same
+ * {@link WaterPipeBlock#FILLED} "network is live" state where the model shows an orange glow window). It carries
+ * {@link NetworkFluid#LAVA} and only connects to lava pipes, Lava Intakes, and lava ports (never to anything
+ * on a water network). It has no block entity and never ticks.
  */
 public class LavaPipeBlock extends WaterPipeBlock {
     public static final MapCodec<LavaPipeBlock> CODEC = simpleCodec(LavaPipeBlock::new);

@@ -137,17 +137,67 @@ def make_drop_chute():
     make_chute_texture()
     tex = '%s:block/drop_chute' % NS
     # Model: Upper funnel collar (1 to 15, Y 12..16) + Lower shaft (3 to 13, Y 0..12)
+    # Walls meet with end-caps at corners (no slits), top rim pieces join with seamless UVs,
+    # and no two faces in the same plane (zero coplanar overlaps / z-fighting).
     elements = [
-        # Upper collar
-        box([1, 12, 1], [15, 16, 3], {'north': face('#tex'), 'south': face('#tex'), 'up': face('#tex'), 'down': face('#tex')}),
-        box([1, 12, 13], [15, 16, 15], {'south': face('#tex'), 'north': face('#tex'), 'up': face('#tex'), 'down': face('#tex')}),
-        box([1, 12, 3], [3, 16, 13], {'west': face('#tex'), 'east': face('#tex'), 'up': face('#tex'), 'down': face('#tex')}),
-        box([13, 12, 3], [15, 16, 13], {'east': face('#tex'), 'west': face('#tex'), 'up': face('#tex'), 'down': face('#tex')}),
-        # Lower shaft
-        box([3, 0, 3], [13, 12, 5], {'north': face('#tex'), 'south': face('#tex'), 'down': face('#tex')}),
-        box([3, 0, 11], [13, 12, 13], {'south': face('#tex'), 'north': face('#tex'), 'down': face('#tex')}),
-        box([3, 0, 5], [5, 12, 11], {'west': face('#tex'), 'east': face('#tex'), 'down': face('#tex')}),
-        box([11, 0, 5], [13, 12, 11], {'east': face('#tex'), 'west': face('#tex'), 'down': face('#tex')}),
+        # Upper collar (X: 1..15, Z: 1..15, Y: 12..16)
+        box([1, 12, 1], [15, 16, 3], {
+            'north': face('#tex', [1, 0, 15, 4]),
+            'south': face('#tex', [1, 0, 15, 4]),
+            'up': face('#tex', [1, 1, 15, 3]),
+            'down': face('#tex', [1, 1, 15, 3]),
+            'west': face('#tex', [1, 0, 3, 4]),
+            'east': face('#tex', [13, 0, 15, 4]),
+        }),
+        box([1, 12, 13], [15, 16, 15], {
+            'south': face('#tex', [1, 0, 15, 4]),
+            'north': face('#tex', [1, 0, 15, 4]),
+            'up': face('#tex', [1, 13, 15, 15]),
+            'down': face('#tex', [1, 13, 15, 15]),
+            'west': face('#tex', [13, 0, 15, 4]),
+            'east': face('#tex', [1, 0, 3, 4]),
+        }),
+        box([1, 12, 3], [3, 16, 13], {
+            'west': face('#tex', [3, 0, 13, 4]),
+            'east': face('#tex', [3, 0, 13, 4]),
+            'up': face('#tex', [1, 3, 3, 13]),
+            'down': face('#tex', [1, 3, 3, 13]),
+        }),
+        box([13, 12, 3], [15, 16, 13], {
+            'east': face('#tex', [3, 0, 13, 4]),
+            'west': face('#tex', [3, 0, 13, 4]),
+            'up': face('#tex', [13, 3, 15, 13]),
+            'down': face('#tex', [13, 3, 15, 13]),
+        }),
+        # Lower shaft (X: 3..13, Z: 3..13, Y: 0..12)
+        box([3, 0, 3], [13, 12, 5], {
+            'north': face('#tex', [3, 4, 13, 16]),
+            'south': face('#tex', [3, 4, 13, 16]),
+            'west': face('#tex', [3, 4, 5, 16]),
+            'east': face('#tex', [11, 4, 13, 16]),
+            'up': face('#tex', [3, 3, 13, 5]),
+            'down': face('#tex', [3, 3, 13, 5], 'down'),
+        }),
+        box([3, 0, 11], [13, 12, 13], {
+            'south': face('#tex', [3, 4, 13, 16]),
+            'north': face('#tex', [3, 4, 13, 16]),
+            'west': face('#tex', [11, 4, 13, 16]),
+            'east': face('#tex', [3, 4, 5, 16]),
+            'up': face('#tex', [3, 11, 13, 13]),
+            'down': face('#tex', [3, 11, 13, 13], 'down'),
+        }),
+        box([3, 0, 5], [5, 12, 11], {
+            'west': face('#tex', [5, 4, 11, 16]),
+            'east': face('#tex', [5, 4, 11, 16]),
+            'up': face('#tex', [3, 5, 5, 11]),
+            'down': face('#tex', [3, 5, 5, 11], 'down'),
+        }),
+        box([11, 0, 5], [13, 12, 11], {
+            'east': face('#tex', [5, 4, 11, 16]),
+            'west': face('#tex', [5, 4, 11, 16]),
+            'up': face('#tex', [11, 5, 13, 11]),
+            'down': face('#tex', [11, 5, 13, 11], 'down'),
+        }),
     ]
     write_json(os.path.join(MB, 'drop_chute.json'), {
         'parent': 'minecraft:block/block',

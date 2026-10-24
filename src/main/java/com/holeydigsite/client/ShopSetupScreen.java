@@ -16,9 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
- * Phase 21d: the operator's Shop Display setup screen. An item slot (filled by clicking an item of your inventory below - the
- * item is only COPIED, nothing is used up), a count, a sell price and an optional buy-back price (gold / silver / copper
- * fields with the total in copper), and Save / Clear / Cancel. The server checks everything again on Save.
+ * The operator's Shop Display setup screen, featuring an item slot, count, sell price, optional buy-back price, and action buttons.
  */
 public class ShopSetupScreen extends Screen {
     private static final int WIN_W = 252;
@@ -59,7 +57,7 @@ public class ShopSetupScreen extends Screen {
         long[] sp = Selling.split(startPrice);
         long[] bp = Selling.split(startBuy);
         for (int i = 0; i < 3; i++) {
-            // split() returns {gold, silver, copper}
+            // Split returns gold, silver, and copper
             sell[i] = box(left + 52 + i * 62, top + 52, 36, startPrice > 0 ? Long.toString(sp[i]) : "");
             buy[i] = box(left + 52 + i * 62, top + 92, 36, startBuy > 0 ? Long.toString(bp[i]) : "");
         }
@@ -125,7 +123,7 @@ public class ShopSetupScreen extends Screen {
         onClose();
     }
 
-    /** The label players will see above the display (same wording as the real renderer). */
+    /** The label players will see above the display. */
     private Component preview() {
         if (template.isEmpty()) {
             return Component.translatable("screen.holeydigsite.shop_setup.preview_empty").withStyle(ChatFormatting.GRAY);
@@ -141,7 +139,7 @@ public class ShopSetupScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
         g.drawString(font, title, left + 10, top + 8, 0xFFF3D27A, true);
 
-        // item slot
+        // Item slot
         g.fill(left + 10, top + 20, left + 30, top + 40, 0xFF1A140E);
         g.fill(left + 11, top + 21, left + 29, top + 39, 0xFF4A3B2C);
         if (!template.isEmpty()) {
@@ -152,7 +150,7 @@ public class ShopSetupScreen extends Screen {
         }
         g.drawString(font, Component.translatable("screen.holeydigsite.shop_setup.count"), left + 160, top + 26, 0xFFD8CFC2, false);
 
-        // prices
+        // Prices
         g.drawString(font, Component.translatable("screen.holeydigsite.shop_setup.sell"), left + 10, top + 55, 0xFFD8CFC2, false);
         String[] units = {"g", "s", "c"};
         for (int i = 0; i < 3; i++) {
@@ -169,7 +167,7 @@ public class ShopSetupScreen extends Screen {
         g.drawString(font, Component.translatable("screen.holeydigsite.shop_setup.preview"), left + 10, top + 114, 0xFF9E9489, false);
         g.drawString(font, preview(), left + 60, top + 114, 0xFFFFFFFF, false);
 
-        // inventory picker (copies the clicked item)
+        // Inventory picker that copies the clicked item
         g.drawString(font, Component.translatable("screen.holeydigsite.shop_setup.inventory"), left + 10, top + 128, 0xFF9E9489, false);
         Player player = Minecraft.getInstance().player;
         ItemStack hovered = ItemStack.EMPTY;
@@ -193,7 +191,7 @@ public class ShopSetupScreen extends Screen {
         }
     }
 
-    /** Slot i of the player inventory: hotbar (0-8) at the bottom, main rows above. */
+    /** Slot i of the player inventory. */
     private int slotX(int i) {
         return left + 45 + (i % 9) * 18;
     }

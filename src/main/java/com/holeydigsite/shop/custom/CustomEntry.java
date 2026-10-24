@@ -8,16 +8,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Phase 21d: one operator-made shop entry on a Shop Display. {@code template} is a copy of the item (count 1, components
- * kept); one purchase delivers {@code count} of it for {@code price} copper. {@code buyBack} &gt; 0 = the store's Sell Pad pays
- * that many copper per matching item. {@code rev} is a world-wide serial that changes whenever the entry is set or cleared
- * (old blueprints carry it and are refused when it no longer matches).
+ * An operator-made shop entry on a Shop Display. {@code template} is a copy of the item with count 1 and components kept,
+ * and one purchase delivers {@code count} of it for {@code price} copper. If {@code buyBack} is greater than zero, the store's
+ * Sell Pad pays that many copper per matching item. {@code rev} is a worldwide serial changing whenever the entry is set or
+ * cleared, causing old blueprints to be refused when they no longer match.
  */
 public record CustomEntry(ItemStack template, int count, long price, long buyBack, int rev) {
     public static final int MAX_COUNT = 64;
     public static final long MAX_PRICE = 1_000_000_000L;
 
-    /** "Matching" for buy-back: the same item AND identical data components (enchantments, names, smith data, ...). */
+    /** Checks if an item matches for buy-back by requiring the same item and identical data components. */
     public boolean matches(ItemStack stack) {
         return !stack.isEmpty() && ItemStack.isSameItemSameComponents(template, stack);
     }

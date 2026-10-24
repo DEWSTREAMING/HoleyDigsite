@@ -8,9 +8,9 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * The ONE place that decides where a drill may put a Dirt Clump.
  *
- * <p>Any {@link com.holeydigsite.transport.ItemTarget} (Phase 12; clump-only ones via {@link DirtClumpTarget}): the pan, the Clump Belt (Phase 5) and the Sluice Box (Phase 6,
+ * <p>Any {@link com.holeydigsite.transport.ItemTarget} (clump-only ones via {@link DirtClumpTarget}): the pan, the Clump Belt and the Sluice Box (
  * from its back only). Belts use this too for anything that isn't a pan or another belt. A later "chest output" upgrade would add a branch here (e.g. wrap
- * an item-handler capability) gated on the drill having that upgrade - nothing else in the drill needs to change.</p>
+ * an item-handler capability) gated on the drill having that upgrade (nothing else in the drill needs to change).</p>
  *
  * <p>Clumps are never dropped into the world and never handed to hoppers/chests/other mods.</p>
  */

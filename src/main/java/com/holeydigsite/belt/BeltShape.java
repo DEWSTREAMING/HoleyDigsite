@@ -4,7 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 
 /**
- * Phase 12 corners: a flat belt fed only from one side (nothing feeding its back) shows a curved corner piece and items
+ * Corners: a flat belt fed only from one side (nothing feeding its back) shows a curved corner piece and items
  * follow the curve. LEFT = fed from the left (seen looking along the belt's facing), RIGHT = from the right.
  */
 public enum BeltShape implements StringRepresentable {

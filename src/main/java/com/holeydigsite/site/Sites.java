@@ -3,6 +3,7 @@ package com.holeydigsite.site;
 import com.holeydigsite.HoleyDigsite;
 import com.holeydigsite.plot.PlotBoardBlockEntity;
 import com.holeydigsite.plot.PlotData;
+import com.holeydigsite.registry.ModBlocks;
 import com.holeydigsite.registry.ModItems;
 import com.holeydigsite.sellpad.SellPadBlock;
 import com.holeydigsite.shop.BuyPadBlock;
@@ -46,14 +47,14 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Builds and updates the mod's sites (Phase 14): the home store, the land plots and their shop kiosks.
+ * Builds and updates the mod's sites: the home store, the land plots and their shop kiosks.
  *
- * <p><b>First load:</b> a {@link SiteMarkerBlock} in the island template names a site; one tick after it loads, the site's
- * structure (from the mod jar) is placed with its origin at the marker and recorded in {@link SiteData} (anchor, zone,
- * version). <b>Every world load</b> ({@link #checkAll}): a site whose recorded version is older than its {@link SiteDef}'s is
- * rebuilt - player state inside (Money Pan balance, pad contents, container items, dropped items) is saved, the zone is
- * cleared and rebuilt, and the state goes back into the new blocks; whatever doesn't fit pops out at the entrance (never
- * lost). Owned plots are never rebuilt (only their kiosk). Display slot mappings ({@code store_layout}) apply without a
+ * <p>A {@link SiteMarkerBlock} in the island template names a site. One tick after it loads, the site's
+ * structure from the mod jar is placed with its origin at the marker and recorded in {@link SiteData} (anchor, zone,
+ * version). On every world load ({@link #checkAll}), a site whose recorded version is older than its {@link SiteDef}'s is
+ * rebuilt. Player state inside (Money Pan balance, pad contents, container items, dropped items) is saved, the zone is
+ * cleared and rebuilt, and the state goes back into the new blocks. Whatever doesn't fit pops out at the entrance.
+ * Owned plots are never rebuilt, only their kiosk. Display slot mappings ({@code store_layout}) apply without a
  * rebuild.</p>
  */
 public final class Sites {
@@ -82,12 +83,12 @@ public final class Sites {
 
     // ------------------------------------------------------------------------------------------------ entry points
 
-    /** Markers waiting to be built: level -> (position -> ticks waited). Built by {@link #buildQueued} on the next level tick. */
+    /** Markers waiting to be built, level to position to ticks waited. Built by {@link #buildQueued} on the next level tick. */
     private static final Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, Map<BlockPos, Integer>> QUEUE = new java.util.HashMap<>();
 
     /**
-     * A Site Marker was placed or loaded: build it on the next level tick. (Not a scheduled block tick - those only run in
-     * ticking chunks, which for a freshly placed island can take a while; this runs as soon as the chunk is loaded.)
+     * A Site Marker was placed or loaded, build it on the next level tick. This is not a scheduled block tick, which only run in
+     * ticking chunks that for a freshly placed island can take a while, this runs as soon as the chunk is loaded.
      */
     public static void queueMarker(ServerLevel level, BlockPos pos) {
         QUEUE.computeIfAbsent(level.dimension(), k -> new LinkedHashMap<>()).putIfAbsent(pos.immutable(), 0);
@@ -133,13 +134,13 @@ public final class Sites {
         }
         Result r = build(level, def, pos, null, false);
         if (r.built()) {
-            WorldFixups.applyNewIsland(level, siteId, pos);   // Phase 16.1: an island placed from an older pack template gets fixed too
+            WorldFixups.applyNewIsland(level, siteId, pos);   // An island placed from an older pack template gets fixed too
         }
     }
 
     /**
-     * World load: runs every site's version check / layout refresh. Plots first (an unowned plot rebuild also rebuilds its
-     * kiosk), then stores and kiosks.
+     * World load, runs every site's version check and layout refresh. Plots first, where an unowned plot rebuild also rebuilds its
+     * kiosk, then stores and kiosks.
      */
     public static List<Result> checkAll(ServerLevel level) {
         List<Result> results = new ArrayList<>();
@@ -190,12 +191,13 @@ public final class Sites {
     /** Applies a changed slot mapping without rebuilding; returns null if nothing changed. */
     @Nullable
     public static Result refreshLayout(ServerLevel level, SiteData.Site site, SiteDef def) {
+        forceLoad(level, site.zone());
+        ensureDisplays(level, site, def);
         Map<Integer, ResourceLocation> layout = SiteDefs.layout(def.layout());
         List<String> wanted = wantedItems(level, site.zone(), layout);
         if (wanted.equals(site.shown())) {
             return null;
         }
-        forceLoad(level, site.zone());
         List<String> shown = applyLayout(level, site.zone(), layout);
         reapplyCustom(level, def, site.anchor(), site.zone());
         SiteData data = SiteData.get(level);
@@ -209,8 +211,8 @@ public final class Sites {
     // ------------------------------------------------------------------------------------------------ build / rebuild
 
     /**
-     * Builds (or rebuilds) a site with its anchor at {@code anchor}: saves player state, clears the zone, places the
-     * structure and the children, puts the state back, records the site. {@code announce} = chat "updated" message.
+     * Builds or rebuilds a site with its anchor at {@code anchor}, saves player state, clears the zone, places the
+     * structure and the children, puts the state back, records the site.
      */
     public static Result build(ServerLevel level, SiteDef def, BlockPos anchor, @Nullable String parent, boolean announce) {
         Optional<StructureTemplate> template = level.getStructureManager().get(def.structure());
@@ -251,7 +253,7 @@ public final class Sites {
         }
         List<String> shown = def.layout() != null ? applyLayout(level, zone, SiteDefs.layout(def.layout())) : List.of();
         if (def.layout() != null) {
-            reapplyCustom(level, def, anchor, zone);   // Phase 21d: operator-made display entries survive the rebuild
+            reapplyCustom(level, def, anchor, zone);   // operator-made display entries survive the rebuild
         }
         BlockPos entrance = anchor.offset(def.entrance());
         List<ItemStack> popped = restore(level, zone, saved, entrance);
@@ -266,7 +268,7 @@ public final class Sites {
         return new Result(true, site, saved, popped, added, msg);
     }
 
-    /** Phase 21d: puts the saved custom shop entries of this site back on its displays (child sites' displays are theirs). */
+    /** Puts the saved custom shop entries of this site back on its displays, child sites' displays are theirs. */
     private static void reapplyCustom(ServerLevel level, SiteDef def, BlockPos anchor, BoundingBox zone) {
         List<BoundingBox> children = new ArrayList<>();
         for (SiteDef.Child c : def.children()) {
@@ -291,7 +293,7 @@ public final class Sites {
         }
     }
 
-    /** Block entities inside the zone, bottom-up, north-west first (a stable order for "first Money Pan" etc.). */
+    /** Block entities inside the zone, bottom-up, north-west first, a stable order for first Money Pan and others. */
     public static List<BlockEntity> blockEntities(ServerLevel level, BoundingBox zone) {
         List<BlockEntity> out = new ArrayList<>();
         for (int cx = zone.minX() >> 4; cx <= zone.maxX() >> 4; cx++) {
@@ -313,7 +315,7 @@ public final class Sites {
         return new AABB(zone.minX(), zone.minY(), zone.minZ(), zone.maxX() + 1, zone.maxY() + 1, zone.maxZ() + 1);
     }
 
-    /** Takes all player state out of the zone (the blocks are left empty). */
+    /** Takes all player state out of the zone, the blocks are left empty. */
     public static State collect(ServerLevel level, BoundingBox zone) {
         State s = new State();
         for (BlockEntity be : blockEntities(level, zone)) {
@@ -366,7 +368,7 @@ public final class Sites {
         }
     }
 
-    /** Removes every block in the zone without drops or neighbour updates (top-down). */
+    /** Removes every block in the zone without drops or neighbour updates, top-down. */
     public static void clear(ServerLevel level, BoundingBox zone) {
         BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
         for (int y = zone.maxY(); y >= zone.minY(); y--) {
@@ -445,7 +447,7 @@ public final class Sites {
         }
     }
 
-    /** Coins worth {@code copper} (gold, silver, copper; full stacks). */
+    /** Coins worth {@code copper}, including gold, silver, copper in full stacks. */
     public static List<ItemStack> coins(long copper) {
         List<ItemStack> out = new ArrayList<>();
         long gold = copper / 64, silver = (copper % 64) / 8, cu = copper % 8;
@@ -464,7 +466,7 @@ public final class Sites {
         }
     }
 
-    /** Drops a stack at the entrance: no motion, never despawns. */
+    /** Drops a stack at the entrance with no motion and never despawns. */
     static void pop(ServerLevel level, BlockPos at, ItemStack stack) {
         ItemEntity e = new ItemEntity(level, at.getX() + 0.5, at.getY() + 0.1, at.getZ() + 0.5, stack.copy());
         e.setDeltaMovement(0, 0, 0);
@@ -472,7 +474,7 @@ public final class Sites {
         level.addFreshEntity(e);
     }
 
-    /** Players standing inside a rebuilt zone go to the entrance (so nobody ends up inside a wall). */
+    /** Players standing inside a rebuilt zone go to the entrance so nobody ends up inside a wall. */
     private static void moveOut(ServerLevel level, BoundingBox zone, BlockPos entrance) {
         for (ServerPlayer p : level.players()) {
             if (zone.isInside(p.blockPosition())) {
@@ -482,6 +484,44 @@ public final class Sites {
     }
 
     // ------------------------------------------------------------------------------------------------ layouts
+
+    /**
+     * Ensures any display blocks defined in the site's structure template exist in the world (placed into air,
+     * without disturbing anything players built or custom displays).
+     */
+    public static void ensureDisplays(ServerLevel level, SiteData.Site site, SiteDef def) {
+        if (def.structure() == null) {
+            return;
+        }
+        Optional<StructureTemplate> templateOpt = level.getStructureManager().get(def.structure());
+        if (templateOpt.isEmpty()) {
+            return;
+        }
+        StructureTemplate template = templateOpt.get();
+        List<StructureTemplate.StructureBlockInfo> displays = template.filterBlocks(site.anchor(),
+                new StructurePlaceSettings(), ModBlocks.SHOP_DISPLAY.get());
+        for (StructureTemplate.StructureBlockInfo info : displays) {
+            BlockPos pos = info.pos();
+            if (!site.zone().isInside(pos)) {
+                continue;
+            }
+            int slot = info.nbt() != null ? info.nbt().getInt("Slot") : 0;
+            if (slot <= 0) {
+                continue;
+            }
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof ShopDisplayBlockEntity d) {
+                if (d.slot() <= 0) {
+                    d.setSlot(slot);
+                }
+            } else if (level.getBlockState(pos).isAir()) {
+                level.setBlock(pos, info.state(), Block.UPDATE_ALL);
+                if (level.getBlockEntity(pos) instanceof ShopDisplayBlockEntity d) {
+                    d.setSlot(slot);
+                }
+            }
+        }
+    }
 
     private static List<ShopDisplayBlockEntity> slottedDisplays(ServerLevel level, BoundingBox zone) {
         List<ShopDisplayBlockEntity> out = new ArrayList<>();
@@ -522,9 +562,9 @@ public final class Sites {
     }
 
     /**
-     * The items the layout would show, without touching the world: needs the slots that exist, which are only known from the
-     * world... so this uses the recorded shown list's size as a hint only when the chunks are not loaded. Simplest correct
-     * answer: load the zone and read the slots.
+     * The items the layout would show without touching the world. This needs the slots that exist, which are only known from the
+     * world, so this uses the recorded shown list's size as a hint only when the chunks are not loaded. The simplest correct
+     * answer is to load the zone and read the slots.
      */
     private static List<String> wantedItems(ServerLevel level, BoundingBox zone, Map<Integer, ResourceLocation> layout) {
         forceLoad(level, zone);

@@ -15,19 +15,18 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 /**
- * Client-only setup on the MOD bus: item model properties used by model "overrides".
+ * Registers item model properties used by overrides on the client.
  *
  * <ul>
- *   <li>{@code holeydigsite:full} on minecraft:wooden_shovel - 1 when full, else 0.
- *       Used by our override of {@code assets/minecraft/models/item/wooden_shovel.json}.</li>
- *   <li>{@code holeydigsite:fill} on holeydigsite:pan - fill / MAX_FILL (0.0-1.0), so the pan item
- *       shows the same dirt level as the placed block.</li>
- *   <li>{@code holeydigsite:tier} on holeydigsite:pan and holeydigsite:dirt_clump - the dirt tier 1-3 (Phase 7), for the
- *       darker Deep / Abyssal models.</li>
+ *   <li>{@code holeydigsite:full} on minecraft:wooden_shovel (1 when full, else 0,
+ *       used by the wooden shovel model override).</li>
+ *   <li>{@code holeydigsite:fill} on holeydigsite:pan (fill / MAX_FILL, so the item
+ *       shows the same dirt level as the placed block).</li>
+ *   <li>{@code holeydigsite:tier} on holeydigsite:pan and holeydigsite:dirt_clump (dirt tier 1-3, for
+ *       darker deep or abyssal models).</li>
  * </ul>
- * Also registers the block entity renderers: Clump Belt ({@link ClumpBeltRenderer}), Sluice Box tray
- * ({@link SluiceBoxRenderer}) and, since Phase 8, the shop: pads ({@link PadRenderer}), Money Pan ({@link MoneyPanRenderer})
- * and Shop Display ({@link ShopDisplayRenderer}); Phase 9: Crucible and Mold floating texts.
+ * Also registers block entity renderers for the clump belt, sluice box, shop pads, money pan,
+ * shop display, crucible, mold, crafting forge, smithing anvil, and plot boards.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID, value = Dist.CLIENT)
 public final class ClientSetup {
@@ -35,7 +34,7 @@ public final class ClientSetup {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        // ItemProperties is not thread-safe; run on the main thread.
+        // ItemProperties is not thread-safe, so run on the main thread.
         event.enqueueWork(() -> {
             ItemProperties.register(Items.WOODEN_SHOVEL, HoleyDigsite.id("full"),
                     (stack, level, entity, seed) -> ShovelHelper.isFull(stack) ? 1.0F : 0.0F);
@@ -43,20 +42,20 @@ public final class ClientSetup {
             ItemProperties.register(ModItems.PAN.get(), HoleyDigsite.id("fill"),
                     (stack, level, entity, seed) -> PanBlock.getFill(stack) / (float) PanBlock.MAX_FILL);
 
-            // Phase 7: dirt tier 1-3 (darker dirt models for Deep / Abyssal)
+            // Dirt tier 1-3 for darker dirt models.
             ItemProperties.register(ModItems.PAN.get(), HoleyDigsite.id("tier"),
                     (stack, level, entity, seed) -> PanBlock.getTier(stack));
-            // Phase 11: what a full shovel carries (1 dirt, 4 gravel, 5 sand) for the gravel/sand looks
+            // What a full shovel carries for the gravel and sand looks.
             ItemProperties.register(Items.WOODEN_SHOVEL, HoleyDigsite.id("kind"),
                     (stack, level, entity, seed) -> ShovelHelper.isFull(stack) ? ShovelHelper.kind(stack) : 0.0F);
-            // Phase 10: Large Pan (fill / 8 and tier, same overrides as the Pan)
+            // Large pan fill and tier overrides.
             ItemProperties.register(ModItems.LARGE_PAN.get(), HoleyDigsite.id("fill"),
                     (stack, level, entity, seed) -> PanBlock.getFill(stack) / (float) PanBlock.LARGE_MAX_FILL);
             ItemProperties.register(ModItems.LARGE_PAN.get(), HoleyDigsite.id("tier"),
                     (stack, level, entity, seed) -> PanBlock.getTier(stack));
             ItemProperties.register(ModItems.DIRT_CLUMP.get(), HoleyDigsite.id("tier"),
                     (stack, level, entity, seed) -> DirtTier.ofClump(stack));
-            // Phase 19: a ring with a gem shows the gem dot
+            // Rings with a gem show the gem dot.
             ItemProperties.register(ModItems.SMITH_RING.get(), HoleyDigsite.id("gem"),
                     (stack, level, entity, seed) -> {
                         var d = com.holeydigsite.smith.SmithPieces.data(stack);
@@ -69,18 +68,13 @@ public final class ClientSetup {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.CLUMP_BELT.get(), ClumpBeltRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SLUICE_BOX.get(), SluiceBoxRenderer::new);
-        // Phase 8: shop
         event.registerBlockEntityRenderer(ModBlockEntities.SHOP_PAD.get(), PadRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MONEY_PAN.get(), MoneyPanRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SHOP_DISPLAY.get(), ShopDisplayRenderer::new);
-        // Phase 9: floating texts of the crucible and mold
         event.registerBlockEntityRenderer(ModBlockEntities.CRUCIBLE.get(), CrucibleRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MOLD.get(), MoldRenderer::new);
-        // Phase 10: Crafting Forge items on the basin + recipe text
         event.registerBlockEntityRenderer(ModBlockEntities.CRAFTING_FORGE.get(), CraftingForgeRenderer::new);
-        // Phase 19: Smithing Anvil (ingots and gem on the work surface + recipe label)
         event.registerBlockEntityRenderer(ModBlockEntities.SMITHING_ANVIL.get(), SmithingAnvilRenderer::new);
-        // Phase 11: land plot boards (name + price / Owned)
         event.registerBlockEntityRenderer(ModBlockEntities.PLOT_BOARD.get(), PlotBoardRenderer::new);
     }
 }

@@ -21,16 +21,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The sites built in one dimension (Phase 14), saved with the world ({@code data/holeydigsite_sites.dat}): for every store,
+ * The sites built in one dimension, saved with the world ({@code data/holeydigsite_sites.dat}): for every store,
  * plot and kiosk the mod placed, its anchor, its zone (fixed once built), the version it was built from and the items its
- * displays showed last. Plus recent "Store updated" announcements for players who log in after a rebuild.
+ * displays showed last, plus recent store updated announcements for players who log in after a rebuild.
  */
 public class SiteData extends SavedData {
     public static final String NAME = "holeydigsite_sites";
-    /** Announcements older than this (game ticks) are not shown to players logging in. */
+    /** Announcements older than this in game ticks are not shown to players logging in. */
     public static final long ANNOUNCE_TICKS = 72000;
 
-    /** One built site. {@code parent} = key of the site this one was built inside (a plot's kiosk), or null. */
+    /** One built site where {@code parent} is the key of the site this one was built inside, or null. */
     public record Site(ResourceLocation id, BlockPos anchor, BoundingBox zone, int version, List<String> shown,
                        @Nullable String parent) {
         public String key() {
@@ -56,7 +56,7 @@ public class SiteData extends SavedData {
         return level.getDataStorage().computeIfAbsent(factory(level.registryAccess()), NAME);
     }
 
-    /** The data if this level has any sites (never creates the file). */
+    /** The data if this level has any sites, without creating the file. */
     @Nullable
     public static SiteData getIfExists(ServerLevel level) {
         return level.getDataStorage().get(factory(level.registryAccess()), NAME);
@@ -87,7 +87,7 @@ public class SiteData extends SavedData {
         return Collections.unmodifiableCollection(sites.values());
     }
 
-    /** All sites with this id (one per island copy). */
+    /** All sites with this id. */
     public List<Site> byId(ResourceLocation id) {
         return sites.values().stream().filter(s -> s.id().equals(id)).toList();
     }

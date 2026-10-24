@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /**
- * Phase 21a: Networking for syncing {@link LedgerData} to the client and claiming level rewards from the Ledger screen.
+ * Networking for syncing {@link LedgerData} to the client and claiming level rewards from the Ledger screen.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class LedgerNetwork {
@@ -43,7 +43,7 @@ public final class LedgerNetwork {
         public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 
-    /** Phase 21b: the player picks one of their unlocked titles ({@code ""} = no title). */
+    /** The player picks one of their unlocked titles, where an empty string means no title. */
     public record SelectTitlePayload(String title) implements CustomPacketPayload {
         public static final Type<SelectTitlePayload> TYPE = new Type<>(HoleyDigsite.id("ledger_title"));
         public static final StreamCodec<ByteBuf, SelectTitlePayload> STREAM_CODEC = StreamCodec.composite(

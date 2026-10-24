@@ -35,8 +35,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Phase 21c: Economy and item inspection/spawning commands under {@code /holeydigsite give ...},
- * {@code /holeydigsite money ...}, and {@code /holeydigsite worth ...}.
+ * Economy and item inspection or spawning commands under `/holeydigsite give`, `/holeydigsite money`, and `/holeydigsite worth`.
  */
 public final class EconomyCommands {
     private EconomyCommands() {}

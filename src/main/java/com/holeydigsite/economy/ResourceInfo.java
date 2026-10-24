@@ -5,22 +5,22 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * What a resource item is made of: one entry of the {@code holeydigsite:resource_weights} item data map
+ * Defines what a resource item is made of using an entry of the {@code holeydigsite:resource_weights} item data map
  * ({@code data/holeydigsite/data_maps/item/resource_weights.json}).
  *
- * @param material  material id, e.g. {@code holeydigsite:folkiron}; its price per gram is in the
+ * @param material  material ID, e.g. {@code holeydigsite:folkiron}, with its price per gram in the
  *                  {@link SellValue sell_values} registry
- * @param grams     fixed weight of ONE item in grams (shown in the tooltip, used for selling and, in phase 8, melting)
- * @param form      {@code "raw"} (chunks, gems) or {@code "ingot"} (phase 8 - sells at the ingot price per gram)
- * @param meltable  false for gems (Rubies): the phase 8 crucible will refuse them
+ * @param grams     fixed weight of one item in grams, shown in the tooltip and used for selling and melting
+ * @param form      {@code "raw"} (chunks, gems) or {@code "ingot"} (sells at the ingot price per gram)
+ * @param meltable  false for gems like rubies, which the crucible refuses
  */
 public record ResourceInfo(ResourceLocation material, int grams, String form, boolean meltable) {
     public static final String RAW = "raw";
     public static final String INGOT = "ingot";
-    /** Phase 12: uncut gems (half price until a Gem Cutter cuts them). */
+    /** Uncut gems, worth half price until cut. */
     public static final String UNCUT = "uncut";
 
-    /** Phase 18: crops and foods (sold by the item, 1 g = 1 piece; no weight shown). */
+    /** Crops and foods sold by the item where 1g equals 1 piece and no weight is shown. */
     public static final String CROP = "crop";
 
     public static final Codec<ResourceInfo> CODEC = RecordCodecBuilder.create(i -> i.group(

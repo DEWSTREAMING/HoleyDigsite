@@ -12,24 +12,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Prices and coins. Value of an item = grams x copper-per-gram of its material (ingot price for ingots), rounded down
- * per item. Items without a {@link ResourceInfo} entry, or whose material has no {@link SellValue}, can't be sold -
- * that covers coins, machines, tools and everything vanilla, so there are no buy/sell loops.
+ * Handles prices and coins. Item value is grams times the copper-per-gram of its material, rounded down per item.
+ * Items without a {@link ResourceInfo} entry or whose material lacks a {@link SellValue} cannot be sold,
+ * preventing buy or sell loops for coins, machines, and vanilla items.
  */
 public final class Selling {
     private Selling() {}
 
     public static final int COPPER = 1, SILVER = 8, GOLD = 64;
 
-    /** The resource entry of an item (material, form, meltable), or null. Per-stack weights: see {@link #grams}. */
+    /** The resource entry of an item, or null. See {@link #grams} for per-stack weights. */
     @Nullable
     public static ResourceInfo resource(ItemStack stack) {
         return stack.isEmpty() ? null : stack.getItemHolder().getData(ModEconomy.RESOURCE_WEIGHTS);
     }
 
     /**
-     * Weight of ONE item in grams, 0 if it has none: the {@code holeydigsite:weight} component if the stack has one (ingots,
-     * Phase 9), else the fixed grams of its {@link ResourceInfo} entry (chunks, gems).
+     * Weight of a single item in grams, or 0 if it has none. Uses the weight component if present, otherwise the fixed grams from its {@link ResourceInfo} entry.
      */
     public static int grams(ItemStack stack) {
         ResourceInfo info = resource(stack);
@@ -40,7 +39,7 @@ public final class Selling {
         return weight != null ? weight : info.grams();
     }
 
-    /** The price entry of a material (ingot / cut / uncut prices per gram), or null. */
+    /** The price entry of a material, or null. */
     @Nullable
     public static SellValue price(HolderLookup.Provider registries, net.minecraft.resources.ResourceLocation material) {
         return registries.lookup(ModEconomy.SELL_VALUES)
@@ -49,7 +48,7 @@ public final class Selling {
                 .orElse(null);
     }
 
-    /** Copper value of ONE item, or 0 if it can't be sold. Phase 19: pieces made on the Smithing Anvil are worth their materials plus a bonus. */
+    /** Copper value of a single item, or 0 if unsellable. Smithing Anvil pieces are worth their materials plus a bonus. */
     public static long unitValue(ItemStack stack, HolderLookup.Provider registries) {
         if (stack.has(com.holeydigsite.registry.ModDataComponents.SMITH.get())) {
             return com.holeydigsite.smith.SmithPieces.value(stack, registries);
@@ -70,17 +69,17 @@ public final class Selling {
         return unitValue(stack, registries) > 0;
     }
 
-    /** Copper value of the whole stack. */
+    /** Copper value of the entire stack. */
     public static long stackValue(ItemStack stack, HolderLookup.Provider registries) {
         return unitValue(stack, registries) * stack.getCount();
     }
 
-    /** {gold, silver, copper} for an amount of copper, largest coins first. */
+    /** Splits an amount of copper into gold, silver, and copper quantities, largest first. */
     public static long[] split(long copper) {
         return new long[]{copper / GOLD, copper % GOLD / SILVER, copper % SILVER};
     }
 
-    /** Coin stacks paying {@code copper}, largest denominations first (stacks of at most 64). */
+    /** Returns coin stacks paying the specified copper, largest denominations first up to stack limits. */
     public static List<ItemStack> coins(long copper) {
         long[] parts = split(copper);
         List<ItemStack> out = new ArrayList<>();
@@ -98,7 +97,7 @@ public final class Selling {
         }
     }
 
-    /** "1 gold 2 silver 4 copper" (zero parts left out; "0 copper" for nothing). */
+    /** Formats copper into a readable coin string. */
     public static MutableComponent format(long copper) {
         long[] p = split(copper);
         List<Component> parts = new ArrayList<>();

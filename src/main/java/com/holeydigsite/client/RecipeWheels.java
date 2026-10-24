@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Phase 21j: Builds {@link RadialMenu} screens for the Crafting Forge and Smithing Anvil, and tracks the 0.25 s
- * (5-tick) right-click hold that opens the wheel without breaking short-click interactions.
+ * Builds {@link RadialMenu} screens for the Crafting Forge and Smithing Anvil, tracking the 0.25 s
+ * right-click hold that opens the wheel without breaking short-click interactions.
  */
 public final class RecipeWheels {
     /** Hold threshold in client ticks (~0.25 s at 20 TPS). */
@@ -168,8 +168,6 @@ public final class RecipeWheels {
 
     /**
      * Checks whether a right-click interaction on {@code hit} is eligible for hold-to-open-wheel.
-     * Short clicks still perform their normal action on release; immediate actions (loading ingots/parts, pulling the
-     * forge handle, collecting output, hammering or laying ingots/gems on the anvil) are not delayed.
      */
     private static boolean canHoldForWheel(Level level, Player player, BlockHitResult hit) {
         BlockPos pos = hit.getBlockPos();
@@ -245,7 +243,7 @@ public final class RecipeWheels {
 
         boolean stillDown = mc.options.keyUse.isDown();
         if (!stillDown) {
-            // Released before HOLD_TICKS -> replay the normal short-click interaction
+            // Replay the normal short-click interaction if released early
             BlockHitResult hit = pendingHit;
             pendingHit = null;
             holdTicks = 0;

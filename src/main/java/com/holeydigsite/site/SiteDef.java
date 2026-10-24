@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A site the mod builds and keeps up to date (Phase 14): the home store, a land plot, or a plot's shop kiosk.
+ * A site the mod builds and keeps up to date, like the home store, a land plot, or a plot's shop kiosk.
  * Loaded from {@code data/<ns>/site/<name>.json} (id = {@code <ns>:<name>}), see {@link SiteDefs}.
  *
  * <pre>{@code
@@ -40,12 +40,12 @@ public record SiteDef(ResourceLocation id, Kind kind, String name, int version, 
     /** A site built inside this one, at {@code pos} relative to this site's anchor. */
     public record Child(ResourceLocation site, BlockPos pos) {}
 
-    /** Same def with another version (tests / the headless check simulate a mod update with it). */
+    /** Same definition with another version. */
     public SiteDef withVersion(int v) {
         return new SiteDef(id, kind, name, v, structure, size, entrance, protect, layout, plot, board, children);
     }
 
-    /** Same def with another structure. */
+    /** Same definition with another structure. */
     public SiteDef withStructure(ResourceLocation s) {
         return new SiteDef(id, kind, name, version, s, size, entrance, protect, layout, plot, board, children);
     }

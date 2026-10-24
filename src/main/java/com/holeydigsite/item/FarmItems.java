@@ -11,11 +11,11 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 
-/** Phase 18: seeds and foods of the three own crops - ordinary items with one grey tooltip line. */
+/** Seeds and foods of the three own crops, being ordinary items with one grey tooltip line. */
 public final class FarmItems {
     private FarmItems() {}
 
-    /** Seeds: plant on farmland (the block item of the crop), tooltip says where they are found. */
+    /** Seeds that can be planted on farmland, with a tooltip saying where they are found. */
     public static class Seeds extends ItemNameBlockItem {
         private final String tooltip;
 
@@ -31,7 +31,7 @@ public final class FarmItems {
         }
     }
 
-    /** Food with a tooltip line (what the buff does); {@code drink} uses the drinking animation. */
+    /** Food with a tooltip line describing what the buff does, using the drinking animation if specified. */
     public static class Food extends Item {
         private final String tooltip;
         private final boolean drink;

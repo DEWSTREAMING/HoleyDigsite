@@ -86,10 +86,10 @@ def resources():
     for size in ('small', 'medium', 'large'):
         save(by_value(load(ITEM, f'folkiron_chunk_{size}'), ORCH), ITEM, f'orchremia_chunk_{size}')
         save(by_value(load(ITEM, f'goldchro_chunk_{size}'), SILV), ITEM, f'silvane_chunk_{size}')
-        save(hue_shift(load(ITEM, f'ruby_{size}'), SAPPHIRE_HUE, 1.0, 1.0), ITEM, f'sapphire_{size}')
-        save(hue_shift(load(ITEM, f'ruby_{size}'), TOPAZ_HUE, 1.0, 1.15), ITEM, f'topaz_{size}')
         for n in (f'orchremia_chunk_{size}', f'silvane_chunk_{size}', f'sapphire_{size}', f'topaz_{size}'):
             generated(n)
+    import make_gem_shapes
+    make_gem_shapes.main()
 
 
 # ------------------------------------------------------------------------------------------------ deeds

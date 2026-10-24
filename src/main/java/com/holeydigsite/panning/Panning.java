@@ -41,36 +41,19 @@ import java.util.WeakHashMap;
 
 /**
  * Panning a filled, waterlogged pan with the {@link com.holeydigsite.item.BrushItem Brush}.
- *
- * <p>Flow:
- * <ol>
- *   <li>Right-click the pan with the brush ({@link PanBlock#useItemOn} or {@code BrushItem#useOn} when sneaking)
- *       -> {@link #tryStartPanning}: checks water + fill, remembers which pan is targeted and starts the
- *       use-item animation (UseAnim.BRUSH, like the vanilla brush).</li>
- *   <li>Every tick while right-click is held -> {@link #tickPanning}: cancels if the player looks away
- *       from that pan or the pan can no longer be panned; plays swish/splash feedback; every
- *       {@link #PAN_CYCLE_TICKS} ticks completes one cycle on the server ({@link #completeCycle}).</li>
- *   <li>A completed cycle removes 1 fill level, rolls the pan tier's loot table once and pops the loot out
- *       on top of the pan. Holding on continues with the next scoop until the pan is empty.</li>
- * </ol>
- * Releasing right-click early simply stops using the item: progress is only counted in use-ticks,
- * so a partial cycle gives no loot and changes nothing.</p>
- *
- * <p>The tick logic runs on BOTH sides (like vanilla's brush): the client does particles, local sounds and
- * its own cancel checks; only the server changes the block and rolls loot.</p>
  */
 public final class Panning {
     private Panning() {}
 
-    /** Ticks of holding right-click per pan cycle (one scoop). 40 ticks = 2 seconds. */
+    /** Ticks of holding right-click per pan cycle (one scoop). 40 ticks equals 2 seconds. */
     public static final int PAN_CYCLE_TICKS = 40;
 
-    /** Ticks per scoop for the brush in use: {@link #PAN_CYCLE_TICKS}, 20 with the Goldchro Brush (Phase 10). */
+    /** Ticks per scoop for the brush in use. */
     public static int cycleTicks(net.minecraft.world.item.ItemStack brush) {
         return brush.getItem() instanceof com.holeydigsite.item.BrushItem b ? b.cycleTicks() : PAN_CYCLE_TICKS;
     }
 
-    /** Phase 18: the same, {@link com.holeydigsite.effect.ModEffects#PAN_SPEEDUP_PERCENT}% shorter while the player has Steady Hands. */
+    /** Shorter while the player has Steady Hands. */
     public static int cycleTicks(LivingEntity entity, net.minecraft.world.item.ItemStack brush) {
         int base = cycleTicks(brush);
         if (com.holeydigsite.effect.ModEffects.hasSteadyHands(entity)) {
@@ -79,25 +62,16 @@ public final class Panning {
         return base;
     }
 
-    /** Swish sound/dust interval while panning, in ticks (same rhythm as the vanilla brush). */
+    /** Swish sound and dust interval while panning, in ticks. */
     private static final int SWISH_INTERVAL = 10;
 
-    /*
-     * Loot rolled once per completed scoop: one table per dirt tier,
-     * data/holeydigsite/loot_table/panning/dirt_t1.json .. dirt_t3.json (see DirtTier#lootTable). Edit those files
-     * (or override them with a datapack) to change drop rates without touching code; the Sluice Box uses the same ones.
-     */
-
     /**
-     * Items that get the extra "rare find" fanfare when they come out of the pan or sluice.
-     * Defined in {@code data/holeydigsite/tags/item/panning_rare_finds.json} (all Rubies, large Goldchro).
+     * Items that get the extra rare find fanfare when they come out of the pan or sluice.
      */
     public static final TagKey<Item> RARE_FINDS = TagKey.create(Registries.ITEM, HoleyDigsite.id("panning_rare_finds"));
 
     /**
-     * The pan each player started panning, so looking at a DIFFERENT pan also cancels.
-     * Weak keys: entries vanish with the player object. Client and server players are different objects,
-     * so in singleplayer both sides share the map safely (it is synchronized for the two threads).
+     * The pan each player started panning, so looking at a different pan also cancels.
      */
     private static final Map<LivingEntity, BlockPos> TARGETS = Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -105,7 +79,7 @@ public final class Panning {
     // Start
     // ------------------------------------------------------------------------------------------------
 
-    /** True if the pan can be panned right now: sitting in water with at least 1 scoop of dirt. */
+    /** True if the pan can be panned right now, sitting in water with at least one scoop of dirt. */
     public static boolean canPan(BlockState state) {
         return state.getBlock() instanceof PanBlock
                 && state.getValue(PanBlock.WATERLOGGED)
@@ -113,8 +87,7 @@ public final class Panning {
     }
 
     /**
-     * Right-click on a pan with the brush. A dry or empty pan shows an action-bar hint instead.
-     * Called on both sides; returns true if panning started.
+     * Right-click on a pan with the brush.
      */
     public static boolean tryStartPanning(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand) {
         if (!state.getValue(PanBlock.WATERLOGGED)) {
@@ -136,7 +109,7 @@ public final class Panning {
         }
     }
 
-    /** Forget the target when the player stops using the brush (released, cancelled or finished). */
+    /** Forget the target when the player stops using the brush. */
     public static void stopPanning(LivingEntity entity) {
         TARGETS.remove(entity);
     }
@@ -147,8 +120,6 @@ public final class Panning {
 
     /**
      * One tick of holding right-click with the brush.
-     *
-     * @param usedTicks how many ticks the brush has been held, starting at 1 on the first tick
      */
     public static void tickPanning(Level level, LivingEntity entity, int usedTicks) {
         if (!(entity instanceof Player player)) {
@@ -156,7 +127,6 @@ public final class Panning {
             return;
         }
 
-        // Cancel if not looking at the pan we started on, or it can't be panned any more
         BlockPos target = TARGETS.get(player);
         BlockHitResult hit = lookedAtBlock(player);
         if (target == null || hit == null || !hit.getBlockPos().equals(target)) {
@@ -176,7 +146,7 @@ public final class Panning {
         }
     }
 
-    /** The block the player is looking at within reach (same ray the vanilla brush uses), or null. */
+    /** The block the player is looking at within reach, or null. */
     @Nullable
     private static BlockHitResult lookedAtBlock(Player player) {
         HitResult result = ProjectileUtil.getHitResultOnViewVector(player,
@@ -188,7 +158,6 @@ public final class Panning {
     private static void playPanningEffects(Level level, Player player, BlockPos pos, BlockHitResult hit, int usedTicks) {
         RandomSource random = level.getRandom();
         if (level.isClientSide) {
-            // a few splash droplets every other tick, spread over the pan's water surface
             if (usedTicks % 2 == 0) {
                 for (int i = 0; i < 3; i++) {
                     level.addParticle(ParticleTypes.SPLASH,
@@ -207,7 +176,6 @@ public final class Panning {
             }
         }
 
-        // Sounds: playSound(player, ...) plays locally on the client and for everyone else from the server
         if (usedTicks % SWISH_INTERVAL == SWISH_INTERVAL / 2) {
             level.playSound(player, pos, SoundEvents.BRUSH_SAND, SoundSource.BLOCKS, 0.6F, 1.2F + random.nextFloat() * 0.2F);
             level.playSound(player, pos, SoundEvents.GENERIC_SWIM, SoundSource.BLOCKS, 0.25F, 1.4F + random.nextFloat() * 0.3F);
@@ -218,13 +186,13 @@ public final class Panning {
     // Completing a cycle
     // ------------------------------------------------------------------------------------------------
 
-    /** Server: one finished scoop -> fill -1, roll the pan's tier table, pop it out, play the reward sound. */
+    /** Server: one finished scoop, removing fill, rolling loot, and playing the reward sound. */
     private static void completeCycle(ServerLevel level, BlockPos pos, BlockState state, Player player) {
         int newFill = PanBlock.fill(state) - 1;
         int tier = state.getValue(PanBlock.TIER);
         BlockState next = PanBlock.withFill(state, newFill);
         if (newFill <= 0) {
-            next = next.setValue(PanBlock.TIER, 1); // an empty pan takes any tier again
+            next = next.setValue(PanBlock.TIER, 1);
         }
         level.setBlock(pos, next, Block.UPDATE_ALL);
         level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
@@ -248,11 +216,11 @@ public final class Panning {
         }
 
         if (newFill <= 0) {
-            player.releaseUsingItem(); // pan is empty - stop the animation
+            player.releaseUsingItem();
         }
     }
 
-    /** How many scoops of each tier were rolled since the server started (index = tier; for tests and debugging). */
+    /** How many scoops of each tier were rolled since the server started. */
     private static final long[] ROLLS = new long[DirtTier.MAX + 1];
 
     public static long rollCount(int tier) {
@@ -260,16 +228,14 @@ public final class Panning {
     }
 
     /**
-     * Rolls the panning table of {@code tier} once (one scoop) with archaeology-style LootParams: origin = pan/sluice
-     * centre, this_entity = the panning player (optional, e.g. for luck). Global loot modifiers apply.
-     * Shared by hand panning and the Sluice Box; public so the economy GameTest can roll the real tables.
+     * Rolls the panning table of {@code tier} once with archaeology-style LootParams.
      */
     public static List<ItemStack> rollScoop(ServerLevel level, BlockPos pos, @Nullable Player player, int tier) {
         ROLLS[DirtTier.clamp(tier)]++;
         return rollTable(level, pos, player, DirtTier.lootTable(tier));
     }
 
-    /** One roll of any loot table with panning context (Phase 16: the sluice upgrades' extra rolls). */
+    /** One roll of any loot table with panning context. */
     public static List<ItemStack> rollTable(ServerLevel level, BlockPos pos, @Nullable Player player,
                                             net.minecraft.resources.ResourceKey<LootTable> key) {
         LootTable table = level.getServer().reloadableRegistries().getLootTable(key);
@@ -282,13 +248,12 @@ public final class Panning {
     }
 
     /**
-     * Spawns a loot stack just above the pan's rim with a small hop toward the player (like a dispenser
-     * spitting it out), so it lands where it can be picked up.
+     * Spawns a loot stack just above the pan's rim with a small hop toward the player.
      */
     private static void popOut(ServerLevel level, BlockPos pos, ItemStack stack, Player player) {
         RandomSource random = level.random;
         double x = pos.getX() + 0.5;
-        double y = pos.getY() + 0.35; // pan rim is 4px (0.25) tall
+        double y = pos.getY() + 0.35;
         double z = pos.getZ() + 0.5;
         Vec3 toPlayer = new Vec3(player.getX() - x, 0, player.getZ() - z);
         toPlayer = toPlayer.lengthSqr() > 1.0E-4 ? toPlayer.normalize().scale(0.08) : Vec3.ZERO;

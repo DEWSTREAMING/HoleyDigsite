@@ -34,14 +34,14 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.List;
 
 /**
- * Forge (Phase 9): a lava-powered hearth. A Crucible on top melts metal while the forge is {@link #LIT}.
+ * A lava-powered hearth. A Crucible on top melts metal while the forge is {@link #LIT}.
  *
  * <ul>
- *   <li>Lava port on the BACK (front with the glowing coals faces the player when placed, like the drill).</li>
- *   <li>{@link #LIT} = connected to an active lava network ({@link WaterNetworkBlock} machine,
- *       {@link NetworkFluid#LAVA}). Pushed in by {@link WaterNetworks} only when the network changes.</li>
- *   <li>No fuel, no block entity, never ticks. Lit: glowing model, light level 13, embers in the client's random display
- *       tick. The block update when LIT changes is what tells the Crucible above to start or stop melting.</li>
+ *   <li>Lava port on the back. The front with the glowing coals faces the player when placed, like the drill.</li>
+ *   <li>{@link #LIT} means connected to an active lava network ({@link WaterNetworkBlock} machine,
+ *       {@link NetworkFluid#LAVA}), pushed in by {@link WaterNetworks} only when the network changes.</li>
+ *   <li>No fuel, no block entity, never ticks. When lit, it has a glowing model, light level 13, and embers in the client random display
+ *       tick. The block update when LIT changes tells the Crucible above to start or stop melting.</li>
  * </ul>
  */
 public class ForgeBlock extends Block implements WaterNetworkBlock {
@@ -55,7 +55,7 @@ public class ForgeBlock extends Block implements WaterNetworkBlock {
         this(properties, 1);
     }
 
-    /** A forge with its own heat (Phase 15: from the tier's stats). */
+    /** A forge with its own heat from the tier stats. */
     public ForgeBlock(Properties properties, int heat) {
         super(properties);
         this.heat = heat;
@@ -87,7 +87,7 @@ public class ForgeBlock extends Block implements WaterNetworkBlock {
         return rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
-    /** Phase 13: how fast a crucible melts on this forge (1; the Hot Forge: 2). */
+    /** How fast a crucible melts on this forge. */
     public int heat() {
         return heat;
     }
@@ -104,7 +104,7 @@ public class ForgeBlock extends Block implements WaterNetworkBlock {
         return state.getBlock() instanceof ForgeBlock && state.getValue(LIT);
     }
 
-    // ---- lava network ----
+    // lava network
 
     @Override
     public Role waterRole() {
@@ -146,13 +146,13 @@ public class ForgeBlock extends Block implements WaterNetworkBlock {
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    // ---- player ----
+    // player
 
     /** Empty hand: "Forge: Lit" / "Forge: Unlit - connect a Lava Intake in lava to the back". */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!player.getMainHandItem().isEmpty()) {
-            return InteractionResult.PASS; // holding something (e.g. a Crucible): let the item be used/placed (Phase 10)
+            return InteractionResult.PASS; // holding something (e.g. a Crucible): let the item be used/placed
         }
         if (!level.isClientSide) {
             player.displayClientMessage(state.getValue(LIT)
@@ -169,7 +169,7 @@ public class ForgeBlock extends Block implements WaterNetworkBlock {
         tooltip.add(Component.translatable("tooltip.holeydigsite.forge.ports").withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    // ---- client visuals (no server cost) ----
+    // client visuals
 
     /** Embers drifting out of the front and a quiet crackle while lit. */
     @Override

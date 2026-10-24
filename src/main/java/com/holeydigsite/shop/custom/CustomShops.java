@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Phase 21d: the operator-made shop entries of a dimension, saved per site + display slot in world {@link SavedData} (NOT in
- * the structure), so a store rebuild puts them back ({@link #reapply}). A display outside every site is keyed by its position.
- * Entry ids: {@code custom:<siteKey>/<slot>} or {@code custom:@x,y,z}.
+ * The operator-made shop entries of a dimension, saved per site and display slot in world {@link SavedData} so a store
+ * rebuild puts them back using {@link #reapply}. A display outside every site is keyed by its position.
+ * Entry ids use the format {@code custom:<siteKey>/<slot>} or {@code custom:@x,y,z}.
  *
- * <p>Rules: only a display without a catalogue item can be custom (the layout/catalogue always wins); only
- * {@link #clear} removes an entry; every set / clear gives the entry a new revision so old blueprints stop working.</p>
+ * <p>Rules: only a display without a catalogue item can be custom, only {@link #clear} removes an entry,
+ * and every set or clear gives the entry a new revision so old blueprints stop working.</p>
  */
 public class CustomShops extends SavedData {
     public static final String NAME = "holeydigsite_custom_shops";
@@ -44,7 +44,7 @@ public class CustomShops extends SavedData {
 
     // ------------------------------------------------------------------------------------------------ keys
 
-    /** The smallest site whose zone contains {@code pos} (a plot kiosk beats its plot), or null. */
+    /** Returns the smallest site whose zone contains {@code pos}, with a plot kiosk beating its plot, or null. */
     @Nullable
     public static SiteData.Site siteAt(ServerLevel level, BlockPos pos) {
         SiteData.Site best = null;
@@ -62,7 +62,7 @@ public class CustomShops extends SavedData {
         return best;
     }
 
-    /** The entry id for the display at {@code pos} (slot from the display; 0 = not part of a layout). */
+    /** Returns the entry id for the display at {@code pos}, using the display slot where zero means it is not part of a layout. */
     public static String keyFor(ServerLevel level, BlockPos pos, int slot) {
         SiteData.Site site = slot > 0 ? siteAt(level, pos) : null;
         return site != null ? PREFIX + site.key() + "/" + slot : PREFIX + "@" + pos.getX() + "," + pos.getY() + "," + pos.getZ();
@@ -84,15 +84,15 @@ public class CustomShops extends SavedData {
         return java.util.Collections.unmodifiableMap(entries);
     }
 
-    /** True while the blueprint's entry still exists with the same revision (nothing changed since it was handed out). */
+    /** Returns true while the blueprint's entry still exists with the same revision. */
     public static boolean valid(ServerLevel level, CustomBlueprint bp) {
         CustomEntry e = find(level, bp.id());
         return e != null && e.rev() == bp.rev();
     }
 
     /**
-     * Buy-back price (copper per item) the store around the Sell Pad at {@code padPos} pays for {@code stack}: 0 = no operator
-     * entry of that store wants it (the normal sell value applies). Entries match by {@link CustomEntry#matches}.
+     * Returns the buy-back price in copper per item that the store around the Sell Pad at {@code padPos} pays for {@code stack},
+     * or zero if no operator entry wants it. Entries match by {@link CustomEntry#matches}.
      */
     public static long buyBack(ServerLevel level, BlockPos padPos, ItemStack stack) {
         SiteData.Site site = siteAt(level, padPos);
@@ -108,7 +108,7 @@ public class CustomShops extends SavedData {
         return 0;
     }
 
-    /** Value of a stack on the Sell Pad at {@code padPos}: that store's buy-back price, else the normal sell value. */
+    /** Returns the value of a stack on the Sell Pad at {@code padPos} using that store's buy-back price or otherwise the normal sell value. */
     public static long stackValue(net.minecraft.world.level.Level level, BlockPos padPos, ItemStack stack) {
         if (level instanceof ServerLevel sl) {
             long bb = buyBack(sl, padPos, stack);
@@ -119,7 +119,7 @@ public class CustomShops extends SavedData {
         return com.holeydigsite.economy.Selling.stackValue(stack, level.registryAccess());
     }
 
-    /** Value of ONE item on the Sell Pad at {@code padPos} (see {@link #stackValue}). */
+    /** Returns the value of one item on the Sell Pad at {@code padPos}. */
     public static long unitValue(net.minecraft.world.level.Level level, BlockPos padPos, ItemStack stack) {
         if (level instanceof ServerLevel sl) {
             long bb = buyBack(sl, padPos, stack);
@@ -132,7 +132,7 @@ public class CustomShops extends SavedData {
 
     // ------------------------------------------------------------------------------------------------ changes
 
-    /** Makes the display at {@code pos} a custom entry (or edits it). The caller has checked permission. */
+    /** Makes the display at {@code pos} a custom entry or edits it, assuming the caller has checked permissions. */
     public static Result set(ServerLevel level, BlockPos pos, ItemStack template, int count, long price, long buyBack) {
         if (!(level.getBlockEntity(pos) instanceof ShopDisplayBlockEntity display)) {
             return Result.NO_DISPLAY;
@@ -153,7 +153,7 @@ public class CustomShops extends SavedData {
         return Result.OK;
     }
 
-    /** Removes the custom entry of the display at {@code pos} (the only way to remove one). Returns false if there was none. */
+    /** Removes the custom entry of the display at {@code pos}, returning false if there was none. */
     public static boolean clear(ServerLevel level, BlockPos pos) {
         if (!(level.getBlockEntity(pos) instanceof ShopDisplayBlockEntity display)) {
             return false;
@@ -169,14 +169,14 @@ public class CustomShops extends SavedData {
         return had;
     }
 
-    /** The entry id of a display (for info / blueprints). */
+    /** Returns the entry id of a display for info and blueprints. */
     public static String idOf(ServerLevel level, ShopDisplayBlockEntity display) {
         return keyFor(level, display.getBlockPos(), display.slot());
     }
 
     /**
-     * Puts the saved entries of the site {@code siteKey} back on its (new) displays after a build, skipping displays that
-     * belong to the child zones {@code exclude}. A slot the layout now fills with a catalogue item loses its custom entry.
+     * Puts the saved entries of the site {@code siteKey} back on its new displays after a build, skipping displays that
+     * belong to child zones. A slot the layout now fills with a catalogue item loses its custom entry.
      */
     public static void reapply(ServerLevel level, String siteKey, BoundingBox zone, List<BoundingBox> exclude) {
         CustomShops data = get(level);
@@ -216,7 +216,7 @@ public class CustomShops extends SavedData {
         }
     }
 
-    /** A short description of an entry for chat. */
+    /** Returns a short description of an entry for chat. */
     public static String describe(CustomEntry e) {
         return e.count() + "x " + e.template().getHoverName().getString() + " for " + e.price() + " copper"
                 + (e.hasBuyBack() ? ", buy-back " + e.buyBack() + " copper each" : "");
@@ -255,7 +255,7 @@ public class CustomShops extends SavedData {
         return data;
     }
 
-    /** Ids of every entry (copy), for commands. */
+    /** Returns a copy of every entry id for commands. */
     public List<String> ids() {
         return new ArrayList<>(entries.keySet());
     }

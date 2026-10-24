@@ -32,7 +32,7 @@ import org.joml.Quaternionf;
 import java.util.Iterator;
 
 /**
- * Draws the items on a belt (any item since Phase 12), the drop-into-the-pan and bounce-off-a-full-pan animations, items
+ * Draws the items on a belt, the drop into the pan and bounce off a full pan animations, items
  * following a corner's curve or an incline's ramp, and a Filter Belt's filter icon. Positions come from the block
  * entity's steps, interpolated with the partial tick only while the belt is MOVING and running (frozen items don't
  * jitter). Returns immediately for an empty belt without a filter.
@@ -40,15 +40,15 @@ import java.util.Iterator;
 public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEntity> {
     /** Size of an item relative to a dropped item. */
     private static final float SCALE = 0.75F;
-    /** GROUND display moves items up 2/16 * 0.5; lift so the sprite's bottom sits on the belt. */
+    /** GROUND display moves items up 2/16 * 0.5, lifting so the sprite's bottom sits on the belt. */
     private static final float LIFT = SCALE * 2.0F / 16.0F;
-    /** Where on the belt (0 = back edge, 1 = front edge) an item at step 0 sits; +1/STEPS per step. */
+    /** Where on the belt (0 = back edge, 1 = front edge) an item at step 0 sits, plus 1/STEPS per step. */
     private static final float START = 1.5F / ClumpBeltBlockEntity.STEPS;
     /** Pan dirt surface height inside the pan, in blocks. */
     private static final float PAN_FLOOR = 1.5F / 16.0F;
 
     private final ItemRenderer itemRenderer;
-    /** One clump stack per kind (index = kind) for the drop / bounce animations. */
+    /** One clump stack per kind (index = kind) for the drop and bounce animations. */
     private final ItemStack[] clumps = {ItemStack.EMPTY, DirtTier.clumps(1, 1), DirtTier.clumps(2, 1), DirtTier.clumps(3, 1),
             DirtTier.clumps(4, 1), DirtTier.clumps(5, 1), DirtTier.clumps(6, 1), DirtTier.clumps(7, 1), DirtTier.clumps(8, 1)};
 
@@ -83,17 +83,17 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
         BeltShape shape = ClumpBeltBlock.shape(state);
         long now = level.getGameTime();
 
-        // ---- items on the belt ----
+        // Items on the belt
         for (ClumpBeltBlockEntity.Clump c : belt.clumps()) {
             float step = Mth.lerp(pt, c.prevPos(), c.pos());
             float along = START + step / ClumpBeltBlockEntity.STEPS;
             pose.pushPose();
             float yaw = yaw0 + c.seed() * 1.41F;
             if (shape != BeltShape.STRAIGHT && c.side() < 0) {
-                // corner: a quarter circle from the side edge's middle to the front edge's middle
+                // Corner: a quarter circle from the side edge's middle to the front edge's middle
                 float theta = Mth.clamp(along, 0F, 1F) * Mth.HALF_PI;
                 Direction right = facing.getClockWise();
-                float sign = shape == BeltShape.LEFT ? -1F : 1F;   // the curve's centre is on the input side
+                float sign = shape == BeltShape.LEFT ? -1F : 1F;   // The curve's centre is on the input side
                 float cx = 0.5F + facing.getStepX() * 0.5F + right.getStepX() * 0.5F * sign;
                 float cz = 0.5F + facing.getStepZ() * 0.5F + right.getStepZ() * 0.5F * sign;
                 float cos = Mth.cos(theta), sin = Mth.sin(theta);
@@ -109,15 +109,14 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
                     side = 0.5F * Mth.lerp(pt, c.prevSideTicks(), c.sideTicks()) / ClumpBeltBlockEntity.SIDE_TICKS;
                 }
                 if (incline) {
-                    // Phase 12.1: stand on the 45 degree surface - tilt "up" to the surface normal (leaning back), then
-                    // lift along it. The tilt eases out over the last/first bit so the hand-over to flat belts is smooth.
+                    // Stand on the 45 degree surface, tilting up to the surface normal and lifting along it. The tilt eases out over the ends so the handover to flat belts is smooth.
                     translateOnBelt(pose, facing, along, from, side, InclineBeltBlock.surfaceAt(along));
                     float tilt = 45F * Mth.clamp(Math.min(along, 1F - along) / 0.06F, 0F, 1F);
                     Direction right = facing.getClockWise();
                     pose.mulPose(new Quaternionf().rotationAxis(tilt * Mth.DEG_TO_RAD, right.getStepX(), 0, right.getStepZ()));
                     pose.translate(0, LIFT, 0);
                 } else if (downIncline) {
-                    // Phase 21i: stand on the 45 degree surface sloping downwards (leaning forward)
+                    // Stand on the 45 degree surface sloping downwards, leaning forward.
                     translateOnBelt(pose, facing, along, from, side, DownInclineBeltBlock.surfaceAt(along));
                     float tilt = -45F * Mth.clamp(Math.min(along, 1F - along) / 0.06F, 0F, 1F);
                     Direction right = facing.getClockWise();
@@ -131,8 +130,8 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             pose.popPose();
         }
 
-        // ---- dropping into the pan: an arc over the spout lip, landing in the pan's middle ----
-        float exit = START + 1.0F; // one step past the end
+        // Dropping into the pan: an arc over the spout lip, landing in the pan's middle
+        float exit = START + 1.0F; // One step past the end
         float dropStartY = downIncline ? 0.0F : ClumpBeltBlock.SURFACE;
         float dropTargetY = downIncline ? -1.0F + PAN_FLOOR : PAN_FLOOR;
         for (Iterator<ClumpBeltBlockEntity.Drop> it = belt.drops().iterator(); it.hasNext(); ) {
@@ -142,7 +141,7 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             }
             float t = (now - d.clientStart() + partialTick) / ClumpBeltBlockEntity.DROP_TICKS;
             if (t >= 1.0F) {
-                it.remove(); // landed (the server adds the fill and doesn't need to resync for this)
+                it.remove(); // Landed
                 continue;
             }
             t = Math.max(0, t);
@@ -155,7 +154,7 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             pose.popPose();
         }
 
-        // ---- bounce off a full pan: a short hop back up, then gone ----
+        // Bounce off a full pan: a short hop back up, then gone
         float bounceBaseY = downIncline ? 0.0F : ClumpBeltBlock.SURFACE;
         for (Iterator<ClumpBeltBlockEntity.Bounce> it = belt.bounces().iterator(); it.hasNext(); ) {
             ClumpBeltBlockEntity.Bounce b = it.next();
@@ -174,7 +173,7 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             pose.popPose();
         }
 
-        // ---- Filter Belt: the filter item hovering over the side matches leave from ----
+        // Filter Belt: the filter item hovering over the side matches leave from
         if (hasFilter && state.getBlock() instanceof FilterBeltBlock) {
             Direction out = FilterBeltBlock.outSide(state);
             pose.pushPose();
@@ -185,7 +184,7 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             pose.popPose();
         }
 
-        // ---- Phase 21j: speed label when looking at a Filter Belt or Belt Splitter ----
+        // Speed label when looking at a Filter Belt or Belt Splitter
         if (showSpeedLabel && FloatingText.focused(belt.getBlockPos(), 1.0)) {
             float sc = FloatingText.labelScale(belt.getBlockPos());
             double y = hasFilter ? 1.55 : 1.25;
@@ -214,7 +213,7 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
         itemRenderer.renderStatic(stack, ItemDisplayContext.GROUND, light, OverlayTexture.NO_OVERLAY, pose, buffers, level, seed);
     }
 
-    /** Items that drop or bounce are drawn over the block in front: include it so they aren't culled early. */
+    /** Items that drop or bounce are drawn over the block in front, so include it to prevent early culling. */
     @Override
     public AABB getRenderBoundingBox(ClumpBeltBlockEntity belt) {
         return new AABB(belt.getBlockPos()).inflate(1.0);

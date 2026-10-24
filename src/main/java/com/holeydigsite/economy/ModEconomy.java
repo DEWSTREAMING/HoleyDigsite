@@ -12,16 +12,14 @@ import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 /**
- * The two data-driven economy tables (mod bus registration):
+ * The data-driven economy tables registered on the mod bus:
  * <ul>
- *   <li>{@link #RESOURCE_WEIGHTS} - item data map: material + grams per item
+ *   <li>{@link #RESOURCE_WEIGHTS} - item data map containing material and grams per item
  *       ({@code data/holeydigsite/data_maps/item/resource_weights.json}).</li>
- *   <li>{@link #SELL_VALUES} - datapack registry: copper per gram per material
+ *   <li>{@link #SELL_VALUES} - datapack registry containing copper per gram per material
  *       ({@code data/holeydigsite/holeydigsite/sell_values/*.json}).</li>
  * </ul>
- * Both are synced to clients. Phase 8 adds a third datapack registry, {@code holeydigsite:shop_items}
- * (see {@link com.holeydigsite.shop.ShopCatalogue}).
- * Both are synced to clients. New materials (phase 8 ingots, phase 10 Orchremia...) only add JSON entries.
+ * Both are synced to clients. New materials only require JSON entries.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class ModEconomy {
@@ -43,10 +41,10 @@ public final class ModEconomy {
     @SubscribeEvent
     public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(SELL_VALUES, SellValue.CODEC, SellValue.CODEC);
-        // Phase 8: the shop catalogue (blueprints / Shop Displays / Buy Pad)
-        // Phase 10: Crafting Forge recipes (synced: the forge's floating text shows them)
+        // Shop catalogue for blueprints, shop displays, and buy pads
+        // Crafting forge recipes, synced so the forge's floating text can display them
         event.dataPackRegistry(com.holeydigsite.forge.ForgeRecipes.KEY, com.holeydigsite.forge.ForgeRecipe.CODEC, com.holeydigsite.forge.ForgeRecipe.CODEC);
-        // Phase 19: Smithing Anvil recipes + the stats / colours of the materials pieces are made of
+        // Smithing anvil recipes and the stats or colours of the material pieces
         event.dataPackRegistry(com.holeydigsite.smith.AnvilRecipes.KEY, com.holeydigsite.smith.AnvilRecipe.CODEC, com.holeydigsite.smith.AnvilRecipe.CODEC);
         event.dataPackRegistry(com.holeydigsite.smith.SmithMaterial.KEY, com.holeydigsite.smith.SmithMaterial.CODEC, com.holeydigsite.smith.SmithMaterial.CODEC);
         event.dataPackRegistry(com.holeydigsite.shop.ShopCatalogue.SHOP_ITEMS, com.holeydigsite.shop.ShopItem.CODEC, com.holeydigsite.shop.ShopItem.CODEC);

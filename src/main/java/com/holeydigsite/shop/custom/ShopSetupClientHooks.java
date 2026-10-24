@@ -3,7 +3,7 @@ package com.holeydigsite.shop.custom;
 import com.holeydigsite.client.ShopSetupScreen;
 import net.minecraft.client.Minecraft;
 
-/** Phase 21d: client-side screen opener isolated from server classloading (like LedgerClientHooks). */
+/** A client-side screen opener isolated from server classloading. */
 public final class ShopSetupClientHooks {
     private ShopSetupClientHooks() {}
 

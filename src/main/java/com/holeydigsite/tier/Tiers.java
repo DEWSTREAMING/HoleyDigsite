@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Phase 15: the tier registry. Reads {@code data/holeydigsite/tiers/index.json} and one JSON per family from the mod jar when
- * the mod is constructed (registries cannot change at runtime, so these files are NOT reloadable datapack data), registers
- * every tier's block and item by looping, and hands the registered holders to {@code ModBlocks} / {@code ModItems} /
- * {@code ModBlockEntities} / the creative tab.
+ * The tier registry. Reads {@code data/holeydigsite/tiers/index.json} and one JSON per family from the mod jar when
+ * the mod is constructed (registries cannot change at runtime, so these files are not reloadable datapack data), registers
+ * every tier's block and item by looping, and hands the registered holders to {@code ModBlocks}, {@code ModItems},
+ * {@code ModBlockEntities}, and the creative tab.
  */
 public final class Tiers {
     private Tiers() {}
@@ -85,14 +85,14 @@ public final class Tiers {
         return d;
     }
 
-    /** A stat of tier {@code id} (compile-time-free replacement for the old per-tier constants). */
+    /** A stat of tier {@code id}. */
     public static int stat(String id, String key) {
         return def(id).stat(key);
     }
 
     // ---- registration ----
 
-    /** Registers every tier block (call once, from {@code ModBlocks}). */
+    /** Registers every tier block (call once from {@code ModBlocks}). */
     public static void registerBlocks(DeferredRegister.Blocks blocks) {
         for (TierFamily f : FAMILIES.values()) {
             for (TierDef d : f.tiers()) {
@@ -103,7 +103,7 @@ public final class Tiers {
         }
     }
 
-    /** Registers every tier item (call once, from {@code ModItems}). */
+    /** Registers every tier item (call once from {@code ModItems}). */
     public static void registerItems(DeferredRegister.Items items) {
         for (TierFamily f : FAMILIES.values()) {
             for (TierDef d : f.tiers()) {
@@ -130,7 +130,7 @@ public final class Tiers {
         return (DeferredItem<T>) (DeferredItem<?>) i;
     }
 
-    /** All blocks of a family, in file order - the valid blocks of its block entity type. */
+    /** All blocks of a family in file order, representing the valid blocks of its block entity type. */
     public static Block[] blocksOf(String family) {
         return family(family).tiers().stream().filter(TierDef::hasBlock).map(d -> BLOCKS.get(d.id()).get()).toArray(Block[]::new);
     }

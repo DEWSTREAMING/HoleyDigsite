@@ -26,12 +26,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * State of a Sluice Box: cached water power (pushed in by the network), queued Dirt Clumps, progress on the current
- * clump and the output tray.
+ * State of a Sluice Box, including cached water power, queued Dirt Clumps, progress on the current
+ * clump, and the output tray.
  *
  * <p>The tray is a list of stacks with {@link #TRAY_SLOTS} slots. The sluice only starts a clump while at least one
- * slot is free; a single roll can produce more than one stack, so after the last roll the tray may hold a stack or two
- * more than {@link #TRAY_SLOTS} - nothing is ever thrown away. No item handler: only a player can empty it.</p>
+ * slot is free. A single roll can produce more than one stack, so after the last roll the tray may hold a stack or two
+ * more than {@link #TRAY_SLOTS}, though nothing is ever thrown away. Only a player can empty it.</p>
  */
 public class SluiceBoxBlockEntity extends BlockEntity {
     /** Clumps waiting to be washed. */
@@ -42,7 +42,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     public static final int TRAY_SLOTS = com.holeydigsite.tier.Tiers.stat("sluice_box", "tray_slots");
 
     private boolean waterPowered;
-    /** Tiers of the queued clumps, oldest first (Phase 7: each clump keeps its tier and rolls that tier's table). */
+    /** Tiers of the queued clumps, oldest first, where each clump keeps its tier and rolls that tier's table. */
     private final List<Integer> queue = new ArrayList<>(8);
 
 
@@ -88,7 +88,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     // Tick (WORKING only)
     // ------------------------------------------------------------------------------------------------
 
-    /** Server tick - only while the sluice is WORKING (see {@link SluiceBoxBlock#getTicker}). */
+    /** Server tick while the sluice is working (see {@link SluiceBoxBlock#getTicker}). */
     public static void serverTick(Level level, BlockPos pos, BlockState state, SluiceBoxBlockEntity sluice) {
         if (++sluice.progress < SluiceBoxBlock.stats(state).cycleTicks()) {
             level.blockEntityChanged(pos);
@@ -102,8 +102,8 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     }
 
     /**
-     * One clump through the riffles: same loot roll as panning by hand, results into the tray. Phase 16: an installed upgrade
-     * gives clumps of its own kind a chance of a free second wash (and the Fine Mesh Screen its extra Topaz roll). Public for tests.
+     * One clump through the riffles with the same loot roll as panning by hand, putting results into the tray. An installed upgrade
+     * gives clumps of its own kind a chance of a free second wash, along with any bonus rolls. Public for tests.
      */
     public void washOneClump(ServerLevel level, BlockPos pos) {
         if (queue.isEmpty()) {
@@ -223,8 +223,8 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     }
 
     /**
-     * Phase 12: moves tray items onto a running belt in front of the tray, one item at a time while the belt has room.
-     * Returns true if the tray still holds something and a belt is there (the caller re-checks a bit later).
+     * Moves tray items onto a running belt in front of the tray, one item at a time while the belt has room.
+     * Returns true if the tray still holds something and a belt is there.
      */
     public boolean pushTrayToBelt(Level level, BlockPos pos, BlockState state) {
         if (tray.isEmpty()) {
@@ -287,7 +287,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         progress = 0;
     }
 
-    /** Saves, and sends the tray/queue to clients (only on real changes: a clump in, a roll, a collect). */
+    /** Saves and sends the tray and queue to clients on real changes. */
     private void changed() {
         if (level != null && !level.isClientSide) {
             level.blockEntityChanged(worldPosition);
@@ -342,7 +342,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         }
     }
 
-    /** Clients get the queue and the tray (for the renderer), not power or progress. */
+    /** Clients get the queue and the tray for the renderer, rather than power or progress. */
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();

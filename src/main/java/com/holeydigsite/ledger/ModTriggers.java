@@ -16,7 +16,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.Optional;
 
 /**
- * Phase 21a: Registers the 11 custom advancement triggers for the Prospector's Ledger milestones.
+ * Registers the custom advancement triggers for the Prospector's Ledger milestones.
  */
 public final class ModTriggers {
     private ModTriggers() {}
@@ -47,7 +47,7 @@ public final class ModTriggers {
     public static final DeferredHolder<CriterionTrigger<?>, WearingTrigger> WEARING =
             TRIGGERS.register("wearing", WearingTrigger::new);
 
-    // 1. holeydigsite:panned
+    // holeydigsite:panned
     public static final class PannedTrigger extends SimpleCriterionTrigger<PannedTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -67,7 +67,7 @@ public final class ModTriggers {
         }
     }
 
-    // 2. holeydigsite:sold
+    // holeydigsite:sold
     public static final class SoldTrigger extends SimpleCriterionTrigger<SoldTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -87,7 +87,7 @@ public final class ModTriggers {
         }
     }
 
-    // 3. holeydigsite:earned_total
+    // holeydigsite:earned_total
     public static final class EarnedTotalTrigger extends SimpleCriterionTrigger<EarnedTotalTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -107,7 +107,7 @@ public final class ModTriggers {
         }
     }
 
-    // 4. holeydigsite:cast
+    // holeydigsite:cast
     public static final class CastTrigger extends SimpleCriterionTrigger<CastTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -127,7 +127,7 @@ public final class ModTriggers {
         }
     }
 
-    // 5. holeydigsite:cut_gem
+    // holeydigsite:cut_gem
     public static final class CutGemTrigger extends SimpleCriterionTrigger<CutGemTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -147,7 +147,7 @@ public final class ModTriggers {
         }
     }
 
-    // 6. holeydigsite:smithed
+    // holeydigsite:smithed
     public static final class SmithedTrigger extends SimpleCriterionTrigger<SmithedTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -188,7 +188,7 @@ public final class ModTriggers {
         }
     }
 
-    // 7. holeydigsite:plot_bought
+    // holeydigsite:plot_bought
     public static final class PlotBoughtTrigger extends SimpleCriterionTrigger<PlotBoughtTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -215,7 +215,7 @@ public final class ModTriggers {
         }
     }
 
-    // 8. holeydigsite:harvested
+    // holeydigsite:harvested
     public static final class HarvestedTrigger extends SimpleCriterionTrigger<HarvestedTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -240,7 +240,7 @@ public final class ModTriggers {
         }
     }
 
-    // 9. holeydigsite:upgrade_installed
+    // holeydigsite:upgrade_installed
     public static final class UpgradeInstalledTrigger extends SimpleCriterionTrigger<UpgradeInstalledTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -264,7 +264,7 @@ public final class ModTriggers {
         }
     }
 
-    // 10. holeydigsite:line_running
+    // holeydigsite:line_running
     public static final class LineRunningTrigger extends SimpleCriterionTrigger<LineRunningTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }
@@ -282,7 +282,7 @@ public final class ModTriggers {
         }
     }
 
-    // 11. holeydigsite:wearing
+    // holeydigsite:wearing
     public static final class WearingTrigger extends SimpleCriterionTrigger<WearingTrigger.Instance> {
         @Override
         public Codec<Instance> codec() { return Instance.CODEC; }

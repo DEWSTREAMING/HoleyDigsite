@@ -7,8 +7,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 
 /**
- * Placeholder tier of the smithed swords and axe (Phase 19): the real durability, damage and mining speed of a piece are set on
- * its stack from its metals (see {@link SmithPieces#create}); this only gives a piece without those components (creative / /give)
+ * Placeholder tier of the smithed swords and axe. The real durability, damage and mining speed of a piece are set on
+ * its stack from its metals (see {@link SmithPieces#create}). This only gives a piece without those components for creative or give, using
  * iron-like defaults. Not repairable.
  */
 public final class SmithTier implements Tier {

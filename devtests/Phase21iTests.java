@@ -402,9 +402,19 @@ public class Phase21iTests {
             SiteDefs.overrideLayout(HOME_LAYOUT, old);
             Sites.Result r = Sites.build(l, d, a, null, false);
             BoundingBox z = r.site().zone();
-            check(h, displays(l, z).containsKey(34) && displays(l, z).get(34) == null
-                    && displays(l, z).containsKey(35) && displays(l, z).get(35) == null,
-                    "old store: 34 and 35 are empty displays");
+            // In a real old world saved before 21i, displays 34 and 35 did not exist at all in the chunk
+            List<BlockPos> removed = new ArrayList<>();
+            for (BlockEntity be : Sites.blockEntities(l, z)) {
+                if (be instanceof ShopDisplayBlockEntity disp && (disp.slot() == 34 || disp.slot() == 35)) {
+                    removed.add(disp.getBlockPos());
+                }
+            }
+            check(h, removed.size() == 2, "found slots 34 and 35 to simulate old world");
+            for (BlockPos p : removed) {
+                l.setBlock(p, Blocks.AIR.defaultBlockState(), 3);
+            }
+            check(h, !displays(l, z).containsKey(34) && !displays(l, z).containsKey(35),
+                    "old store: 34 and 35 do not exist in world");
             BlockPos litter = a.offset(15, 11, 10);
             l.setBlock(litter, Blocks.GLASS.defaultBlockState(), 3);
             SiteDefs.overrideLayout(HOME_LAYOUT, now);

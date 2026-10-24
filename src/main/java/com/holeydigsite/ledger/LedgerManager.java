@@ -38,14 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Phase 21a: Core server-side logic for the Prospector's Ledger:
- * <ul>
- *   <li>Completing milestones when their hidden advancement is earned (one-shot Renown)</li>
- *   <li>Granting ongoing Renown from panning, sluicing, crop harvesting, smithing, and Sell Pad sales (with per-source caps)</li>
- *   <li>Level-up action-bar notification and sound</li>
- *   <li>Claiming level rewards (items, blueprints, coins, titles, overflow dropped at feet; levels with missing content show Coming soon)</li>
- *   <li>Giving the free starter Ledger on first join and checking old-world state on first open</li>
- * </ul>
+ * Core server-side logic for the Prospector's Ledger, handling milestones, ongoing Renown gains, level-up notifications, claiming rewards, and starter item distribution.
  */
 @EventBusSubscriber(modid = HoleyDigsite.MODID)
 public final class LedgerManager {
@@ -53,7 +46,7 @@ public final class LedgerManager {
 
     private static final ResourceLocation SILVANE = HoleyDigsite.id("silvane");
 
-    // ---- Events ----
+    // Events
 
     @SubscribeEvent
     public static void onAdvancementEarned(AdvancementEvent.AdvancementEarnEvent event) {
@@ -116,7 +109,6 @@ public final class LedgerManager {
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        // Explicit fallback in addition to AttachmentType.copyOnDeath()
         LedgerData oldData = LedgerData.get(event.getOriginal());
         LedgerData newData = LedgerData.get(event.getEntity());
         newData.copyFrom(oldData);
@@ -131,7 +123,7 @@ public final class LedgerManager {
         }
     }
 
-    // ---- Milestones ----
+    // Milestones
 
     /**
      * Marks {@code milestoneId} completed for {@code sp} and awards its Renown once.
@@ -148,7 +140,6 @@ public final class LedgerManager {
         data.addRenown(m.renown());
         int newLevel = data.level();
 
-        // Ensure the backing hidden advancement is also marked done
         MinecraftServer server = sp.getServer();
         if (server != null) {
             AdvancementHolder holder = server.getAdvancements().get(m.advancement());
@@ -170,7 +161,7 @@ public final class LedgerManager {
     }
 
     /**
-     * Phase 21c: Revokes {@code milestoneId} from {@code sp}, removes its Renown, and revokes its hidden advancement.
+     * Revokes {@code milestoneId} from {@code sp}, removes its Renown, and revokes its hidden advancement.
      * Returns true if the milestone was revoked.
      */
     public static boolean revokeMilestone(ServerPlayer sp, ResourceLocation milestoneId) {
@@ -200,7 +191,7 @@ public final class LedgerManager {
     }
 
     /**
-     * Phase 21c: Completely wipes all Ledger data and revokes all milestone advancements for {@code sp}.
+     * Completely wipes all Ledger data and revokes all milestone advancements for {@code sp}.
      */
     public static void resetPlayer(ServerPlayer sp) {
         LedgerData data = LedgerData.get(sp);
@@ -223,7 +214,7 @@ public final class LedgerManager {
         LedgerNetwork.syncToClient(sp);
     }
 
-    // ---- Ongoing Renown & Triggers ----
+    // Ongoing Renown and triggers
 
     public static void recordPan(ServerPlayer sp, int tier, int count) {
         ModTriggers.PANNED.get().trigger(sp, tier);
@@ -310,12 +301,10 @@ public final class LedgerManager {
         sp.level().playSound(null, sp.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8F, 1.0F);
     }
 
-    // ---- Claiming Rewards ----
+    // Claiming Rewards
 
     /**
-     * Phase 21b "Coming soon" safety net: a level can be claimed only if EVERYTHING it gives can be given - every reward
-     * item is registered, every blueprint has a catalogue entry, and its title (if any) exists. Otherwise the level shows
-     * "Coming soon" with no Claim button, Claim All skips it, and it stays claimable once the content exists.
+     * Checks if a level can be claimed, ensuring all reward items are registered, blueprints have catalogue entries, and titles exist.
      */
     public static boolean isLevelReady(LedgerDefs.LevelDef def, HolderLookup.Provider registries) {
         if (def == null) return false;
@@ -333,7 +322,7 @@ public final class LedgerManager {
         }
         LedgerDefs.LevelDef def = LedgerDefs.level(level);
         HolderLookup.Provider registries = sp.registryAccess();
-        if (!isLevelReady(def, registries)) return false; // "Coming soon": nothing is given, nothing is marked claimed
+        if (!isLevelReady(def, registries)) return false;
 
         data.markLevelClaimed(level);
         int ingotGrams = (int) Math.round(LedgerDefs.curve().rewardIngotGrams());
@@ -372,7 +361,7 @@ public final class LedgerManager {
         return true;
     }
 
-    // ---- Titles (Phase 21b) ----
+    // Titles
 
     /** Picks one of the player's unlocked titles, or none ({@code ""}). Returns false if the title is not unlocked. */
     public static boolean selectTitle(ServerPlayer sp, String id) {
@@ -392,7 +381,7 @@ public final class LedgerManager {
                 .withStyle(ChatFormatting.GOLD);
     }
 
-    /** Shows the chosen title before the player's name: chat (e.g. "[Gem Hunter] Dewey"), death messages, name tag. */
+    /** Shows the chosen title before the player's name in chat, death messages, and name tags. */
     @SubscribeEvent
     public static void onNameFormat(PlayerEvent.NameFormat event) {
         String title = LedgerData.get(event.getEntity()).activeTitle();
@@ -434,7 +423,7 @@ public final class LedgerManager {
         }
     }
 
-    /** Returns true if a reward entry can be given now (false if its item is not registered or its blueprint has no catalogue entry). */
+    /** Returns true if a reward entry can be given now, false if its item is not registered or its blueprint has no catalogue entry. */
     public static boolean isRewardAvailable(LedgerDefs.RewardEntry r, HolderLookup.Provider registries) {
         if (r.item().isPresent()) {
             Optional<Item> opt = BuiltInRegistries.ITEM.getOptional(r.item().get());
@@ -447,7 +436,7 @@ public final class LedgerManager {
         return false;
     }
 
-    // ---- Old-World Grant on First Open ----
+    // Old-world data checks
 
     public static void checkOldWorld(ServerPlayer sp) {
         LedgerData data = LedgerData.get(sp);
@@ -466,7 +455,6 @@ public final class LedgerManager {
         }
         data.setOldWorldChecked(true);
 
-        // 1. Owned land plots
         Set<String> ownedPlots = new HashSet<>();
         for (PlotData.Plot p : PlotData.get(sp.serverLevel()).all()) {
             if (p.owned()) {
@@ -478,13 +466,11 @@ public final class LedgerManager {
         if (ownedPlots.contains("sand_dunes")) grantMilestone(sp, HoleyDigsite.id("sand_dunes"));
         if (ownedPlots.size() >= 3) grantMilestone(sp, HoleyDigsite.id("all_plots"));
 
-        // 2. Lifetime Sell Pad copper
         long copper = data.lifetimeCopper();
         if (copper >= 1) grantMilestone(sp, HoleyDigsite.id("first_sale"));
         if (copper >= 10_000) grantMilestone(sp, HoleyDigsite.id("earned_10k"));
         if (copper >= 1_000_000) grantMilestone(sp, HoleyDigsite.id("earned_1m"));
 
-        // 3. Player inventory & equipment inspection
         Set<String> cropsFound = new HashSet<>();
         Set<Item> smithedKinds = new HashSet<>();
 

@@ -32,10 +32,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Phase 21a/21b: The Prospector's Ledger screen.
- * Shows the player's current Level and Renown progress bar (and chosen title), the 50-level scrollable reward track with
- * Claim buttons ("Coming soon" for levels whose content is missing), the 38 milestones grouped by chapter (plus ongoing
- * Renown caps) and the title picker.
+ * The Prospector's Ledger screen.
+ * Shows the player's level and renown progress bar, the scrollable reward track with claim buttons,
+ * milestones grouped by chapter, and the title picker.
  */
 public class LedgerScreen extends Screen {
     private static final int WIN_W = 340;
@@ -48,7 +47,7 @@ public class LedgerScreen extends Screen {
 
     private int leftPos;
     private int topPos;
-    private int activeTab = 0; // 0 = Reward Track (1-50), 1 = Milestones, 2 = Titles
+    private int activeTab = 0; // tab index for rewards, milestones, and titles
     private double scrollTrack = 0;
     private double scrollMilestones = 0;
     private double scrollTitles = 0;
@@ -123,7 +122,7 @@ public class LedgerScreen extends Screen {
         updateButtons();
     }
 
-    /** A level the player has reached, not yet claimed, and whose rewards can all be given (no "Coming soon"). */
+    /** Checks if a level has been reached, is unclaimed, and has all its rewards ready. */
     private static boolean canClaim(LedgerData data, Player player, int lvl) {
         return data.level() >= lvl && !data.isLevelClaimed(lvl)
                 && LedgerManager.isLevelReady(LedgerDefs.level(lvl), player.registryAccess());
@@ -175,7 +174,7 @@ public class LedgerScreen extends Screen {
         LedgerData data = LedgerData.get(player);
         LedgerDefs.Curve curve = LedgerDefs.curve();
 
-        // Header: Title (+ chosen player title) & Level & Renown bar
+        // Header with title, level, and renown bar
         String active = data.activeTitle();
         if (active.isEmpty()) {
             g.drawString(this.font, this.title, leftPos + 10, topPos + 9, 0xFFF3D27A, true);
@@ -208,7 +207,7 @@ public class LedgerScreen extends Screen {
                 : Component.translatable("screen.holeydigsite.ledger.header_bar", lvl, renown, nextCum);
         g.drawCenteredString(this.font, barLabel, barX + barW / 2, barY + 2, 0xFFFFFFFF);
 
-        // List area
+        // Main list area
         int listX = leftPos + 8;
         int listY = topPos + LIST_TOP_OFFSET;
         int listW = WIN_W - 16;
@@ -242,13 +241,13 @@ public class LedgerScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.renderTransparentBackground(g);
-        // Outer ledger frame
+        // Outer ledger background frame
         g.fill(leftPos - 2, topPos - 2, leftPos + WIN_W + 2, topPos + WIN_H + 2, 0xFF140F0A);
         g.fill(leftPos, topPos, leftPos + WIN_W, topPos + WIN_H, 0xFF3B2E22);
         g.fill(leftPos + 2, topPos + 2, leftPos + WIN_W - 2, topPos + WIN_H - 2, 0xFF2D2218);
     }
 
-    /** What the mouse hovers on the reward track: an item icon, or a row whose reward text did not fit in two lines. */
+    /** Tracks what the mouse is hovering over in the reward track. */
     private record TrackHover(ItemStack stack, List<Component> lines) {}
 
     private TrackHover renderTrackTab(GuiGraphics g, Player player, LedgerData data, LedgerDefs.Curve curve,
@@ -272,7 +271,7 @@ public class LedgerScreen extends Screen {
             int bg = claimed ? 0xFF233022 : (reached && ready ? 0xFF3E311B : (lvl % 2 == 0 ? 0xFF282019 : 0xFF231C15));
             g.fill(listX + 1, rowY + 1, listX + listW - 7, rowY + ROW_H - 1, bg);
 
-            // Level number + cumulative Renown
+            // Level number and cumulative renown
             int lvlColor = claimed ? 0xFF68D868 : (reached ? 0xFFFFD35B : 0xFF888078);
             String lvlStr = String.format(java.util.Locale.ROOT, "L%02d", lvl);
             g.drawString(this.font, lvlStr, listX + 5, rowY + 4, lvlColor, false);
@@ -292,7 +291,7 @@ public class LedgerScreen extends Screen {
                 }
             }
 
-            // Summary text: wrapped to two lines (never cut mid-word); anything beyond goes to the row tooltip
+            // Wrapped summary text with overflow going to the tooltip
             int textX = Math.max(listX + 74, iconX + 4);
             int maxTextW = Math.max(40, listW - (textX - listX) - 72);
             int textColor = reached ? 0xFFEAE2D6 : 0xFF9E9489;
@@ -320,7 +319,7 @@ public class LedgerScreen extends Screen {
                 }
             }
 
-            // Claim button / status on right
+            // Claim button and status on the right
             int btnX = listX + listW - 56;
             int btnY = rowY + 4;
             int btnW = 48;
@@ -374,7 +373,7 @@ public class LedgerScreen extends Screen {
         return out;
     }
 
-    /** The reward parts of a ready level, one entry per reward (item, blueprint, coins, title), in player-facing words. */
+    /** Builds a list of descriptions for each reward in a level. */
     private List<String> buildLevelParts(LedgerDefs.LevelDef def, LedgerDefs.Curve curve, Player player) {
         List<String> parts = new ArrayList<>();
         if (def == null) return parts;
@@ -401,7 +400,7 @@ public class LedgerScreen extends Screen {
         return parts;
     }
 
-    /** Packs whole reward parts into lines of at most {@code maxW} pixels; a part wider than a line wraps at word breaks. */
+    /** Packs reward parts into lines fitting within the maximum width. */
     private List<String> wrapParts(List<String> parts, int maxW) {
         List<String> lines = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -419,7 +418,6 @@ public class LedgerScreen extends Screen {
             if (this.font.width(piece) <= maxW) {
                 cur.append(piece);
             } else {
-                // a single part wider than the line: word wrap it
                 List<net.minecraft.network.chat.FormattedText> split = this.font.getSplitter().splitLines(piece, maxW, Style.EMPTY);
                 for (int k = 0; k < split.size(); k++) {
                     if (k < split.size() - 1) {
@@ -436,7 +434,7 @@ public class LedgerScreen extends Screen {
         return lines;
     }
 
-    /** Shortens a line at a word boundary so that "..." fits in {@code maxW}. */
+    /** Shortens a line with ellipsis to fit within the maximum width. */
     private String ellipsize(String line, int maxW) {
         String s = line;
         while (!s.isEmpty() && this.font.width(s + "...") > maxW) {
@@ -507,16 +505,16 @@ public class LedgerScreen extends Screen {
         return rows;
     }
 
-    // ---- Titles tab (Phase 21b) ----
+    // Titles tab rendering
 
-    /** Row 0 = "No title", then one row per title in level order. Returns the title id of a row ("" for none). */
+    /** Gets the title ID for a given row index. */
     private static String titleAtRow(int row) {
         if (row == 0) return "";
         List<String> titles = LedgerDefs.titles();
         return row - 1 < titles.size() ? titles.get(row - 1) : null;
     }
 
-    /** The level whose claim unlocks a title (0 if no level gives it). */
+    /** Gets the level required to unlock a specific title. */
     private static int levelOfTitle(String id) {
         for (int l = 1; l <= LedgerDefs.MAX_LEVEL; l++) {
             LedgerDefs.LevelDef def = LedgerDefs.level(l);

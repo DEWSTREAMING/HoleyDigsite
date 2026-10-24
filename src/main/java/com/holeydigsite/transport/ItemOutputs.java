@@ -8,9 +8,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * The ONE place that decides whether an item may be pushed into a block (Phase 12; extends Phase 4's ClumpOutputs).
- * Only {@link ItemTarget} blocks take anything; nothing reaches into a locked land plot (Phase 11). Items are never
- * dropped into the world and never handed to hoppers/chests/other mods.
+ * Decides whether an item may be pushed into a block, extending previous clump output logic.
+ * Only {@link ItemTarget} blocks take anything, and nothing reaches into a locked land plot. Items are never
+ * dropped into the world and never handed to hoppers, chests or other mods.
  */
 public final class ItemOutputs {
     private ItemOutputs() {}

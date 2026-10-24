@@ -16,8 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.WeakHashMap;
 
 /**
- * Plot board floating text (Phase 11), readable from 24 blocks: the plot's name and "For Sale - 400 gold" (price of its
- * Land Deed in the shop catalogue) or "Owned". Cached per board; rebuilt when the board's state or plot changes.
+ * Plot board floating text readable from 24 blocks, showing the plot's name and either 'For Sale, 400 gold' (using the price of its
+ * Land Deed in the shop catalogue) or 'Owned'. Cached per board, and rebuilt when the board state or plot changes.
  */
 public class PlotBoardRenderer implements BlockEntityRenderer<PlotBoardBlockEntity> {
     private static final double RANGE = 24.0;

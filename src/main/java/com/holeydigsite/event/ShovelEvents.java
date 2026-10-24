@@ -31,8 +31,8 @@ public final class ShovelEvents {
 
         BlockPos pos = event.getPos();
         event.setCanceled(true);
-        level.destroyBlock(pos, false, player); // break particles + sound, no item drop
-        ShovelHelper.fill(tool, com.holeydigsite.tier.DirtTier.ofScooped(event.getState())); // Phase 11: dirt, gravel or sand
+        level.destroyBlock(pos, false, player);
+        ShovelHelper.fill(tool, com.holeydigsite.tier.DirtTier.ofScooped(event.getState()));
 
         if (ShovelHelper.SCOOP_DURABILITY_COST > 0 && !player.getAbilities().instabuild) {
             tool.hurtAndBreak(ShovelHelper.SCOOP_DURABILITY_COST, player, EquipmentSlot.MAINHAND);

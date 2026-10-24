@@ -13,8 +13,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /**
  * Custom item-stack data components.
  *
- * <p>Components are saved with the stack ({@code persistent}) and synced to clients
- * ({@code networkSynchronized}) so client-side model properties can read them.</p>
+ * <p>Components are saved with the stack and synced to clients so client-side model properties can read them.</p>
  */
 public final class ModDataComponents {
     private ModDataComponents() {}
@@ -23,8 +22,7 @@ public final class ModDataComponents {
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, HoleyDigsite.MODID);
 
     /**
-     * {@code holeydigsite:shovel_full} - set to {@code true} on a vanilla wooden shovel that is carrying a scoop of dirt.
-     * Absent (or false) means the shovel is empty. See {@link com.holeydigsite.shovel.ShovelHelper}.
+     * {@code holeydigsite:shovel_full}, set to true on a vanilla wooden shovel carrying a scoop of dirt, see {@link com.holeydigsite.shovel.ShovelHelper}.
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> SHOVEL_FULL =
             DATA_COMPONENTS.registerComponentType("shovel_full", builder -> builder
@@ -32,8 +30,7 @@ public final class ModDataComponents {
                     .networkSynchronized(ByteBufCodecs.BOOL));
 
     /**
-     * {@code holeydigsite:clump_tier} - tier (2 or 3) of a Deep / Abyssal Dirt Clump. Tier 1 clumps have no component,
-     * so they all stack. See {@link com.holeydigsite.tier.DirtTier}.
+     * {@code holeydigsite:clump_tier}, tier 2 or 3 of a Deep or Abyssal Dirt Clump, see {@link com.holeydigsite.tier.DirtTier}.
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> CLUMP_TIER =
             DATA_COMPONENTS.registerComponentType("clump_tier", builder -> builder
@@ -41,24 +38,21 @@ public final class ModDataComponents {
                     .networkSynchronized(ByteBufCodecs.VAR_INT));
 
     /**
-     * {@code holeydigsite:blueprint_target} - the item a Blueprint buys (an {@link Item}). Blueprints with different
-     * targets don't stack. See {@link com.holeydigsite.item.BlueprintItem}.
+     * {@code holeydigsite:blueprint_target}, the item a Blueprint buys as an {@link Item}, see {@link com.holeydigsite.item.BlueprintItem}.
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Item>> BLUEPRINT_TARGET =
             DATA_COMPONENTS.registerComponentType("blueprint_target", builder -> builder
                     .persistent(net.minecraft.core.registries.BuiltInRegistries.ITEM.byNameCodec())
                     .networkSynchronized(ByteBufCodecs.registry(Registries.ITEM)));
 
-    /** {@code holeydigsite:custom_blueprint} - Phase 21d: a Blueprint for an operator-made display entry, see {@link com.holeydigsite.shop.custom.CustomBlueprint}. */
+    /** {@code holeydigsite:custom_blueprint}, a Blueprint for an operator-made display entry, see {@link com.holeydigsite.shop.custom.CustomBlueprint}. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.holeydigsite.shop.custom.CustomBlueprint>> CUSTOM_BLUEPRINT =
             DATA_COMPONENTS.registerComponentType("custom_blueprint", builder -> builder
                     .persistent(com.holeydigsite.shop.custom.CustomBlueprint.CODEC)
                     .networkSynchronized(com.holeydigsite.shop.custom.CustomBlueprint.STREAM_CODEC));
 
     /**
-     * {@code holeydigsite:weight} - grams of an ingot (Phase 9, see {@link com.holeydigsite.item.IngotItem}). Ingots with the
-     * same weight stack, different weights don't. Read by {@link com.holeydigsite.economy.Selling#grams} for selling and
-     * melting.
+     * {@code holeydigsite:shovel_kind}, see {@link com.holeydigsite.tier.DirtTier}.
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> SHOVEL_KIND =
             DATA_COMPONENTS.registerComponentType("shovel_kind", builder -> builder
@@ -66,8 +60,7 @@ public final class ModDataComponents {
                     .networkSynchronized(ByteBufCodecs.VAR_INT));
 
     /**
-     * {@code holeydigsite:smith} - the ingots (metal + grams, in laying order) and the gem of a piece made on the Smithing Anvil
-     * (Phase 19, see {@link com.holeydigsite.smith.SmithData}). Pieces with different materials don't stack.
+     * {@code holeydigsite:smith}, the ingots and gem of a piece made on the Smithing Anvil, see {@link com.holeydigsite.smith.SmithData}.
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.holeydigsite.smith.SmithData>> SMITH =
             DATA_COMPONENTS.registerComponentType("smith", builder -> builder

@@ -7,7 +7,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 
 /**
- * Curios API bridge (Phase 20). This class is only loaded when the Curios mod is present ({@link com.holeydigsite.smith.CuriosLoaded});
+ * Curios API bridge. This class is only loaded when the Curios mod is present ({@link com.holeydigsite.smith.CuriosLoaded});
  * nothing else in the mod may refer to it directly. Worn smithed rings and necklaces give their armour and toughness through
  * Curios attribute modifiers, computed from the metals and weights they remember.
  */

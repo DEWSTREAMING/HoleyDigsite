@@ -7,7 +7,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 /**
- * Phase 21a: Registers the per-player {@link LedgerData} attachment type.
+ * Registers the per-player {@link LedgerData} attachment type.
  */
 public final class ModAttachments {
     private ModAttachments() {}

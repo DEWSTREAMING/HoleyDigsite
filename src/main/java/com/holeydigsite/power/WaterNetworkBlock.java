@@ -7,64 +7,63 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * A block that takes part in a fluid-power network: pipes, intakes and powered machines. Since Phase 9 there are two
- * separate fluids, {@link NetworkFluid#WATER} (drills, sluices) and {@link NetworkFluid#LAVA} (forges): blocks only
- * connect to blocks of the SAME fluid, so a lava pipe never joins a water pipe, intake or port and vice versa.
- * (The name stayed "Water..." from Phase 4; {@link WaterNetworks} computes both kinds.)
+ * A block that takes part in a fluid power network, including pipes, intakes, and powered machines. There are two
+ * separate fluids, {@link NetworkFluid#WATER} (for drills and sluices) and {@link NetworkFluid#LAVA} (for forges). Blocks only
+ * connect to blocks of the same fluid, so a lava pipe never joins a water pipe, intake, or port, and vice versa.
+ * The name remains "Water" from earlier iterations, and {@link WaterNetworks} computes both kinds.
  *
- * <p>Two neighbouring network blocks are connected when BOTH report a water connection on the shared face
- * ({@link #hasWaterConnection}) - pipes and intakes on every face, machines only on their water port.
- * Machines never pass water on to each other. See {@link WaterNetworks} for how power is worked out.</p>
+ * <p>Two neighbouring network blocks connect when both report a connection on the shared face
+ * ({@link #hasWaterConnection}), with pipes and intakes connecting on every face and machines only on their water port.
+ * Machines never pass water on to each other, and {@link WaterNetworks} handles how power works.</p>
  */
 public interface WaterNetworkBlock {
-    /** What a block does in the network. */
+    /** The role of a block in the network. */
     enum Role {
-        /** Carries water; connects on all six faces. */
+        /** Carries fluid and connects on all six faces. */
         PIPE,
-        /** Source of power while it sits in water. */
+        /** Generates power while sitting in fluid. */
         INTAKE,
-        /** End point: is powered or not, never passes water through. */
+        /** An end point that is either powered or unpowered and never passes fluid through. */
         MACHINE,
         /**
-         * Phase 12 belts: carries water on to other conduits, pipes and intakes like a pipe AND is powered like a machine.
-         * Conduits never connect to machines (a belt next to a drill or sluice doesn't power it).
+         * Belts that carry fluid on to other conduits, pipes, and intakes like a pipe while also being powered like a machine.
+         * Conduits never connect to machines, so a belt next to a drill or sluice does not power it.
          */
         CONDUIT
     }
 
     Role waterRole();
 
-    /** The two kinds of fluid power. Networks of different fluids never connect. */
+    /** The two kinds of fluid power, where networks of different fluids never connect. */
     enum NetworkFluid { WATER, LAVA }
 
-    /** Which fluid this block carries / uses. Water unless overridden (Phase 9 lava blocks). */
+    /** The fluid this block carries or uses, defaulting to water unless overridden. */
     default NetworkFluid networkFluid() {
         return NetworkFluid.WATER;
     }
 
-    /** True if water can enter/leave this block through {@code side}. */
+    /** True if fluid can enter or leave this block through {@code side}. */
     boolean hasWaterConnection(BlockState state, Direction side);
 
-    /** Intakes: true while the intake is in water. Others: false. */
+    /** True while an intake is active in fluid. */
     default boolean isActiveIntake(BlockState state) {
         return false;
     }
 
     /**
-     * Machines: the network was recomputed and this machine is now powered (or not).
-     * Only called on network changes - never every tick. Server side.
+     * Called on server side when the network is recomputed and this machine's powered state changes, rather than every tick.
      */
     default void setWaterPowered(ServerLevel level, BlockPos pos, BlockState state, boolean powered) {}
 
     /**
-     * Phase 12: extra (non-face) neighbours this block exchanges water with - Inclined Belts link diagonally to the belt
-     * at their low end and to the next incline of a staircase. Must be symmetric (both blocks report each other).
+     * Extra non-face neighbours this block exchanges fluid with, such as inclined belts linking diagonally to the belt at their low end
+     * and to the next staircase incline. This must be symmetric so both blocks report each other.
      */
     default void addExtraLinks(BlockGetter level, BlockPos pos, BlockState state, java.util.List<BlockPos> out) {}
 
     /**
-     * True if the block at {@code pos} connects to its neighbour in direction {@code dir}
-     * (both sides agree, same fluid, and it isn't machine-to-machine). Used for the network and for pipe visuals.
+     * True if the block at {@code pos} connects to its neighbour in direction {@code dir} where both sides agree, share the same fluid,
+     * and it is not machine to machine. This is used for the network and pipe visuals.
      */
     static boolean connects(BlockGetter level, BlockPos pos, BlockState state, Direction dir) {
         if (!(state.getBlock() instanceof WaterNetworkBlock self) || !self.hasWaterConnection(state, dir)) {

@@ -22,14 +22,12 @@ import java.util.List;
 public final class ClientEvents {
     private ClientEvents() {}
 
-    /** Phase 12.1: once per client tick, choose the one floating label to show ({@link FloatingText#pickFocus}). */
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         FloatingText.pickFocus();
         RecipeWheels.clientTick();
     }
 
-    /** Phase 21j: hold right-click (~0.25 s) on Crafting Forge or Smithing Anvil opens the recipe wheel; short tap replays. */
     @SubscribeEvent
     public static void onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
         if (event.isUseItem() && RecipeWheels.onUseKeyTriggered(event.getHand())) {
@@ -41,10 +39,8 @@ public final class ClientEvents {
     /**
      * Tooltips:
      * <ul>
-     *   <li>"Full of dirt" on a full wooden shovel (we can't override the vanilla item's tooltip method);</li>
-     *   <li>Phase 7, for EVERY item with a weight in the {@code holeydigsite:resource_weights} data map: the name line
-     *       becomes "Large Folkiron Chunk - 12 g", plus "Sells for ..." (per item, and for the stack) when the material has
-     *       a sell value. Data-driven, so later materials get the same tooltip just by adding JSON entries.</li>
+     *   <li>"Full of dirt" on a full wooden shovel.</li>
+     *   <li>Items with a weight in the resource weights data map show their weight and sell value.</li>
      * </ul>
      */
     @SubscribeEvent
@@ -52,7 +48,6 @@ public final class ClientEvents {
         ItemStack stack = event.getItemStack();
         List<Component> tip = event.getToolTip();
         if (ShovelHelper.isFull(stack)) {
-            // index 1 = right below the item name
             tip.add(1, Component.translatable("tooltip.holeydigsite.shovel.full").withStyle(ChatFormatting.GOLD));
         }
 
@@ -60,7 +55,7 @@ public final class ClientEvents {
         if (info == null || tip.isEmpty()) {
             return;
         }
-        if (!info.isCrop() && !(stack.getItem() instanceof com.holeydigsite.item.IngotItem)) { // ingots already name their weight
+        if (!info.isCrop() && !(stack.getItem() instanceof com.holeydigsite.item.IngotItem)) {
             tip.set(0, Component.translatable("tooltip.holeydigsite.weighted_name", tip.get(0).copy(), Selling.grams(stack))
                     .withStyle(tip.get(0).getStyle()));
         }
@@ -76,7 +71,7 @@ public final class ClientEvents {
                     : Component.translatable("tooltip.holeydigsite.sells_for", Selling.format(each));
             tip.add(1, line.copy().withStyle(ChatFormatting.GOLD));
         }
-        if (info.isUncut()) { // Phase 12
+        if (info.isUncut()) {
             tip.add(Component.translatable("tooltip.holeydigsite.uncut").withStyle(ChatFormatting.AQUA));
         }
         if (!info.meltable() && !info.isCrop()) {

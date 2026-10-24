@@ -51,17 +51,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Tier 1 Sluice Box: water-powered auto-panning. Dirt Clumps go in at the BACK (drill, belt or player), are washed
- * one every {@link SluiceBoxBlockEntity#CYCLE_TICKS} ticks with the same loot roll as hand panning
- * ({@link com.holeydigsite.panning.Panning#rollScoop}), and the finds collect in the tray at the FRONT.
+ * Water-powered auto-panning. Dirt clumps go in at the back from a drill, belt, or player, are washed
+ * one every {@link SluiceBoxBlockEntity#CYCLE_TICKS} ticks using the standard panning loot roll, and finds collect in the front tray.
  *
  * <ul>
- *   <li>Facing: placed with its front (tray) towards the player. Water ports on BOTH sides (left and right).</li>
- *   <li>Input: {@link DirtClumpTarget} from the back only; queue of {@link SluiceBoxBlockEntity#MAX_QUEUE}. A belt
- *       feeding a full sluice backs up - nothing is voided.</li>
- *   <li>Output: the tray, emptied by an empty-hand right-click (which also shows the status). No item handler.</li>
- *   <li>Status ({@link #STATUS}) picks the model and lamp; {@link #DIRT} shows the dirt layer while clumps are
- *       queued. Only a WORKING sluice ticks; the others react to network changes, input and collecting.</li>
+ *   <li>Facing: placed with the front tray towards the player, with water ports on both sides.</li>
+ *   <li>Input: {@link DirtClumpTarget} from the back only, with a limited queue. A belt feeding a full sluice backs up without voiding items.</li>
+ *   <li>Output: the tray, emptied by an empty-hand right-click which also shows the status.</li>
+ *   <li>Status and dirt properties drive the model and layers, and only working sluices tick.</li>
  * </ul>
  */
 public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock, DirtClumpTarget {
@@ -72,17 +69,17 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
             propertiesCodec()).apply(i, (cycle, queue, tray, props) -> new SluiceBoxBlock(props, new Stats(cycle, queue, tray))));
 
     /**
-     * Speed and sizes of a sluice (Phase 10: Tier 2 is twice as fast with twice the queue and tray).
+     * Speed and sizes of a sluice.
      *
      * @param cycleTicks ticks per clump
      * @param maxQueue   clumps waiting
-     * @param traySlots  tray slots; the sluice stops once they are all used
+     * @param traySlots  tray slots, where the sluice stops once they are all used
      */
     public record Stats(int cycleTicks, int maxQueue, int traySlots) {
         public static final Stats T1 = of("sluice_box");
         public static final Stats T2 = of("sluice_box_t2");
 
-        /** The stats of a sluice tier from {@code tiers/sluice_box.json}. */
+        /** The stats of a sluice tier from configuration. */
         public static Stats of(String tierId) {
             var d = com.holeydigsite.tier.Tiers.def(tierId);
             return new Stats(d.stat("cycle_ticks"), d.stat("max_queue"), d.stat("tray_slots"));
@@ -91,7 +88,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
 
     private final Stats stats;
 
-    /** The stats of the sluice block in {@code state} (Tier 1 if it isn't a sluice). */
+    /** The stats of the sluice block in the given state, defaulting to Tier 1. */
     public static Stats stats(BlockState state) {
         return state.getBlock() instanceof SluiceBoxBlock s ? s.stats : Stats.T1;
     }
@@ -101,18 +98,18 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     }
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<SluiceStatus> STATUS = EnumProperty.create("status", SluiceStatus.class);
-    /** Clumps are queued: the dirt layer on the ramp is visible. */
+    /** Indicates if clumps are queued and the dirt layer on the ramp is visible. */
     public static final BooleanProperty DIRT = BooleanProperty.create("dirt");
-    /** Phase 16: the installed {@link SluiceUpgrade} (one slot; drawn on the model). */
+    /** The installed {@link SluiceUpgrade} drawn on the model. */
     public static final EnumProperty<SluiceUpgrade> UPGRADE = EnumProperty.create("upgrade", SluiceUpgrade.class);
 
-    /** Base + side walls; the trough is open on top. */
+    /** Base and side walls shape, leaving the trough open on top. */
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(0, 0, 0, 16, 5, 16),
             Block.box(0, 5, 0, 2, 12, 16),
             Block.box(14, 5, 0, 16, 12, 16));
 
-    /** Tier 1 sluice. */
+    /** Creates a Tier 1 sluice. */
     public SluiceBoxBlock(Properties properties) {
         this(properties, Stats.T1);
     }
@@ -152,7 +149,6 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return false;
     }
 
-    /** Front (tray) faces the player, like the drill. */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
@@ -178,7 +174,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return new SluiceBoxBlockEntity(pos, state);
     }
 
-    /** Only a WORKING sluice ticks (vanilla re-reads this whenever the block state changes). */
+    /** Only a working sluice ticks. */
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
@@ -189,14 +185,12 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     }
 
     /**
-     * Works out status + dirt layer from power, tray and queue, and applies them (one block update, clients only).
-     * Called after anything that can change them: network, clumps in, a clump washed, the tray collected.
+     * Updates status and dirt layer from power, tray, and queue states.
      */
     public void refreshStatus(Level level, BlockPos pos, BlockState state) {
         if (level.isClientSide || !(level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice) || !state.is(this)) {
             return;
         }
-        // Phase 12: tray -> belt in front (as space allows); keep trying a few times a second while both are there
         if (sluice.pushTrayToBelt(level, pos, state)) {
             level.scheduleTick(pos, this, 4);
         }
@@ -211,7 +205,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
             next = SluiceStatus.WORKING;
         }
         if (sluice.queued() == 0) {
-            sluice.resetProgress(); // a half-washed clump doesn't exist without a clump
+            sluice.resetProgress();
         }
         BlockState updated = state.setValue(STATUS, next).setValue(DIRT, sluice.queued() > 0);
         if (updated != state) {
@@ -223,13 +217,13 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     // Water network
     // ------------------------------------------------------------------------------------------------
 
-    /** Phase 12: re-check (tray -> belt). */
+    /** Re-checks tray to belt interactions. */
     @Override
     protected void tick(BlockState state, net.minecraft.server.level.ServerLevel level, BlockPos pos, net.minecraft.util.RandomSource random) {
         refreshStatus(level, pos, state);
     }
 
-    /** Phase 12: a belt placed in front starts taking the tray. */
+    /** Handles neighbor changes when a belt is placed in front. */
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean moved) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, moved);
@@ -243,7 +237,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return Role.MACHINE;
     }
 
-    /** Water ports on both sides (left and right of the flow), never front or back. */
+    /** Water ports are on both sides, avoiding the front and back. */
     @Override
     public boolean hasWaterConnection(BlockState state, Direction side) {
         return side.getAxis().isHorizontal() && side.getAxis() != state.getValue(FACING).getAxis();
@@ -260,7 +254,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!oldState.is(this) || oldState.getValue(FACING) != state.getValue(FACING)) {
-            WaterNetworks.markDirty(level, pos); // also sets the first status once the block entity exists
+            WaterNetworks.markDirty(level, pos);
         }
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }
@@ -273,7 +267,6 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         }
     }
 
-    /** Breaking drops the sluice (loot table) plus its queued clumps and everything in the tray. */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
@@ -314,7 +307,6 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     // Player
     // ------------------------------------------------------------------------------------------------
 
-    /** Right-click with Dirt Clumps: 1 into the queue (sneaking: as many as fit). */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
@@ -340,7 +332,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Phase 16: right-click with an upgrade item installs it (one slot; an installed upgrade must be removed first). Public for tests. */
+    /** Installs an upgrade item into the single slot. Public for tests. */
     public ItemInteractionResult installUpgrade(SluiceUpgrade upgrade, ItemStack stack, BlockState state, Level level, BlockPos pos, Player player) {
         if (!level.isClientSide) {
             if (state.getValue(UPGRADE) != SluiceUpgrade.NONE) {
@@ -364,7 +356,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Sneak + empty hand takes the installed upgrade back (nothing is lost). Public for tests. */
+    /** Removes the installed upgrade. Public for tests. */
     public void removeUpgrade(BlockState state, Level level, BlockPos pos, Player player) {
         SluiceUpgrade upgrade = state.getValue(UPGRADE);
         level.setBlock(pos, state.setValue(UPGRADE, SluiceUpgrade.NONE), Block.UPDATE_ALL);
@@ -377,7 +369,6 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
                 .withStyle(ChatFormatting.YELLOW), true);
     }
 
-    /** Empty hand: collect the whole tray (overflow drops at the player's feet), then show the status. */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!player.getMainHandItem().isEmpty()) {
@@ -407,7 +398,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** "Sluice Box: <status> - <reason>". Public for tests. */
+    /** Creates the status component message. Public for tests. */
     public static Component statusMessage(BlockState state, SluiceBoxBlockEntity sluice) {
         return switch (state.getValue(STATUS)) {
             case WORKING -> Component.translatable("message.holeydigsite.sluice.working",
@@ -431,7 +422,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     // Client visuals (no server cost)
     // ------------------------------------------------------------------------------------------------
 
-    /** Working: water splashing into the tray and, now and then, a quiet rush of water. */
+    /** Adds particles and sounds while working. */
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (state.getValue(STATUS) != SluiceStatus.WORKING) {

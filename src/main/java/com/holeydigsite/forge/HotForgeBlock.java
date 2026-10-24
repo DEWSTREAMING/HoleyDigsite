@@ -17,13 +17,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 
 /**
- * Phase 13 Hot Forge (Tier 2, made in the Crafting Forge): a {@link ForgeBlock} with a hotter fire. Lava-powered exactly like
- * the Forge (same back port, same {@code LIT}); any Crucible on top melts {@link #HEAT} times as fast on top of its own speed
- * (a Large Crucible on a Hot Forge melts four times as fast as a normal Crucible on a normal Forge). Brighter glow (light 15).
+ * A {@link ForgeBlock} with a hotter fire, made in the Crafting Forge. Lava-powered exactly like
+ * the Forge (same back port, same {@code LIT}). Any Crucible on top melts {@link #HEAT} times as fast on top of its own speed.
+ * A Large Crucible on a Hot Forge melts four times as fast as a normal Crucible on a normal Forge. Has a brighter glow of light level 15.
  */
 public class HotForgeBlock extends ForgeBlock {
     public static final MapCodec<HotForgeBlock> CODEC = simpleCodec(HotForgeBlock::new);
-    /** Default for the codec constructor only: the real value is the tier file's ({@code tiers/forge.json}). */
+    /** Default for the codec constructor only, with the real value from the tier file. */
     public static final int HEAT = com.holeydigsite.tier.Tiers.stat("hot_forge", "heat");
 
     public HotForgeBlock(Properties properties) {

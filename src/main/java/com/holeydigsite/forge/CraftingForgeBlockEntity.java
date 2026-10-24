@@ -32,21 +32,20 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Contents of a Crafting Forge (Phase 10):
+ * Contents of a Crafting Forge:
  * <ul>
- *   <li>{@link #pool()}: ingots melted into pooled grams per metal ("Folkiron 137 g, Goldchro 40 g");</li>
+ *   <li>{@link #pool()}: ingots melted into pooled grams per metal;</li>
  *   <li>{@link #parts()}: recipe parts as items, at most {@link #PART_SLOTS} stacks;</li>
- *   <li>the selected recipe (by id, cycled by the player);</li>
- *   <li>{@link #castTicks()}: progress of a running cast ({@link #CAST_TICKS} = 5 s);</li>
- *   <li>{@link #output()}: after a cast - the product, one leftover ingot per metal with exactly the leftover grams and every
+ *   <li>the selected recipe (cycled by the player);</li>
+ *   <li>{@link #castTicks()}: progress of a running cast (5 seconds);</li>
+ *   <li>{@link #output()}: after a cast, the product, one leftover ingot per metal with exactly the leftover grams, and every
  *       unused part. While output is waiting nothing can be loaded and nothing cast.</li>
  * </ul>
- * Nothing is ever destroyed except what a completed recipe consumes: take-back, breaking and casting all return the rest.
- * Ticks only while casting (the block's ticker exists only for {@code casting=true, lit=true}).
+ * Nothing is ever destroyed except what a completed recipe consumes.
+ * Ticks only while casting.
  */
 public class CraftingForgeBlockEntity extends BlockEntity {
     public static final int PART_SLOTS = 9;
-    /** 5 seconds. */
     public static final int CAST_TICKS = 100;
 
     private final TreeMap<ResourceLocation, Integer> pool = new TreeMap<>();
@@ -55,7 +54,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     @Nullable
     private ResourceLocation selected;
     private int castTicks;
-    /** Client: bumped on every data update, so the renderer knows when to rebuild its cached text. */
     private int clientVersion;
 
     public CraftingForgeBlockEntity(BlockPos pos, BlockState state) {
@@ -66,7 +64,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Queries
     // ------------------------------------------------------------------------------------------------
 
-    /** Pooled grams per metal (read-only). */
     public Map<ResourceLocation, Integer> pool() {
         return Collections.unmodifiableMap(pool);
     }
@@ -75,7 +72,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return pool.getOrDefault(metal, 0);
     }
 
-    /** Loaded parts (read-only view). */
     public List<ItemStack> parts() {
         return Collections.unmodifiableList(parts);
     }
@@ -90,7 +86,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return n;
     }
 
-    /** Waiting output (read-only view). */
     public List<ItemStack> output() {
         return Collections.unmodifiableList(output);
     }
@@ -119,7 +114,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Recipe selection
     // ------------------------------------------------------------------------------------------------
 
-    /** The selected recipe; falls back to the first one (null only when there are no recipes). */
     @Nullable
     public ForgeRecipes.Entry recipe() {
         List<ForgeRecipes.Entry> all = ForgeRecipes.all(level == null ? null : level.registryAccess());
@@ -134,7 +128,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return all.get(0);
     }
 
-    /** Selects the next ({@code step} = 1) or previous (-1) recipe, wrapping. Returns the new one (or null). */
     @Nullable
     public ForgeRecipes.Entry cycle(int step) {
         List<ForgeRecipes.Entry> all = ForgeRecipes.all(level == null ? null : level.registryAccess());
@@ -149,7 +142,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return next;
     }
 
-    /** Selects a recipe by id (tests, commands). */
     public void select(ResourceLocation id) {
         selected = id;
         changed();
@@ -159,10 +151,8 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Loading
     // ------------------------------------------------------------------------------------------------
 
-    /** Why an item can't go in, or {@link Refusal#NONE}. */
     public enum Refusal { NONE, CASTING, OUTPUT, CHUNK, NOT_ACCEPTED, DIRTY, FULL }
 
-    /** The metal of an ingot stack, or null if it isn't one of our ingots. */
     @Nullable
     public static ResourceLocation ingotMetal(ItemStack stack) {
         if (!(stack.getItem() instanceof IngotItem)) {
@@ -192,12 +182,11 @@ public class CraftingForgeBlockEntity extends BlockEntity {
             return Refusal.NOT_ACCEPTED;
         }
         if (!stack.getComponentsPatch().isEmpty()) {
-            return Refusal.DIRTY; // e.g. a pan with dirt in it - empty it first, so nothing is lost
+            return Refusal.DIRTY;
         }
         return partRoom(stack) > 0 ? Refusal.NONE : Refusal.FULL;
     }
 
-    /** How many items of {@code stack} still fit as parts. */
     private int partRoom(ItemStack stack) {
         int room = 0;
         for (ItemStack s : parts) {
@@ -208,10 +197,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return room + (PART_SLOTS - parts.size()) * stack.getMaxStackSize();
     }
 
-    /**
-     * Loads up to {@code max} items of {@code stack} (the stack itself is not changed - the caller shrinks it). Ingots of
-     * any weight go into the pool, parts into the part slots. Returns how many were taken (0 = refused, see {@link #check}).
-     */
     public int load(ItemStack stack, int max, boolean simulate) {
         if (check(stack) != Refusal.NONE || max <= 0) {
             return 0;
@@ -250,10 +235,8 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Requirements
     // ------------------------------------------------------------------------------------------------
 
-    /** What's missing for a recipe: a metal (grams short) or a part (count short). */
     public record Missing(@Nullable ResourceLocation metal, @Nullable Item part, int amount) {}
 
-    /** The first missing requirement of {@code recipe}, or null if everything is there. */
     @Nullable
     public Missing missing(ForgeRecipe recipe) {
         for (Map.Entry<ResourceLocation, Integer> m : recipe.metals().entrySet()) {
@@ -276,13 +259,11 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Casting
     // ------------------------------------------------------------------------------------------------
 
-    /** Starts the 5 s cast (the block checked lava, output and requirements). */
     void startCast() {
         castTicks = 1;
         changed();
     }
 
-    /** Server tick - only while casting on a lit forge. */
     public static void serverTick(Level level, BlockPos pos, BlockState state, CraftingForgeBlockEntity forge) {
         if (forge.castTicks <= 0) {
             return;
@@ -302,11 +283,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         }
     }
 
-    /**
-     * End of a cast: consumes the recipe's exact grams and parts, puts the product, ONE ingot per metal with exactly the
-     * leftover grams and every unused part into the output. If the requirements somehow aren't met any more, nothing is
-     * consumed and everything is returned as output.
-     */
     void finishCast(Level level, BlockPos pos) {
         castTicks = 0;
         ForgeRecipes.Entry entry = recipe();
@@ -350,7 +326,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         }
     }
 
-    /** Pool and parts as items (one ingot per metal), emptied. */
     private List<ItemStack> drainContents() {
         List<ItemStack> out = new ArrayList<>();
         for (Map.Entry<ResourceLocation, Integer> m : pool.entrySet()) {
@@ -375,7 +350,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Taking things out
     // ------------------------------------------------------------------------------------------------
 
-    /** Collects the waiting output (product + leftovers). */
     public List<ItemStack> takeOutput() {
         List<ItemStack> out = new ArrayList<>(output);
         if (!output.isEmpty()) {
@@ -385,7 +359,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return out;
     }
 
-    /** Take-back without casting: pooled grams as one ingot per metal, parts as items. Not while casting. */
     public List<ItemStack> takeBack() {
         if (isCasting()) {
             return List.of();
@@ -397,7 +370,6 @@ public class CraftingForgeBlockEntity extends BlockEntity {
         return out;
     }
 
-    /** Everything as items, for breaking the block (a running cast is cancelled - nothing is consumed). */
     public List<ItemStack> dropContents() {
         castTicks = 0;
         List<ItemStack> out = new ArrayList<>(output);

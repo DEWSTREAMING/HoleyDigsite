@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Helpers for the vanilla wooden shovel's "full of dirt" state.
+ * Helpers for the vanilla wooden shovel's full of dirt state.
  *
  * <p>The state lives in the {@link ModDataComponents#SHOVEL_FULL} component on the stack, so it survives
  * saving, dropping, and moving between inventories, and is visible to the client for the item model.</p>
@@ -19,18 +19,18 @@ public final class ShovelHelper {
     private ShovelHelper() {}
 
     /**
-     * Blocks an empty wooden shovel can scoop. Defined in
-     * {@code data/holeydigsite/tags/block/scoopable.json} (grass block + dirt) - add to the tag to extend it.
+     * Blocks an empty wooden shovel can scoop, defined in
+     * {@code data/holeydigsite/tags/block/scoopable.json}.
      */
     public static final TagKey<Block> SCOOPABLE = TagKey.create(Registries.BLOCK, HoleyDigsite.id("scoopable"));
 
     /**
-     * Durability used per scoop. 0 since Phase 2 so scooping never wears the shovel out (no soft-lock on a
-     * skyblock island); set to 1 to match what breaking the block normally would cost.
+     * Durability used per scoop. Set to 0 so scooping never wears the shovel out, preventing soft-locks on a
+     * skyblock island.
      */
     public static final int SCOOP_DURABILITY_COST = 0;
 
-    /** True if the stack is a vanilla wooden shovel (full or empty). */
+    /** True if the stack is a vanilla wooden shovel. */
     public static boolean isWoodenShovel(ItemStack stack) {
         return stack.is(Items.WOODEN_SHOVEL);
     }
@@ -45,12 +45,12 @@ public final class ShovelHelper {
         return isWoodenShovel(stack) && !isFull(stack) && state.is(SCOOPABLE);
     }
 
-    /** Kind of the scoop in a full shovel (Phase 11: 1 dirt, 4 gravel, 5 sand - see {@link com.holeydigsite.tier.DirtTier}). */
+    /** Kind of the scoop in a full shovel, see {@link com.holeydigsite.tier.DirtTier}. */
     public static int kind(ItemStack stack) {
         return stack.getOrDefault(ModDataComponents.SHOVEL_KIND.get(), 1);
     }
 
-    /** Fills the shovel with a scoop of {@code kind} (dirt kind 1 stores no kind component). */
+    /** Fills the shovel with a scoop of {@code kind}. */
     public static void fill(ItemStack stack, int kind) {
         setFull(stack, true);
         if (kind > 1) {
@@ -59,8 +59,8 @@ public final class ShovelHelper {
     }
 
     /**
-     * Sets or clears the full state. Clearing removes the component entirely so an emptied shovel
-     * is identical to a fresh one (and its NBT stays clean).
+     * Sets or clears the full state, removing the component entirely when cleared so an emptied shovel
+     * is identical to a fresh one.
      */
     public static void setFull(ItemStack stack, boolean full) {
         if (full) {
@@ -71,7 +71,7 @@ public final class ShovelHelper {
         }
     }
 
-    /** A new wooden shovel that already holds dirt (used by the creative tab). */
+    /** A new wooden shovel that already holds dirt. */
     public static ItemStack createFullShovel() {
         ItemStack stack = new ItemStack(Items.WOODEN_SHOVEL);
         setFull(stack, true);

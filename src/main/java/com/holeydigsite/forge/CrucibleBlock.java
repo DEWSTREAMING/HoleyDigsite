@@ -54,22 +54,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Crucible (Phase 9): sits on a lit {@link ForgeBlock}, melts ONE metal at a time (up to 200 g) and pours it into the
- * {@link MoldBlock} in front of it. Contents: {@link CrucibleBlockEntity}.
+ * Crucible sits on a lit {@link ForgeBlock}, melts one metal at a time up to 200 g and pours it into the
+ * {@link MoldBlock} in front of it. Contents are stored in {@link CrucibleBlockEntity}.
  *
  * <ul>
- *   <li><b>Input</b> (only {@code meltable} resources - Folkiron / Goldchro chunks and ingots; Rubies and other metals
- *       are refused with a message): right-click with a stack adds as many as fit by grams; sneak-right-click adds every
- *       item of the crucible's metal (or the held item's) from the inventory; thrown items go in; hoppers and other mods
- *       can insert ({@link CrucibleItemHandler}, insert-only). Nothing can be taken out except by pouring.</li>
+ *   <li><b>Input</b> (only meltable resources like Folkiron and Goldchro chunks and ingots, with other items refused): right-click with a stack adds as many as fit by grams, sneak-right-click adds every item of the crucible's metal or the held item from the inventory, thrown items go in, and hoppers or other mods can insert via {@link CrucibleItemHandler} (insert-only). Nothing can be taken out except by pouring.</li>
  *   <li><b>Melting</b> while the forge below is lit ({@link #HEATED}): 1 g every 4 ticks. Only a melting crucible ticks.</li>
- *   <li><b>Pouring</b> into the mold in front (same level, or one block lower - next to the forge): empty-hand right-click
- *       or a redstone rising edge. Pours the mold's missing grams (or all that's molten if less). Tip animation =
- *       {@link #TIPPING} for {@link #TIP_TICKS} ticks (one scheduled tick).</li>
- *   <li><b>Looks</b>: {@link #FILL} 0-4 molten level, {@link #METAL} glow colour, {@link #CHUNKS} solid chunks while
- *       something is unmelted; the floating text "Folkiron: 87 g molten (+12 g melting)" is drawn by the renderer.</li>
+ *   <li><b>Pouring</b> into the mold in front (same level, or one block lower next to the forge): empty-hand right-click
+ *       or a redstone rising edge. Pours the mold's missing grams or all that's molten if less. Tip animation uses
+ *       {@link #TIPPING} for {@link #TIP_TICKS} ticks on a scheduled tick.</li>
+ *   <li><b>Looks</b>: {@link #FILL} uses 0 to 4 molten levels, {@link #METAL} sets the glow colour, and {@link #CHUNKS} shows solid chunks while
+ *       something is unmelted. The floating text showing molten and melting amounts is drawn by the renderer.</li>
  * </ul>
- * Breaking a crucible loses its contents (it's a cheap shop item; pour first).
+ * Breaking a crucible loses its contents, so pour first.
  */
 public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.transport.ItemTarget {
     public static final MapCodec<CrucibleBlock> CODEC = simpleCodec(CrucibleBlock::new);
@@ -82,22 +79,22 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public static final int TIP_TICKS = 10;
-    /** Phase 13: how often an auto-pouring crucible with metal looks at its mold (only while it holds metal). */
+    /** How often an auto-pouring crucible with metal looks at its mold while it holds metal. */
     public static final int AUTO_POLL_TICKS = 10;
 
     private static final VoxelShape OUTLINE = Block.box(2, 0, 2, 14, 9, 14);
-    /** A hollow cup: thrown items fall inside. */
+    /** Hollow cup where thrown items fall inside. */
     private static final VoxelShape COLLISION = Shapes.join(OUTLINE, Block.box(3, 1, 3, 13, 9, 13), BooleanOp.ONLY_FIRST);
 
     private final int capacity;
     private final int ticksPerGram;
 
-    /** The basic Crucible (stats from the {@code crucible} tier file). */
+    /** Basic crucible using stats from the crucible tier file. */
     public CrucibleBlock(Properties properties) {
         this(properties, CrucibleBlockEntity.CAPACITY, CrucibleBlockEntity.TICKS_PER_GRAM);
     }
 
-    /** A crucible with its own size and speed (Phase 15: from the tier's stats). */
+    /** Crucible with custom size and speed from tier stats. */
     public CrucibleBlock(Properties properties, int capacity, int ticksPerGram) {
         super(properties);
         this.capacity = capacity;
@@ -112,7 +109,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         return CODEC;
     }
 
-    /** Grams this kind of crucible holds (Phase 13: the Large Crucible overrides). */
+    /** Grams this crucible holds. */
     public int capacity() {
         return capacity;
     }
@@ -122,7 +119,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         return ticksPerGram;
     }
 
-    /** Is auto-pour on in this state? (Large Crucible only.) */
+    /** Checks if auto-pour is on in this state. */
     public boolean autoPour(BlockState state) {
         return false;
     }
@@ -148,7 +145,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
     }
 
     /**
-     * On a forge the spout always faces the forge's FRONT (Phase 10 fix - however the player stands or sneaks), so it pours
+     * On a forge the spout always faces the forge's front however the player stands or sneaks, pouring
      * into the mold in front of the forge. Anywhere else the spout faces the player.
      */
     @Override
@@ -159,7 +156,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
                 .setValue(POWERED, context.getLevel().hasNeighborSignal(pos));
     }
 
-    /** The forge's front if {@code pos} sits on a forge, else {@code fallback}. Public for tests. */
+    /** Returns the forge's front if pos sits on a forge, else fallback. Public for tests. */
     public static Direction placementFacing(BlockGetter level, BlockPos pos, Direction fallback) {
         BlockState below = level.getBlockState(pos.below());
         return below.getBlock() instanceof ForgeBlock ? below.getValue(ForgeBlock.FACING) : fallback;
@@ -182,7 +179,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         return state.setValue(FILL, fill).setValue(METAL, MoltenMetal.of(c.metal())).setValue(CHUNKS, c.unmelted() > 0);
     }
 
-    // ---- block entity / ticking ----
+    // Block entity and ticking
 
     @Nullable
     @Override
@@ -205,7 +202,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         return createTickerHelper(type, ModBlockEntities.CRUCIBLE.get(), CrucibleBlockEntity::serverTick);
     }
 
-    /** Forge below lit/unlit/removed, or a redstone change. */
+    /** Handles forge state changes or redstone updates. */
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
@@ -225,8 +222,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
     }
 
     /**
-     * Placed by any means (also /setblock, structures): pick up the forge's heat and the redstone level one tick later
-     * (changing the state from inside onPlace would leave the new block entity with a stale state and no ticker).
+     * Picks up forge heat and redstone level one tick after placement.
      */
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
@@ -236,7 +232,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         }
     }
 
-    /** End of the tip animation; also the after-placement heat / redstone check. */
+    /** Handles the end of the tip animation and after-placement checks. */
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         BlockState next = state.setValue(TIPPING, false)
@@ -250,7 +246,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         }
     }
 
-    /** Phase 13 auto-pour: pours if the mold in front can take the target right now; keeps looking while metal is left. */
+    /** Pours if the mold in front can take the target right now, keeping looking while metal is left. */
     private void autoPourStep(ServerLevel level, BlockPos pos, BlockState state) {
         CrucibleBlockEntity c = crucible(level, pos);
         if (c == null) {
@@ -262,7 +258,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         armAuto(level, pos);
     }
 
-    /** Is there a mold in front that is empty or can be topped up, with this metal, and is enough molten for what it still needs? */
+    /** Checks if there is a mold in front that is empty or can be topped up with this metal and enough molten content. */
     public static boolean autoPourReady(Level level, BlockPos pos, BlockState state, CrucibleBlockEntity c) {
         BlockPos moldPos = MoldBlock.findInFront(level, pos, state.getValue(FACING));
         MoldBlockEntity mold = moldPos == null ? null : MoldBlock.mold(level, moldPos);
@@ -270,7 +266,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
                 && (mold.metal() == null || mold.metal().equals(c.metal())) && c.molten() >= mold.missing();
     }
 
-    /** Makes sure an auto-pouring crucible that holds metal gets a look at its mold soon (one scheduled tick; no ticking when idle). */
+    /** Ensures an auto-pouring crucible holding metal gets a look at its mold soon. */
     public void armAuto(Level level, BlockPos pos) {
         if (level.isClientSide || !(level instanceof ServerLevel sl)) {
             return;
@@ -282,7 +278,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         }
     }
 
-    // ---- player ----
+    // Player interaction
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
@@ -330,8 +326,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
     }
 
     /**
-     * Adds every item of one metal from the inventory (main, hotbar, off hand), as many as fit: the crucible's metal, else
-     * the held item's, else the first meltable found. Public for tests. Returns the number of items taken.
+     * Adds every item of one metal from the inventory as many as fit. Public for tests. Returns the number of items taken.
      */
     public static int addInventory(Level level, BlockPos pos, Player player, ItemStack held) {
         CrucibleBlockEntity c = crucible(level, pos);
@@ -394,7 +389,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         player.displayClientMessage(msg.copy().withStyle(ChatFormatting.RED), true);
     }
 
-    // ---- thrown items ----
+    // Thrown items
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
@@ -417,11 +412,10 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         addFeedback(level, pos, item.getOwner() instanceof Player p ? p : null, c);
     }
 
-    // ---- pouring ----
+    // Pouring
 
     /**
-     * Pours into the mold in front: {@code min(mold target - mold grams, molten)}. Public for tests. Returns grams poured
-     * (0 with a message to {@code player}, if any, when nothing could be poured).
+     * Pours into the mold in front. Public for tests. Returns grams poured.
      */
     public static int pour(Level level, BlockPos pos, BlockState state, @Nullable Player player) {
         CrucibleBlockEntity c = crucible(level, pos);
@@ -457,7 +451,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         level.playSound(null, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 0.8F, 1.2F);
         level.playSound(null, moldPos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 0.4F, 1.6F);
         if (level instanceof ServerLevel sl) {
-            // a stream from the spout (on the FACING side) down into the mold, then a few splashes in the mold
+            // a stream from the spout down into the mold, then a few splashes in the mold
             double sx = pos.getX() + 0.5 + facing.getStepX() * 0.62;
             double sz = pos.getZ() + 0.5 + facing.getStepZ() * 0.62;
             sl.sendParticles(ParticleTypes.FALLING_LAVA, sx, pos.getY() + 0.45, sz, 6, 0.03, 0.05, 0.03, 0);
@@ -470,7 +464,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         return grams;
     }
 
-    // ---- client ----
+    // Client
 
     /** Bubbles over molten metal on a lit forge. */
     @Override
@@ -488,7 +482,7 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         tooltip.add(Component.translatable("tooltip.holeydigsite.crucible.how").withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    // ---- Phase 12: belts deliver meltables (same rules as hoppers: one metal, room by grams) ----
+    // Belts deliver meltables following hopper rules.
 
     @Override
     public boolean canAcceptItem(Level level, BlockPos pos, BlockState state, Direction from, ItemStack one) {
