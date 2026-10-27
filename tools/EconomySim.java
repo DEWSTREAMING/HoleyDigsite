@@ -183,6 +183,9 @@ public class EconomySim {
         ok &= phase21b(res);
         ok &= phase21f(res, ev[1]);
         ok &= phase21i(res);
+        ok &= phase23(res);
+        ok &= phase23_6(res);
+        ok &= phase24(res, ev, evGravel, evSand);
         System.out.println();
         System.out.println(ok ? "RESULT: all targets met" : "RESULT: targets NOT met - adjust weights");
         System.exit(ok ? 0 : 1);
@@ -791,7 +794,7 @@ public class EconomySim {
         for (Path f : all) {
             Map<String, Object> r = (Map<String, Object>) new Json(Files.readString(f)).parse();
             String result = (String) ((Map<String, Object>) r.get("result")).get("item");
-            if (P13_RESULTS.contains(result)) continue;
+            if (P13_RESULTS.contains(result) || "holeydigsite:assayers_pick".equals(result)) continue;
             int order = ((Number) r.getOrDefault("order", 0)).intValue();
             double v = 0;
             for (var m : ((Map<String, Object>) r.getOrDefault("metals", Map.of())).entrySet())
@@ -802,7 +805,7 @@ public class EconomySim {
             for (Path f : all) {
                 Map<String, Object> r = (Map<String, Object>) new Json(Files.readString(f)).parse();
                 String result = (String) ((Map<String, Object>) r.get("result")).get("item");
-            if (P13_RESULTS.contains(result)) continue;
+            if (P13_RESULTS.contains(result) || "holeydigsite:assayers_pick".equals(result)) continue;
                 boolean alternative = ((Number) r.getOrDefault("order", 0)).intValue() != mainOrder.get(result);
                 Map<String, Object> metals = (Map<String, Object>) r.getOrDefault("metals", Map.of());
                 boolean plotMetal = metals.keySet().stream().anyMatch(k -> PLOT_T2_PER_MIN.containsKey(k) && !k.endsWith("goldchro") && !k.endsWith("folkiron"));
@@ -855,7 +858,7 @@ public class EconomySim {
         int coinL = ((Number) coinsDef.get("L")).intValue();
         double ingotGrams = ((Number) curve.get("reward_ingot_grams")).doubleValue();
 
-        int totalMilestoneRenown = 0;
+        int totalMilestoneRenown = 0, milestoneCount = 0;
         Map<String, Integer> chapterRenown = new LinkedHashMap<>();
         try (var files = Files.list(ledgerDir.resolve("milestones"))) {
             for (Path f : files.sorted().toList()) {
@@ -864,6 +867,7 @@ public class EconomySim {
                 int r = ((Number) m.get("renown")).intValue();
                 String ch = (String) m.get("chapter");
                 totalMilestoneRenown += r;
+                milestoneCount++;
                 chapterRenown.merge(ch, r, Integer::sum);
             }
         }
@@ -933,7 +937,7 @@ public class EconomySim {
 
         System.out.println();
         System.out.println("=== Phase 21: Prospector's Ledger ===");
-        System.out.printf("  Milestones: 38 total = %d Renown %s%n", totalMilestoneRenown, chapterRenown);
+        System.out.printf("  Milestones: %d total = %d Renown %s%n", milestoneCount, totalMilestoneRenown, chapterRenown);
         System.out.printf("  Curve: L1-10 = %d Renown (~%.2f h, target ~1.0 h) [%s]%n", cum10, hoursL10, l10Ok ? "OK" : "OUT OF RANGE");
         System.out.printf("         L1-25 = %d Renown, L1-50 = %d Renown (~%.1f h, target 15-25 h) [%s]%n", cum25, cum50, hoursL50, l50Ok ? "OK" : "OUT OF RANGE");
         System.out.printf("  Rewards: coins (S=%d c, M=%d c, L=%d c) = %d c (%d gold); items (ingots @ %.0fg) = %d c (%d gold)%n",
@@ -989,6 +993,371 @@ public class EconomySim {
         System.out.printf("  titles: %d in titles.json, %d handed out by levels [%s]%n", titles.size(), given, given == titles.size() ? "OK" : "FAIL");
         return ok;
     }
+    /**
+     * Phase 23: Mining Crates. Prices at the Trading Post, expected value per tier for a new player and for one who owns
+     * every title, the wear odds and scrap multipliers, the Skin Scrap price, hand-panning finds per hour, and the chase for a
+     * Fresh from the Forge skin. Since Phase 26 a skin is always a Skin Kit and only turns into scrap when the player scraps it
+     * at the bench (same amount as the old duplicate), so the refund target applies to "scraps every kit"; "keeps every kit"
+     * is the floor (only duplicate titles give scrap by themselves).
+     */
+    @SuppressWarnings("unchecked")
+    static boolean phase23(Path res) throws Exception {
+        boolean ok = true;
+        System.out.println();
+        System.out.println("=== Phase 23: Mining Crates ===");
+        Map<String, Object> rules = (Map<String, Object>) new Json(Files.readString(res.resolve("data/holeydigsite/crate_rules.json"))).parse();
+        List<Object> wears = (List<Object>) rules.get("wears");
+        Map<String, Object> scrapByRarity = (Map<String, Object>) rules.get("scrap");
+        double[] wearOdds = new double[wears.size()];
+        double[] wearMult = new double[wears.size()];
+        double oddsSum = 0, avgMult = 0;
+        double[] targetOdds = {10, 20, 35, 25, 10};
+        double[] targetMult = {2, 1.5, 1, 0.75, 0.5};
+        boolean wearOk = wears.size() == 5;
+        for (int i = 0; i < wears.size(); i++) {
+            Map<String, Object> w = (Map<String, Object>) wears.get(i);
+            wearOdds[i] = ((Number) w.get("odds")).doubleValue();
+            wearMult[i] = ((Number) w.get("scrap_multiplier")).doubleValue();
+            oddsSum += wearOdds[i];
+            if (i < 5) wearOk &= wearOdds[i] == targetOdds[i] && wearMult[i] == targetMult[i];
+        }
+        for (int i = 0; i < wears.size(); i++) avgMult += wearOdds[i] / oddsSum * wearMult[i];
+        ok &= wearOk;
+        System.out.printf("  wears: odds %s, multipliers %s, average multiplier %.3f [%s]%n",
+                java.util.Arrays.toString(wearOdds), java.util.Arrays.toString(wearMult), avgMult, wearOk ? "OK" : "OFF TARGET");
+        String[] rarities = {"common", "rare", "epic", "legendary"};
+        Map<String, Double> skinScrapAvg = new LinkedHashMap<>();
+        for (String r : rarities) {
+            int base = ((Number) scrapByRarity.get(r)).intValue();
+            double e = 0;
+            for (int i = 0; i < wears.size(); i++) e += wearOdds[i] / oddsSum * Math.max(1, Math.round(base * wearMult[i]));
+            skinScrapAvg.put(r, e);
+            System.out.printf("  duplicate %-9s title %2d scrap, skin %.2f scrap on average (by wear)%n", r, base, e);
+        }
+        long scrapPrice = Math.round(((Number) ((Map<String, Object>) new Json(Files.readString(
+                res.resolve("data/holeydigsite/holeydigsite/sell_values/skin_scrap.json"))).parse()).get("copper_per_gram")).doubleValue());
+        System.out.printf("  Skin Scrap sells for %d copper (%.1f gold) each at the Sell Pad%n", scrapPrice, scrapPrice / (double) GOLD);
+
+        Map<String, Integer> shop = new LinkedHashMap<>();
+        try (var sFiles = Files.list(res.resolve("data/holeydigsite/holeydigsite/shop_items"))) {
+            for (Path sf : sFiles.toList()) {
+                Map<String, Object> e = (Map<String, Object>) new Json(Files.readString(sf)).parse();
+                shop.put((String) e.get("item"), ((Number) e.get("price")).intValue());
+            }
+        }
+        // refund (everything owned: scrap + filler) as a share of the price; gold is the late coin sink, so it refunds least
+        Map<String, double[]> refund = Map.of("wooden_crate", new double[]{0.20, 0.40}, "iron_crate", new double[]{0.15, 0.35},
+                "gold_crate", new double[]{0.10, 0.30});
+        Map<String, double[]> priceRange = Map.of("wooden_crate", new double[]{512, 2048}, "iron_crate", new double[]{2048, 8192},
+                "gold_crate", new double[]{8192, 32768});
+        Map<String, Double> panOneIn = new LinkedHashMap<>();
+        for (String tier : new String[]{"wooden_crate", "iron_crate", "gold_crate"}) {
+            Map<String, Object> def = (Map<String, Object>) new Json(Files.readString(res.resolve("data/holeydigsite/crates/" + tier + ".json"))).parse();
+            Map<String, Object> odds = (Map<String, Object>) def.get("odds");
+            Map<String, Object> pools = (Map<String, Object>) def.get("pools");
+            panOneIn.put(tier, ((Number) def.getOrDefault("pan_find_one_in", 0)).doubleValue());
+            double total = 0;
+            for (String r : rarities) total += ((Number) odds.getOrDefault(r, 0)).doubleValue();
+            double filler = 0, scrap = 0, titleScrap = 0, collectibles = 0, freshObsidian = 0;
+            StringBuilder oddsText = new StringBuilder();
+            for (int ri = 0; ri < rarities.length; ri++) {
+                double p = ((Number) odds.getOrDefault(rarities[ri], 0)).doubleValue() / total;
+                if (p <= 0) continue;
+                int use = ri;   // an empty pool falls back to the next lower rarity that has entries
+                while (use > 0 && ((List<Object>) pools.getOrDefault(rarities[use], List.of())).isEmpty()) use--;
+                List<Object> pool = (List<Object>) pools.get(rarities[use]);
+                double wsum = 0;
+                for (Object o : pool) wsum += ((Number) ((Map<String, Object>) o).getOrDefault("weight", 1)).doubleValue();
+                oddsText.append(String.format("%s %.0f%% ", rarities[ri], p * 100));
+                for (Object o : pool) {
+                    Map<String, Object> e = (Map<String, Object>) o;
+                    double pe = p * ((Number) e.getOrDefault("weight", 1)).doubleValue() / wsum;
+                    if (e.containsKey("skin")) {
+                        collectibles += pe;
+                        scrap += pe * skinScrapAvg.get(rarities[use]);
+                        if ("obsidian".equals(e.get("skin"))) freshObsidian += pe * wearOdds[0] / oddsSum;
+                    } else if (e.containsKey("title")) {
+                        collectibles += pe;
+                        scrap += pe * ((Number) scrapByRarity.get(rarities[use])).intValue();
+                        titleScrap += pe * ((Number) scrapByRarity.get(rarities[use])).intValue();
+                    } else if (e.containsKey("coins")) {
+                        filler += pe * ((Number) e.get("coins")).doubleValue();
+                    } else if (e.containsKey("ingot")) {
+                        String mat = ((String) e.get("ingot")).replace("_ingot", "");
+                        Double perG = PRICE_PER_GRAM.get(mat);
+                        filler += pe * ((Number) e.get("grams")).doubleValue() * (perG == null ? 0 : perG * 1.25);
+                    } else if (e.containsKey("item")) {
+                        String item = (String) e.get("item");
+                        int count = ((Number) e.getOrDefault("count", 1)).intValue();
+                        if (shop.containsKey(item)) filler += pe * count * shop.get(item);
+                        else if (RESOURCES.containsKey(item)) filler += pe * count * price(item);
+                        else if (!item.endsWith("_seeds")) collectibles += pe;   // crate-only decor (not sellable)
+                    }
+                }
+            }
+            String item = "holeydigsite:" + tier;
+            int price = shop.getOrDefault(item, 0);
+            double ownedBack = filler + scrap * scrapPrice;
+            double share = price > 0 ? ownedBack / price : 99;
+            double[] band = refund.get(tier);
+            double[] pr = priceRange.get(tier);
+            boolean tierOk = price >= pr[0] && price <= pr[1] && share >= band[0] && share <= band[1] && filler < price;
+            ok &= tierOk;
+            System.out.printf("  %-12s %5d copper (%3d gold), odds %s%n", tier, price, price / GOLD, oddsText.toString().trim());
+            System.out.printf("               new player: %.2f skins/titles/decor + %.0f copper of filler (%.0f%% of the price)%n",
+                    collectibles, filler, 100 * filler / Math.max(1, price));
+            System.out.printf("               owns every title, scraps every Skin Kit: %.2f Skin Scrap (%.0f c) + filler = %.0f c back = %.0f%% (target %.0f-%.0f%%) [%s]%n",
+                    scrap, scrap * scrapPrice, ownedBack, 100 * share, band[0] * 100, band[1] * 100, tierOk ? "OK" : "OFF TARGET");
+            double keptBack = filler + titleScrap * scrapPrice;
+            System.out.printf("               owns every title, keeps (or trades) every kit: %.2f Skin Scrap + filler = %.0f c back = %.0f%% (floor, no target)%n",
+                    titleScrap, keptBack, 100 * keptBack / Math.max(1, price));
+            if (freshObsidian > 0) {
+                System.out.printf("               Fresh from the Forge Obsidian: 1 in %.0f crates (%.0fk copper)%n",
+                        1 / freshObsidian, price / freshObsidian / 1000);
+            }
+        }
+        // hand panning: one scoop per brush cycle, about 60% of the time (the rest is filling the pan)
+        double basePansPerHour = 3600.0 * 20 / 40 * 0.6, fastPansPerHour = 3600.0 * 20 / 20 * 0.6;
+        double w = panOneIn.get("wooden_crate"), ir = panOneIn.get("iron_crate"), g = panOneIn.get("gold_crate");
+        boolean panOk = Math.abs(w - 1500) <= 300 && Math.abs(ir - 6000) <= 1200 && g == 0;
+        ok &= panOk;
+        System.out.printf("  panning finds: Wooden 1 in %.0f pans, Iron 1 in %.0f, Gold never [%s]%n", w, ir, panOk ? "OK" : "OFF TARGET");
+        System.out.printf("    Brush (~%.0f pans/h): %.2f Wooden + %.2f Iron per hour; Goldchro Brush (~%.0f pans/h): %.2f + %.2f per hour%n",
+                basePansPerHour, basePansPerHour / w, basePansPerHour / ir, fastPansPerHour, fastPansPerHour / w, fastPansPerHour / ir);
+        System.out.printf("    worth %.0f / %.0f copper per hour of hand panning at shop prices%n",
+                basePansPerHour / w * shop.getOrDefault("holeydigsite:wooden_crate", 0) + basePansPerHour / ir * shop.getOrDefault("holeydigsite:iron_crate", 0),
+                fastPansPerHour / w * shop.getOrDefault("holeydigsite:wooden_crate", 0) + fastPansPerHour / ir * shop.getOrDefault("holeydigsite:iron_crate", 0));
+        return ok;
+    }
+
+    /**
+     * Phase 24: Contracts. Reads the pool (data/holeydigsite/contracts) and the rules, and for an early (Ledger level 8, no plots),
+     * a mid (level 25, Deep Dig + Gravel Flats) and a late player (level 40, all plots) works out what one contract pays on average
+     * (entry weights, middle of the amount range, reward multiplier, the crate chance), what three contracts a day pay, how much of
+     * the coin income that is, and what it does to the Ledger numbers. An in-game day is 20 minutes, so 3 days make an hour.
+     */
+    @SuppressWarnings("unchecked")
+    static boolean phase24(Path res, double[] ev, double evGravel, double evSand) throws Exception {
+        boolean ok = true;
+        Path dir = res.resolve("data/holeydigsite/contracts");
+        Map<String, Object> rules = readJson(dir.resolve("rules.json"));
+        double step = num(rules.get("reward_step")), minReward = num(rules.get("reward_min"));
+        List<Map<String, Object>> crateRules = (List<Map<String, Object>>) (List<?>) rules.get("crates");
+        Map<String, double[]> sell = new LinkedHashMap<>();   // material -> raw, ingot, uncut per gram
+        try (var files = Files.list(res.resolve("data/holeydigsite/holeydigsite/sell_values"))) {
+            for (Path f : files.sorted().toList()) {
+                Map<String, Object> v = readJson(f);
+                double raw = num(v.get("copper_per_gram"));
+                sell.put("holeydigsite:" + f.getFileName().toString().replace(".json", ""),
+                        new double[]{raw, v.containsKey("ingot_copper_per_gram") ? num(v.get("ingot_copper_per_gram")) : raw,
+                                v.containsKey("uncut_copper_per_gram") ? num(v.get("uncut_copper_per_gram")) : raw / 2});
+            }
+        }
+        Map<String, double[]> bonus = new LinkedHashMap<>();  // piece item -> bonus, gem bonus
+        try (var files = Files.list(res.resolve("data/holeydigsite/holeydigsite/anvil_recipes"))) {
+            for (Path f : files.sorted().toList()) {
+                Map<String, Object> v = readJson(f);
+                double b = num(v.get("bonus"));
+                bonus.put((String) v.get("result"), new double[]{b, v.containsKey("gem_bonus") ? num(v.get("gem_bonus")) : b});
+            }
+        }
+        List<Map<String, Object>> pool = new ArrayList<>();
+        Map<String, Integer> perKind = new LinkedHashMap<>();
+        for (String name : new String[]{"metal", "gems", "food", "pieces"}) {
+            Map<String, Object> f = readJson(dir.resolve(name + ".json"));
+            for (Object o : (List<Object>) f.get("entries")) {
+                Map<String, Object> e = new LinkedHashMap<>((Map<String, Object>) o);
+                e.put("kind", f.get("kind"));
+                pool.add(e);
+                perKind.merge((String) f.get("kind"), 1, Integer::sum);
+            }
+        }
+        System.out.println();
+        System.out.println("=== Phase 24: Contracts ===");
+        System.out.printf("  Pool: %d entries %s%n", pool.size(), perKind);
+        // sanity: every ask can be priced, the ranges are sane, ids are unique
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        boolean dataOk = true;
+        for (Map<String, Object> e : pool) {
+            dataOk &= ids.add((String) e.get("id"));
+            List<Object> a = (List<Object>) e.get("amount");
+            dataOk &= num(a.get(0)) >= 1 && num(a.get(1)) >= num(a.get(0)) && num(e.get("weight")) > 0 && num(e.get("reward")) >= 1.3 && num(e.get("reward")) <= 1.6;
+            dataOk &= num(e.get("renown")) >= 10 && num(e.get("renown")) <= 25;
+            dataOk &= contractValue(e, sell, bonus) > 0;
+        }
+        ok &= dataOk;
+        System.out.printf("  entries: ids unique, amounts in order, reward x1.3-1.6, Renown 10-25, all priced [%s]%n", dataOk ? "OK" : "FAIL");
+
+        double t1 = DRILL_CLUMPS_PER_MIN * 60 * ev[1] / GOLD;
+        double t2Abyssal = T2_DRILL_CLUMPS_PER_MIN * 60 * ev[3] / GOLD;
+        double t2Gravel = T2_DRILL_CLUMPS_PER_MIN * 60 * evGravel / GOLD;
+        double t2Sand = T2_DRILL_CLUMPS_PER_MIN * 60 * evSand / GOLD;
+        Object[][] profiles = {
+                {"early", 8, java.util.Set.of(), t1, "1 Tier 1 line on Dirtrock"},
+                {"mid", 25, java.util.Set.of("deep_dig", "gravel_flats"), t2Abyssal + t2Gravel, "Tier 2 lines on Abyssal + Gravelrock"},
+                {"late", 40, java.util.Set.of("deep_dig", "gravel_flats", "sand_dunes"), t2Abyssal + t2Gravel + t2Sand, "Tier 2 lines on Abyssal + Gravelrock + Sandrock"}};
+        long woodenCrate = shopPrice(res, "wooden_crate"), ironCrate = shopPrice(res, "iron_crate");
+        double[] payout = new double[3];
+        double[] renownPer = new double[3];
+        for (int pi = 0; pi < profiles.length; pi++) {
+            String name = (String) profiles[pi][0];
+            int level = (Integer) profiles[pi][1];
+            java.util.Set<String> plots = (java.util.Set<String>) profiles[pi][2];
+            double goldPerHour = (Double) profiles[pi][3];
+            double wSum = 0, rewardSum = 0, valueSum = 0, renownSum = 0, crateSum = 0;
+            java.util.Set<String> keys = new java.util.HashSet<>();
+            Map<String, Double> kindWeight = new LinkedHashMap<>();
+            int eligible = 0;
+            for (Map<String, Object> e : pool) {
+                if (num(e.get("min_level")) > level || (e.containsKey("max_level") && num(e.get("max_level")) < level)) continue;
+                String plot = (String) e.getOrDefault("plot", "");
+                if (!plot.isEmpty() && !plots.contains(plot)) continue;
+                List<Object> a = (List<Object>) e.get("amount");
+                double avg = (num(a.get(0)) + num(a.get(1))) / 2;
+                double v = contractValue(e, sell, bonus, avg);
+                double reward = Math.max(minReward, Math.round(v * num(e.get("reward")) / step) * step);
+                double crate = 0;
+                Map<String, Object> rule = null;
+                for (Map<String, Object> r : crateRules) if (reward >= num(r.get("min_reward"))) rule = r;
+                if (rule != null) {
+                    double iron = num(rule.get("iron")), wood = num(rule.get("wooden"));
+                    crate = iron * ironCrate + (1 - iron) * wood * woodenCrate;
+                }
+                double w = num(e.get("weight"));
+                wSum += w;
+                rewardSum += w * reward;
+                valueSum += w * v;
+                renownSum += w * num(e.get("renown"));
+                crateSum += w * crate;
+                eligible++;
+                kindWeight.merge((String) e.get("kind"), w, Double::sum);
+                keys.add(e.get("kind") + ":" + (e.containsKey("metal") ? e.get("metal") : e.containsKey("gem") ? e.get("gem") : e.containsKey("item") ? e.get("item") : e.get("piece")));
+            }
+            double avgReward = rewardSum / wSum, avgCrate = crateSum / wSum;
+            payout[pi] = avgReward + avgCrate;
+            renownPer[pi] = renownSum / wSum;
+            double incomeDay = goldPerHour * GOLD / 3;
+            double share3 = 3 * payout[pi] / (incomeDay + 3 * payout[pi]), share2 = 2 * payout[pi] / (incomeDay + 2 * payout[pi]);
+            boolean shareOk = share3 >= 0.15 && share3 <= 0.25 && keys.size() >= 3;
+            ok &= shareOk;
+            System.out.printf("  %-5s (Ledger L%d, plots %s, %s = %.0f gold/h = %.0f gold per day): %d entries, kind weights %s%n",
+                    name, level, plots.isEmpty() ? "none" : plots, profiles[pi][4], goldPerHour, incomeDay / GOLD, eligible, kindWeight);
+            System.out.printf("        one contract: asks %.0f c of goods, pays %.0f c (%.1f gold) + crate %.0f c = %.1f gold, Renown %.1f; net gain over selling %.0f c%n",
+                    valueSum / wSum, avgReward, avgReward / GOLD, avgCrate, payout[pi] / GOLD, renownPer[pi], avgReward - valueSum / wSum);
+            System.out.printf("        3 a day: %.0f gold per day = %.1f%% of coin income (2 a day: %.1f%%; target 15-25%% for an active player) [%s]%n",
+                    3 * payout[pi] / GOLD, 100 * share3, 100 * share2, shareOk ? "OK" : "OUT OF RANGE");
+        }
+        // Ledger: 3 new milestones (S + M + L Renown), contract Renown under its own cap, titles unchanged
+        Map<String, Object> curve = readJson(res.resolve("data/holeydigsite/ledger/curve.json"));
+        Map<String, Object> ongoing = (Map<String, Object>) curve.get("ongoing");
+        double contractCap = num(ongoing.get("contract_cap"));
+        int cum50 = 0;
+        for (Object o : (List<Object>) curve.get("levels")) cum50 += ((Number) o).intValue();
+        int milestones = 0, contractMilestones = 0;
+        try (var files = Files.list(res.resolve("data/holeydigsite/ledger/milestones"))) {
+            for (Path f : files.sorted().toList()) {
+                Map<String, Object> m = readJson(f);
+                milestones += ((Number) m.get("renown")).intValue();
+                if ("contracts".equals(m.get("chapter"))) contractMilestones += ((Number) m.get("renown")).intValue();
+            }
+        }
+        double perContractRenown = (renownPer[0] + renownPer[1] + renownPer[2]) / 3;
+        double daysToCap = contractCap / (3 * perContractRenown);
+        double hoursL50 = (cum50 - milestones - contractCap) / 185.0;
+        boolean l50Ok = hoursL50 >= 15 && hoursL50 <= 25;
+        ok &= l50Ok;
+        System.out.printf("  Ledger: contract milestones %d Renown (first S, 10 = M, 50 = L), contract Renown cap %.0f (about %.1f days or %.1f h of 3 a day to reach it)%n",
+                contractMilestones, contractCap, daysToCap, daysToCap / 3);
+        System.out.printf("          L1-50 = %d Renown, now %d from milestones + %.0f from contracts, the rest ongoing: ~%.1f h at 185/h (target 15-25 h) [%s]%n",
+                cum50, milestones, contractCap, hoursL50, l50Ok ? "OK" : "OUT OF RANGE");
+        // reward value of all Ledger levels vs what the player earns in the same time, now including 20 h of contracts
+        long ledgerRewards = ledgerRewardCopper(res);
+        double earned = 1_160_000.0;
+        double contractIncome = 0;
+        for (int i = 0; i < 3; i++) contractIncome += 20 * 3 * payout[i];   // a third of the 20 h at each stage
+        double before = 100.0 * ledgerRewards / earned, after = 100.0 * ledgerRewards / (earned + contractIncome);
+        boolean shareOk = before <= 10.0 && after <= before;
+        ok &= shareOk;
+        System.out.printf("          Ledger rewards %d gold (unchanged, contracts give no Ledger coins) = %.1f%% of the ~%.0fk gold earned that phase 21 assumes (target <= 10%%), %.1f%% with ~%.0fk gold of contract income added (20 h of 3 a day) [%s]%n",
+                ledgerRewards / GOLD, before, earned / GOLD / 1000, after, contractIncome / GOLD / 1000, shareOk ? "OK" : "TOO HIGH");
+        System.out.printf("  Crates: Wooden %d gold, Iron %d gold; Gold never; rules %s%n", woodenCrate / GOLD, ironCrate / GOLD, crateRules);
+        return ok;
+    }
+
+    @SuppressWarnings("unchecked")
+    static double contractValue(Map<String, Object> e, Map<String, double[]> sell, Map<String, double[]> bonus) {
+        List<Object> a = (List<Object>) e.get("amount");
+        return contractValue(e, sell, bonus, (num(a.get(0)) + num(a.get(1))) / 2);
+    }
+
+    /** Copper value of what the entry asks for at this amount, before the reward multiplier (same formula as ContractManager.value). */
+    static double contractValue(Map<String, Object> e, Map<String, double[]> sell, Map<String, double[]> bonus, double amount) {
+        switch ((String) e.get("kind")) {
+            case "metal": {
+                double[] p = sell.get(e.get("metal"));
+                return p == null ? 0 : amount * p[1];
+            }
+            case "gem": {
+                double[] p = sell.get(e.get("gem"));
+                return p == null ? 0 : amount * Math.max(1, num(e.get("min_weight"))) * ("uncut".equals(e.get("form")) ? p[2] : p[0]);
+            }
+            case "food": {
+                Resource r = RESOURCES.get(e.get("item"));
+                double[] p = r == null ? null : sell.get(r.material);
+                return p == null ? 0 : amount * Math.floor(r.grams * p[0] + 1e-9);
+            }
+            default: {
+                double[] metal = sell.get(e.containsKey("metal") ? e.get("metal") : "holeydigsite:folkiron");
+                double sum = metal == null ? 0 : num(e.get("min_grams")) * metal[1];
+                boolean gem = e.containsKey("gem");
+                if (gem) {
+                    double[] g = sell.get("any".equals(e.get("gem")) ? "holeydigsite:ruby" : e.get("gem"));
+                    sum += g == null ? 0 : g[0];
+                }
+                double[] b = bonus.get(e.get("piece"));
+                return amount * sum * (1 + (b == null ? 0 : gem ? b[1] : b[0]));
+            }
+        }
+    }
+
+    /** Copper value of the 50 Ledger levels' rewards, the same way phase21 adds them up. */
+    @SuppressWarnings("unchecked")
+    static long ledgerRewardCopper(Path res) throws Exception {
+        Path ledgerDir = res.resolve("data/holeydigsite/ledger");
+        Map<String, Object> curve = readJson(ledgerDir.resolve("curve.json"));
+        Map<String, Object> coins = (Map<String, Object>) curve.get("coins");
+        double ingotGrams = num(curve.get("reward_ingot_grams"));
+        Map<String, Integer> shopPrices = new LinkedHashMap<>();
+        try (var sFiles = Files.list(res.resolve("data/holeydigsite/holeydigsite/shop_items"))) {
+            for (Path sf : sFiles.toList()) {
+                Map<String, Object> e = readJson(sf);
+                shopPrices.put((String) e.get("item"), ((Number) e.get("price")).intValue());
+            }
+        }
+        long total = 0;
+        try (var files = Files.list(ledgerDir.resolve("levels"))) {
+            for (Path f : files.sorted().toList()) {
+                Map<String, Object> lv = readJson(f);
+                String c = (String) lv.get("coins");
+                if (c != null) total += ((Number) coins.get(c)).longValue();
+                for (Object ro : (List<Object>) lv.getOrDefault("rewards", List.of())) {
+                    Map<String, Object> r = (Map<String, Object>) ro;
+                    String item = (String) r.get("item");
+                    if (item == null) continue;
+                    int count = ((Number) r.getOrDefault("count", 1)).intValue();
+                    if (item.endsWith("_ingot")) {
+                        total += Math.round(count * ingotGrams * PRICE_PER_GRAM.getOrDefault(item.replace("_ingot", ""), 0.0) * 1.25);
+                    } else if (RESOURCES.containsKey(item)) {
+                        total += (long) count * price(item);
+                    } else if (shopPrices.containsKey(item)) {
+                        total += (long) count * shopPrices.get(item);
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
     /**
      * Phase 21f: Coarse dirt, rooted dirt, and moss panning tables.
      * Coarse: +20-30% value vs plain dirt.
@@ -1235,4 +1604,46 @@ public class EconomySim {
             i++;
         }
     }
+
+    @SuppressWarnings("unchecked")
+    static boolean phase23_6(Path res) throws Exception {
+        System.out.println();
+        System.out.println("=== Phase 23.6: Pick heads and Assayer's Pick ===");
+        boolean ok = true;
+        Path recipeFile = res.resolve("data/holeydigsite/holeydigsite/forge_recipes/assayers_pick.json");
+        Map<String, Object> r = (Map<String, Object>) new Json(Files.readString(recipeFile)).parse();
+        Map<String, Object> metals = (Map<String, Object>) r.get("metals");
+        double metalValue = 0;
+        StringBuilder need = new StringBuilder();
+        for (var m : metals.entrySet()) {
+            double grams = ((Number) m.getValue()).doubleValue();
+            metalValue += grams * PRICE_PER_GRAM.get(m.getKey()) * 1.25;
+            need.append(String.format("%s %.0f g ", m.getKey().replace("holeydigsite:", ""), grams));
+        }
+        long pickPrice = shopPrice(res, "prospectors_pick");
+        double totalCost = metalValue + pickPrice;
+        long riffle = shopPrice(res, "riffle_insert");
+        long mesh = shopPrice(res, "fine_mesh_screen");
+        double minUpgrade = Math.min(riffle, mesh);
+        double maxUpgrade = Math.max(riffle, mesh);
+        boolean recipeOk = totalCost >= minUpgrade * 0.8 && totalCost <= maxUpgrade * 1.2;
+        ok &= recipeOk;
+        System.out.printf("  assayers_pick: Prospector's Pick + %s-> metal %.0f gold, total %.0f gold (sluice upgrades %.0f-%.0f gold) [%s]%n",
+                need, metalValue / GOLD, totalCost / GOLD, minUpgrade / GOLD, maxUpgrade / GOLD, recipeOk ? "OK" : "OUT OF RANGE");
+
+        long pGravel = shopPrice(res, "gravel_head");
+        long pSand = shopPrice(res, "sand_head");
+        long deedGravel = shopPrice(res, "land_deed_gravel_flats");
+        long deedSand = shopPrice(res, "land_deed_sand_dunes");
+        boolean gravelOk = Math.abs(pGravel / (double) pickPrice - 1) <= 0.25 && pGravel / (double) deedGravel <= 0.05;
+        boolean sandOk = pSand >= pickPrice && pSand <= pickPrice * 1.5 && pSand / (double) deedSand <= 0.05;
+        ok &= gravelOk && sandOk;
+        System.out.printf("  gravel_head: %d copper = %.0f gold (pick %d gold, deed %.0f gold: %.1f%%) [%s]%n",
+                pGravel, pGravel / (double) GOLD, pickPrice / GOLD, deedGravel / (double) GOLD, 100.0 * pGravel / deedGravel, gravelOk ? "OK" : "OUT OF RANGE");
+        System.out.printf("  sand_head:   %d copper = %.0f gold (pick %d gold, deed %.0f gold: %.1f%%) [%s]%n",
+                pSand, pSand / (double) GOLD, pickPrice / GOLD, deedSand / (double) GOLD, 100.0 * pSand / deedSand, sandOk ? "OK" : "OUT OF RANGE");
+
+        return ok;
+    }
+
 }

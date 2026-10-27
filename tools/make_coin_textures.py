@@ -11,6 +11,8 @@ PALETTES = {
     "copper": [(58, 26, 14), (120, 54, 30), (160, 78, 44), (196, 104, 60), (226, 142, 92), (246, 186, 140)],
     "silver": [(44, 46, 54), (104, 108, 120), (146, 150, 162), (186, 190, 200), (218, 222, 230), (250, 250, 255)],
     "gold":   [(72, 44, 6), (160, 104, 16), (204, 146, 26), (238, 190, 42), (252, 226, 92), (255, 250, 190)],
+    "platinum": [(40, 52, 66), (110, 124, 142), (158, 172, 190), (206, 220, 232), (236, 246, 252), (255, 255, 255)],
+    "crown":  [(58, 22, 8), (138, 64, 14), (186, 100, 22), (222, 144, 36), (248, 188, 66), (255, 232, 150)],
 }
 
 def disc(size):
@@ -36,7 +38,29 @@ MARKS = {
     "ring": _rows([(6, 7, 8), (9, 7, 8)]) | {(6, 7), (6, 8), (9, 7), (9, 8)},
     # four-point sparkle
     "sparkle": _rows([(5, 7, 8), (6, 7, 8), (7, 5, 10), (8, 5, 10), (9, 7, 8), (10, 7, 8)]),
+    # small diamond, a cut platinum stud
+    "diamond": _rows([(5, 7, 8), (6, 6, 9), (7, 5, 10), (8, 5, 10), (9, 6, 9), (10, 7, 8)]),
+    # the crown's ruby is painted separately
+    "none": set(),
 }
+
+RUBY = [(60, 4, 16), (150, 18, 30), (206, 40, 52), (246, 96, 104)]
+
+
+def ruby(img):
+    """Faceted ruby, 6 px wide, set in the middle of a crown."""
+    px = img.load()
+    dark, mid, base, hi = RUBY
+    rows = {4: (7, 8), 5: (6, 9), 6: (5, 10), 7: (5, 10), 8: (5, 10), 9: (6, 9), 10: (7, 8)}
+    for y, (a, b) in rows.items():
+        for x in range(a, b + 1):
+            edge = x in (a, b) or y in (4, 10)
+            px[x, y] = (dark if edge else base) + (255,)
+    for p in [(6, 6), (7, 6), (6, 7)]:
+        px[p] = hi + (255,)
+    for p in [(9, 9), (8, 9), (9, 8)]:
+        px[p] = mid + (255,)
+    return img
 
 def draw(metal, size, mark):
     pal = PALETTES[metal]
@@ -78,6 +102,9 @@ def draw(metal, size, mark):
     return img
 
 if __name__ == "__main__":
-    for metal, size, mark in [("copper", 10, "hole"), ("silver", 12, "ring"), ("gold", 14, "sparkle")]:
+    for metal, size, mark in [("copper", 10, "hole"), ("silver", 12, "ring"), ("gold", 14, "sparkle"),
+                              ("platinum", 16, "diamond")]:
         draw(metal, size, mark).save(OUT + f"{metal}_coin.png")
         print("wrote", OUT + f"{metal}_coin.png")
+    ruby(draw("crown", 16, "none")).save(OUT + "ruby_crown.png")
+    print("wrote", OUT + "ruby_crown.png")

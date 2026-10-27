@@ -198,7 +198,7 @@ public class MoneyPanBlock extends BaseEntityBlock {
         }
         player.getInventory().setChanged();
         coinSound(level, pos, 0.9F);
-        player.displayClientMessage(Component.translatable("message.holeydigsite.money_pan.withdrew", Selling.format(all))
+        player.displayClientMessage(Component.translatable("message.holeydigsite.money_pan.withdrew", Selling.format(all, 46))
                 .withStyle(ChatFormatting.GOLD), true);
         return all;
     }
@@ -207,7 +207,7 @@ public class MoneyPanBlock extends BaseEntityBlock {
         coinSound(level, pos, 1.3F);
         if (player != null) {
             player.displayClientMessage(Component.translatable("message.holeydigsite.money_pan.deposited",
-                    Selling.format(copper), Selling.format(balance)).withStyle(ChatFormatting.GOLD), true);
+                    Selling.format(copper, 43), Selling.format(balance)).withStyle(ChatFormatting.GOLD), true);
         }
     }
 

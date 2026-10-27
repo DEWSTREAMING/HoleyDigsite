@@ -103,6 +103,23 @@ public class RadialMenu extends Screen {
     private boolean finished;
     private double lastMouseX;
     private double lastMouseY;
+    @Nullable
+    private net.minecraft.core.BlockPos labelPos;
+
+    /** Hides the floating label of this block while the wheel is open. */
+    public RadialMenu hideLabelAt(net.minecraft.core.BlockPos pos) {
+        this.labelPos = pos;
+        FloatingText.hideAt(pos);
+        return this;
+    }
+
+    @Override
+    public void removed() {
+        if (labelPos != null) {
+            FloatingText.hideAt(null);
+        }
+        super.removed();
+    }
 
     public RadialMenu(Component title, List<Category> categories, Consumer<ResourceLocation> onSelect) {
         super(title);
@@ -338,10 +355,8 @@ public class RadialMenu extends Screen {
     private void renderSlicePanel(GuiGraphics graphics, int cx, int cy, Slice slice) {
         List<Component> lines = new ArrayList<>();
 
-        Component countTitle = slice.icon().getCount() > 1
-                ? Component.translatable("text.holeydigsite.crafting_forge.count", slice.icon().getCount(), slice.title())
-                : slice.title().copy();
-        lines.add(countTitle.copy().withStyle(slice.usable() ? ChatFormatting.GREEN : ChatFormatting.WHITE));
+        // the count is already part of the title (ForgeRecipe.baseName)
+        lines.add(slice.title().copy().withStyle(slice.usable() ? ChatFormatting.GREEN : ChatFormatting.WHITE));
 
         if (slice.variant() != null) {
             lines.add(Component.literal("(").append(slice.variant()).append(")").withStyle(ChatFormatting.GOLD));
@@ -363,14 +378,12 @@ public class RadialMenu extends Screen {
         int boxW = Math.max(110, textW + pad * 2 + iconArea);
         int boxH = pad * 2 + lines.size() * 11;
 
-        int boxX = cx + OUTER_MAX + 12;
-        int boxY = cy - boxH / 2;
-        if (boxX + boxW > this.width - 6) {
-            boxX = Math.max(6, cx - boxW / 2);
-            boxY = Math.min(this.height - boxH - 6, cy + OUTER_MAX + 8);
-        }
-        boxY = Mth.clamp(boxY, 6, Math.max(6, this.height - boxH - 6));
+        int[] at = placePanel(cx, cy, boxW, boxH);
+        int boxX = at[0];
+        int boxY = at[1];
 
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0F, 0.0F, 400.0F);
         int bg = slice.usable() ? 0xE0142C18 : 0xE018181E;
         int border = slice.usable() ? 0xFF48C858 : 0xFF585864;
         graphics.fill(boxX, boxY, boxX + boxW, boxY + boxH, bg);
@@ -385,6 +398,36 @@ public class RadialMenu extends Screen {
             graphics.drawString(this.font, lines.get(i), tx, ty, 0xFFFFFF, true);
             ty += 11;
         }
+        graphics.pose().popPose();
+    }
+
+    /** True if the box touches the wheel's outer circle (with a small margin). */
+    private static boolean hitsWheel(int cx, int cy, int x, int y, int w, int h) {
+        double nx = Mth.clamp(cx, x, x + w);
+        double ny = Mth.clamp(cy, y, y + h);
+        return Math.hypot(nx - cx, ny - cy) < OUTER_MAX + 6;
+    }
+
+    /** The panel goes beside the wheel, else below, else above, and stays on screen. */
+    private int[] placePanel(int cx, int cy, int w, int h) {
+        int m = 6;
+        int[][] tries = {
+                {cx + OUTER_MAX + 12, cy - h / 2},
+                {cx - OUTER_MAX - 12 - w, cy - h / 2},
+                {cx - w / 2, cy + OUTER_MAX + 22},
+                {cx - w / 2, cy - OUTER_MAX - 8 - h},
+        };
+        for (int[] t : tries) {
+            int x = t[0];
+            int y = Mth.clamp(t[1], m, Math.max(m, this.height - h - m));
+            if (x >= m && x + w <= this.width - m && y >= m && y + h <= this.height - m && !hitsWheel(cx, cy, x, y, w, h)) {
+                return new int[] {x, y};
+            }
+        }
+        // nothing fits: put it in the corner of the screen farthest from the wheel
+        int x = cx < this.width / 2 ? Math.max(m, this.width - w - m) : m;
+        int y = cy < this.height / 2 ? Math.max(m, this.height - h - m) : m;
+        return new int[] {x, y};
     }
 
     private static void drawRingSector(

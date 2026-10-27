@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "holeydigsite:block/skin_bench" },
+    "facing=south": { "model": "holeydigsite:block/skin_bench", "y": 180 },
+    "facing=west":  { "model": "holeydigsite:block/skin_bench", "y": 270 },
+    "facing=east":  { "model": "holeydigsite:block/skin_bench", "y": 90 }
+  }
+}

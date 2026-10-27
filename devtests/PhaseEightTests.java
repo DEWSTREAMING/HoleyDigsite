@@ -129,7 +129,10 @@ public class PhaseEightTests {
     }
 
     private static long coinsValue(ServerPlayer p) {
-        return count(p, ModItems.GOLD_COIN.get()) * 64L + count(p, ModItems.SILVER_COIN.get()) * 8L + count(p, ModItems.COPPER_COIN.get());
+        long v = 0;
+        for (ItemStack s : p.getInventory().items) v += MoneyPanBlock.coinValue(s);
+        for (ItemStack s : p.getInventory().offhand) v += MoneyPanBlock.coinValue(s);
+        return v;
     }
 
     /** The tests treat hotbar slot 0 as "the hand"; keep whatever is there when the hand should be empty. */
@@ -213,7 +216,13 @@ public class PhaseEightTests {
                 {ModItems.CLAIM_FLAG.get(), 1, 16L}, {ModItems.ORE_CART.get(), 1, 32L},
                 {ModItems.LUCKY_LANTERN.get(), 1, 24L}, {ModItems.PROSPECTORS_LEDGER.get(), 1, 1L},
                 // Phase 21i: Down Incline + Drop Chute
-                {ModItems.DOWN_INCLINE_BELT.get(), 1, 32L}, {ModItems.DROP_CHUTE.get(), 1, 24L}};
+                {ModItems.DOWN_INCLINE_BELT.get(), 1, 32L}, {ModItems.DROP_CHUTE.get(), 1, 24L},
+                // Phase 22: Skin Bench
+                {ModItems.SKIN_BENCH.get(), 1, 2048L},
+                // Mining Crates
+                {ModItems.WOODEN_CRATE.get(), 1, 1536L}, {ModItems.IRON_CRATE.get(), 1, 4096L}, {ModItems.GOLD_CRATE.get(), 1, 12288L},
+                // pick heads (kiosks)
+                {ModItems.GRAVEL_HEAD.get(), 1, 2048L}, {ModItems.SAND_HEAD.get(), 1, 2560L}};
         for (Object[] e : expected) {
             var entry = ShopCatalogue.find(reg, (Item) e[0]);
             check(h, entry.isPresent(), "catalogue has " + e[0]);
@@ -478,12 +487,12 @@ public class PhaseEightTests {
         pan(h, PAN).deposit(1_000_000_000L * 64);
         check(h, pan(h, PAN).balance() == 64_000_000_000L, "no cap (beyond int range)");
         pan(h, PAN).withdrawAll();
-        pan(h, PAN).deposit(70L * 64);
+        pan(h, PAN).deposit(70L * 32768);
         p.getInventory().clearContent();
         for (int i = 1; i < p.getInventory().items.size(); i++) p.getInventory().items.set(i, new ItemStack(Items.COBBLESTONE, 64));
-        int before = wide(h, p, ModItems.GOLD_COIN.get());
+        int before = wide(h, p, ModItems.MINT_BAR.get());
         use(h, p, PAN, ItemStack.EMPTY);
-        check(h, wide(h, p, ModItems.GOLD_COIN.get()) - before == 6 && count(p, ModItems.GOLD_COIN.get()) == 64 && pan(h, PAN).balance() == 0, "one stack in the free slot, the rest at the feet: before " + before + " after " + wide(h, p, ModItems.GOLD_COIN.get()) + " inv " + count(p, ModItems.GOLD_COIN.get()));
+        check(h, wide(h, p, ModItems.MINT_BAR.get()) - before == 6 && count(p, ModItems.MINT_BAR.get()) == 64 && pan(h, PAN).balance() == 0, "one stack in the free slot, the rest at the feet: before " + before + " after " + wide(h, p, ModItems.MINT_BAR.get()) + " inv " + count(p, ModItems.MINT_BAR.get()));
         h.succeed();
     }
 
@@ -763,7 +772,7 @@ public class PhaseEightTests {
                 + Selling.stackValue(new ItemStack(ModItems.FOLKIRON_CHUNK_SMALL.get(), 7), h.getLevel().registryAccess());
         long[] split = Selling.split(v);
         check(h, v == 86 && split[0] == 1 && split[1] == 2 && split[2] == 6, "86 copper -> 1/2/6, got " + v);
-        check(h, Selling.coins(64 * 70).get(0).getCount() == 64 && Selling.coins(64 * 70).get(1).getCount() == 6, "gold in stacks of 64");
+        check(h, Selling.coins(32768L * 70).get(0).getCount() == 64 && Selling.coins(32768L * 70).get(1).getCount() == 6, "biggest coins in stacks of 64");
         h.succeed();
     }
 

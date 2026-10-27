@@ -51,6 +51,18 @@ public final class ClientEvents {
             tip.add(1, Component.translatable("tooltip.holeydigsite.shovel.full").withStyle(ChatFormatting.GOLD));
         }
 
+        if (stack.is(com.holeydigsite.registry.ModItems.SKIN_SCRAP.get())) {
+            tip.add(1, Component.translatable("tooltip.holeydigsite.skin_scrap").withStyle(ChatFormatting.GRAY));
+        }
+
+        String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (skin != null && !skin.isEmpty() && !skin.equals(com.holeydigsite.skin.SkinDefs.DEFAULT_ID)
+                && !stack.is(com.holeydigsite.registry.ModItems.SKIN_KIT.get())) {
+            tip.add(1, Component.translatable("tooltip.holeydigsite.skin", com.holeydigsite.skin.SkinDefs.displayName(skin)).withStyle(ChatFormatting.GRAY));
+            tip.add(2, Component.translatable("tooltip.holeydigsite.skin_wear",
+                    com.holeydigsite.skin.SkinWear.displayName(com.holeydigsite.skin.SkinWear.of(stack))).withStyle(ChatFormatting.GRAY));
+        }
+
         ResourceInfo info = Selling.resource(stack);
         if (info == null || tip.isEmpty()) {
             return;

@@ -102,7 +102,7 @@ public final class PlotCommands {
         String ownerName = ownerPlayer != null ? ownerPlayer.getGameProfile().getName() : c.getSource().getTextName();
 
         for (PlotData.Plot p : matches) {
-            data.setOwned(p.id(), p.board(), true, ownerName);
+            data.setOwned(p.id(), p.board(), true, ownerName, ownerPlayer != null ? ownerPlayer.getUUID() : null);
             BlockState state = level.getBlockState(p.board());
             if (state.is(ModBlocks.PLOT_BOARD.get())) {
                 level.setBlock(p.board(), state.setValue(PlotBoardBlock.OWNED, true), Block.UPDATE_CLIENTS);

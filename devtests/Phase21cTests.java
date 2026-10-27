@@ -145,7 +145,7 @@ public class Phase21cTests {
         check(h, !data.hasTitle("greenhorn"), "greenhorn should be locked");
 
         exec(h, source, "holeydigsite ledger title unlock @s all");
-        check(h, data.unlockedTitles().size() == LedgerDefs.titles().size(), "all titles should be unlocked");
+        check(h, data.unlockedTitles().size() == LedgerDefs.allTitles().size(), "all titles should be unlocked");
 
         exec(h, source, "holeydigsite ledger title lock @s all");
         check(h, data.unlockedTitles().isEmpty(), "all titles should be locked");

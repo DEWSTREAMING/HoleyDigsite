@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/rusty_mine_bell"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/rusty_mine_bell",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/rusty_mine_bell",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/rusty_mine_bell",
+      "y": 270
+    }
+  }
+}

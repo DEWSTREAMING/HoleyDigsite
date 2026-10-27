@@ -1,0 +1,11 @@
+{
+  "parent": "holeydigsite:block/crate_open",
+  "textures": {
+    "side": "holeydigsite:block/gold_crate_side",
+    "front": "holeydigsite:block/gold_crate_front",
+    "top": "holeydigsite:block/gold_crate_top",
+    "bottom": "holeydigsite:block/gold_crate_bottom",
+    "inside": "holeydigsite:block/crate_inside",
+    "particle": "holeydigsite:block/gold_crate_side"
+  }
+}

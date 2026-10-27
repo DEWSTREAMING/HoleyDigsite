@@ -185,9 +185,27 @@ public class PhaseTenTests {
         click(h, p, CF, held, sneak, new Vec3(0.5, 1.0, 0.5), Direction.UP);
     }
 
-    /** Click on the cast handle (front = west face of a west-facing forge). */
+    /** Click on the cast lever (on the front face of the top section, the west face of a west-facing forge). */
     private static void handle(GameTestHelper h, ServerPlayer p, ItemStack held, boolean sneak) {
-        click(h, p, CF, held, sneak, new Vec3(0.1, 0.55, 0.5), Direction.WEST);
+        click(h, p, CF, held, sneak, new Vec3(0.0, 0.8, 0.5), Direction.WEST);
+    }
+
+    /** Click on the front of the top section away from the lever. */
+    private static void frontAway(GameTestHelper h, ServerPlayer p, ItemStack held, boolean sneak) {
+        click(h, p, CF, held, sneak, new Vec3(0.0, 0.8, 0.1), Direction.WEST);
+    }
+
+    /** The front face off the lever still cycles recipes with an empty hand and never casts, even when a cast is possible. */
+    @GameTest(template = "empty_long")
+    public static void frontAwayFromLeverCyclesNotCasts(GameTestHelper h) {
+        craftingForge(h, true);
+        ServerPlayer p = player(h);
+        check(h, cf(h).recipe().id().equals(R_DRILL), "first recipe by default");
+        frontAway(h, p, ItemStack.EMPTY, false);
+        check(h, cf(h).recipe().id().equals(R_SLUICE) && !cf(h).isCasting(), "front off the lever cycles: " + cf(h).recipe().id());
+        frontAway(h, p, ItemStack.EMPTY, true);
+        check(h, cf(h).recipe().id().equals(R_DRILL) && !cf(h).isCasting(), "sneak goes back");
+        h.succeed();
     }
 
     private static CraftingForgeBlockEntity cf(GameTestHelper h) {

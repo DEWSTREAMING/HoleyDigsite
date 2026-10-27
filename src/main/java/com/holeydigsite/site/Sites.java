@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
+import com.holeydigsite.economy.Selling;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -193,6 +194,7 @@ public final class Sites {
     public static Result refreshLayout(ServerLevel level, SiteData.Site site, SiteDef def) {
         forceLoad(level, site.zone());
         ensureDisplays(level, site, def);
+        Boards.announceBlocked(level, Boards.ensure(level, site, def));
         Map<Integer, ResourceLocation> layout = SiteDefs.layout(def.layout());
         List<String> wanted = wantedItems(level, site.zone(), layout);
         if (wanted.equals(site.shown())) {
@@ -447,23 +449,10 @@ public final class Sites {
         }
     }
 
-    /** Coins worth {@code copper}, including gold, silver, copper in full stacks. */
+    /** Coins worth {@code copper}, biggest first, in full stacks. */
     public static List<ItemStack> coins(long copper) {
         List<ItemStack> out = new ArrayList<>();
-        long gold = copper / 64, silver = (copper % 64) / 8, cu = copper % 8;
-        add(out, ModItems.GOLD_COIN.get(), gold);
-        add(out, ModItems.SILVER_COIN.get(), silver);
-        add(out, ModItems.COPPER_COIN.get(), cu);
-        return out;
-    }
-
-    private static void add(List<ItemStack> out, Item item, long n) {
-        int max = new ItemStack(item).getMaxStackSize();
-        while (n > 0) {
-            int c = (int) Math.min(n, max);
-            out.add(new ItemStack(item, c));
-            n -= c;
-        }
+        return Selling.coins(copper);
     }
 
     /** Drops a stack at the entrance with no motion and never despawns. */

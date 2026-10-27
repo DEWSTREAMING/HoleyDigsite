@@ -100,6 +100,20 @@ public final class ModBlockEntities {
                     .of(com.holeydigsite.smith.SmithingAnvilBlockEntity::new, ModBlocks.SMITHING_ANVIL.get())
                     .build(null));
 
+    /** {@code holeydigsite:skin_bench} holding an inserted machine item. */
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.skin.SkinBenchBlockEntity>> SKIN_BENCH =
+            BLOCK_ENTITIES.register("skin_bench", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.skin.SkinBenchBlockEntity::new, ModBlocks.SKIN_BENCH.get())
+                    .build(null));
+
+    /** {@code holeydigsite:contract_board}: no data, only a renderer. */
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.contract.ContractBoardBlockEntity>> CONTRACT_BOARD =
+            BLOCK_ENTITIES.register("contract_board", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.contract.ContractBoardBlockEntity::new, ModBlocks.CONTRACT_BOARD.get())
+                    .build(null));
+
     /** {@code holeydigsite:site_marker} holding the site id a template marker builds. */
     @SuppressWarnings("DataFlowIssue")
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.site.SiteMarkerBlockEntity>> SITE_MARKER =

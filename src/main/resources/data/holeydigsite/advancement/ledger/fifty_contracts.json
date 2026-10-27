@@ -1,0 +1,1 @@
+{"criteria": {"done": {"trigger": "holeydigsite:contracts_done", "conditions": {"min": 50}}}}

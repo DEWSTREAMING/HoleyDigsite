@@ -50,9 +50,16 @@ public class SluiceBoxRenderer implements BlockEntityRenderer<SluiceBoxBlockEnti
         for (int i = 0; i < n; i++) {
             pose.pushPose();
             pose.translate(SPOTS[i][0] / 16.0, (TRAY_TOP + 0.3F + i * 0.05F) / 16.0, SPOTS[i][1] / 16.0);
-            pose.mulPose(Axis.XP.rotationDegrees(90.0F));
-            pose.mulPose(Axis.ZP.rotationDegrees(i * 47.0F));
-            pose.scale(0.3F, 0.3F, 0.3F);
+            if (FlatItems.isLump(tray.get(i))) {
+                float scale = 0.6F;
+                pose.translate(0, scale / 16.0, 0);
+                pose.mulPose(Axis.YP.rotationDegrees(i * 47.0F));
+                pose.scale(scale, scale, scale);
+            } else {
+                pose.mulPose(Axis.XP.rotationDegrees(90.0F));
+                pose.mulPose(Axis.ZP.rotationDegrees(i * 47.0F));
+                pose.scale(0.3F, 0.3F, 0.3F);
+            }
             itemRenderer.renderStatic(tray.get(i), ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffers,
                     sluice.getLevel(), (int) sluice.getBlockPos().asLong() + i);
             pose.popPose();

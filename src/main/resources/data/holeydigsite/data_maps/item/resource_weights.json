@@ -227,6 +227,12 @@
       "grams": 1,
       "form": "crop",
       "meltable": false
+    },
+    "holeydigsite:skin_scrap": {
+      "material": "holeydigsite:skin_scrap",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
     }
   }
 }

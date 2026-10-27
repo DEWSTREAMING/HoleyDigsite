@@ -1,0 +1,11 @@
+{
+  "parent": "holeydigsite:block/crate_open",
+  "textures": {
+    "side": "holeydigsite:block/wooden_crate_side",
+    "front": "holeydigsite:block/wooden_crate_front",
+    "top": "holeydigsite:block/wooden_crate_top",
+    "bottom": "holeydigsite:block/wooden_crate_bottom",
+    "inside": "holeydigsite:block/crate_inside",
+    "particle": "holeydigsite:block/wooden_crate_side"
+  }
+}

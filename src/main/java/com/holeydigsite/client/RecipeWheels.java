@@ -1,5 +1,7 @@
 package com.holeydigsite.client;
 
+import com.holeydigsite.HoleyDigsite;
+
 import com.holeydigsite.economy.Selling;
 import com.holeydigsite.forge.CraftingForgeBlock;
 import com.holeydigsite.forge.CraftingForgeBlockEntity;
@@ -11,6 +13,10 @@ import com.holeydigsite.registry.ModItems;
 import com.holeydigsite.smith.AnvilRecipe;
 import com.holeydigsite.smith.AnvilRecipes;
 import com.holeydigsite.smith.SmithingAnvilBlockEntity;
+import com.holeydigsite.registry.ModDataComponents;
+import com.holeydigsite.skin.SkinBenchBlockEntity;
+import com.holeydigsite.skin.SkinBenchNetwork;
+import com.holeydigsite.skin.SkinDefs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -97,7 +103,7 @@ public final class RecipeWheels {
                 Component.translatable("block.holeydigsite.crafting_forge"),
                 categories,
                 recipeId -> RecipeWheelNetwork.sendToServer(pos, recipeId)
-        );
+        ).hideLabelAt(pos);
     }
 
     /** Builds the two-level recipe radial menu for a {@link SmithingAnvilBlockEntity}. */
@@ -163,7 +169,85 @@ public final class RecipeWheels {
                 Component.translatable("block.holeydigsite.smithing_anvil"),
                 categories,
                 recipeId -> RecipeWheelNetwork.sendToServer(pos, recipeId)
+        ).hideLabelAt(pos);
+    }
+
+    /** Builds the single-ring radial menu for a {@link SkinBenchBlockEntity}. */
+    public static RadialMenu createSkinBenchMenu(SkinBenchBlockEntity bench, Player player) {
+        ItemStack machine = bench.getItem();
+        String family = SkinDefs.getMachineFamily(machine);
+        if (family == null) {
+            family = "mining_drill";
+        }
+
+        String currentSkin = machine.getOrDefault(ModDataComponents.SKIN.get(), SkinDefs.DEFAULT_ID);
+        String currentWear = com.holeydigsite.skin.SkinWear.normalize(com.holeydigsite.skin.SkinWear.of(machine));
+        boolean skinned = !SkinDefs.DEFAULT_ID.equals(currentSkin) && !currentSkin.isEmpty();
+
+        List<RadialMenu.Category> categories = new ArrayList<>();
+
+        // Take the skin off (it comes back as a kit)
+        ItemStack defaultIcon = machine.copyWithCount(1);
+        defaultIcon.remove(ModDataComponents.SKIN.get());
+        defaultIcon.remove(ModDataComponents.SKIN_WEAR.get());
+        RadialMenu.Slice defaultSlice = new RadialMenu.Slice(
+                HoleyDigsite.id(SkinDefs.DEFAULT_ID),
+                defaultIcon,
+                Component.translatable(skinned ? "text.holeydigsite.skin_bench.remove" : "skin.holeydigsite.default").withStyle(ChatFormatting.WHITE),
+                Component.translatable("rarity.holeydigsite.default").withStyle(ChatFormatting.GRAY),
+                List.of(Component.translatable(skinned ? "text.holeydigsite.skin_bench.remove_hint" : "text.holeydigsite.skin_bench.no_skin")
+                        .withStyle(ChatFormatting.DARK_GRAY)),
+                skinned,
+                !skinned
         );
+        categories.add(new RadialMenu.Category(SkinDefs.DEFAULT_ID, defaultSlice.title(), defaultSlice.icon(), List.of(defaultSlice)));
+
+        // Kits in the inventory that fit this machine, one slice per skin and wear
+        Map<String, Integer> counts = new java.util.LinkedHashMap<>();
+        Map<String, ItemStack> firsts = new java.util.HashMap<>();
+        for (ItemStack s : player.getInventory().items) {
+            if (!com.holeydigsite.skin.SkinKitItem.isKit(s) || !family.equals(com.holeydigsite.skin.SkinKitItem.family(s))) continue;
+            String key = com.holeydigsite.skin.SkinKitItem.skin(s) + "/" + com.holeydigsite.skin.SkinKitItem.wear(s);
+            counts.merge(key, s.getCount(), Integer::sum);
+            firsts.putIfAbsent(key, s);
+        }
+        for (Map.Entry<String, Integer> e : counts.entrySet()) {
+            ItemStack kit = firsts.get(e.getKey());
+            String skin = com.holeydigsite.skin.SkinKitItem.skin(kit);
+            String wear = com.holeydigsite.skin.SkinKitItem.wear(kit);
+            SkinDefs.SkinDef def = SkinDefs.skin(skin);
+            if (def == null || !def.appliesTo(family)) continue;
+            ItemStack icon = machine.copyWithCount(1);
+            icon.set(ModDataComponents.SKIN.get(), skin);
+            com.holeydigsite.skin.SkinWear.set(icon, wear);
+            boolean isCurrent = skin.equals(currentSkin) && wear.equals(currentWear);
+            RadialMenu.Slice slice = new RadialMenu.Slice(
+                    HoleyDigsite.id(e.getKey()),
+                    icon,
+                    def.displayName(),
+                    Component.translatable("rarity.holeydigsite." + def.rarity()).withStyle(def.rarityFormatting()),
+                    List.of(Component.translatable("tooltip.holeydigsite.skin_wear", com.holeydigsite.skin.SkinWear.displayName(wear)),
+                            Component.translatable("text.holeydigsite.skin_bench.kits", e.getValue()).withStyle(ChatFormatting.DARK_GRAY)),
+                    !isCurrent,
+                    isCurrent
+            );
+            categories.add(new RadialMenu.Category(e.getKey(), slice.title(), slice.icon(), List.of(slice)));
+        }
+
+        BlockPos pos = bench.getBlockPos();
+        return new RadialMenu(
+                Component.translatable("block.holeydigsite.skin_bench"),
+                categories,
+                id -> {
+                    String path = id.getPath();
+                    int slash = path.indexOf('/');
+                    if (slash < 0) {
+                        SkinBenchNetwork.sendToServer(pos, SkinDefs.DEFAULT_ID, "");
+                    } else {
+                        SkinBenchNetwork.sendToServer(pos, path.substring(0, slash), path.substring(slash + 1));
+                    }
+                }
+        ).hideLabelAt(pos);
     }
 
     /**
@@ -195,6 +279,9 @@ public final class RecipeWheels {
                 return false;
             }
             return true;
+        }
+        if (be instanceof SkinBenchBlockEntity bench) {
+            return bench.hasItem();
         }
         return false;
     }
@@ -278,6 +365,8 @@ public final class RecipeWheels {
                 mc.setScreen(createForgeMenu(forge, mc.level.registryAccess()));
             } else if (be instanceof SmithingAnvilBlockEntity anvil) {
                 mc.setScreen(createAnvilMenu(anvil, mc.level.registryAccess()));
+            } else if (be instanceof SkinBenchBlockEntity bench) {
+                mc.setScreen(createSkinBenchMenu(bench, mc.player));
             }
         }
     }

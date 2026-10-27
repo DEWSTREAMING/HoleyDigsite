@@ -28,7 +28,8 @@ public final class BeltEvents {
         var block = event.getLevel().getBlockState(event.getPos()).getBlock();
         if (block instanceof AbstractPadBlock || block instanceof MoneyPanBlock || block instanceof ShopButtonBlock
                 || block instanceof ShopDisplayBlock || block instanceof com.holeydigsite.forge.CrucibleBlock
-                || block instanceof com.holeydigsite.forge.CraftingForgeBlock || block instanceof com.holeydigsite.smith.SmithingAnvilBlock) {
+                || block instanceof com.holeydigsite.forge.CraftingForgeBlock || block instanceof com.holeydigsite.smith.SmithingAnvilBlock
+                || block instanceof com.holeydigsite.contract.ContractBoardBlock) {
             event.setUseBlock(TriState.TRUE); // pads/pan take everything, display sets its item
             return;
         }

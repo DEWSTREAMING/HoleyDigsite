@@ -53,7 +53,7 @@ public final class LedgerCommands {
         } else {
             list.add("all");
         }
-        list.addAll(LedgerDefs.titles());
+        list.addAll(LedgerDefs.allTitles());
         return list;
     }
 
@@ -490,7 +490,7 @@ public final class LedgerCommands {
         if (titleId.equalsIgnoreCase("all")) {
             for (ServerPlayer sp : players) {
                 LedgerData data = LedgerData.get(sp);
-                for (String t : LedgerDefs.titles()) {
+                for (String t : LedgerDefs.allTitles()) {
                     data.unlockTitle(t);
                 }
                 LedgerNetwork.syncToClient(sp);

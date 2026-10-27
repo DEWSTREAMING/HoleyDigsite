@@ -40,7 +40,9 @@ import java.util.WeakHashMap;
  */
 public class CraftingForgeRenderer implements BlockEntityRenderer<CraftingForgeBlockEntity> {
     private static final int MAX_ITEMS = 4;
-    private static final float[][] SPOTS = {{5.5F, 6.5F}, {10.5F, 6.5F}, {5.5F, 11.5F}, {10.5F, 11.5F}};
+    private static final float[][] SPOTS = com.holeydigsite.forge.CraftingForgeBlock.SIDE_HANDLE
+            ? new float[][]{{5.5F, 5.5F}, {10.5F, 5.5F}, {5.5F, 10.5F}, {10.5F, 10.5F}}
+            : new float[][]{{5.5F, 6.5F}, {10.5F, 6.5F}, {5.5F, 11.5F}, {10.5F, 11.5F}};
 
     private record Cached(int version, BlockState state, List<Component> lines, List<ItemStack> items) {}
     private final WeakHashMap<CraftingForgeBlockEntity, Cached> cache = new WeakHashMap<>();
@@ -65,7 +67,16 @@ public class CraftingForgeRenderer implements BlockEntityRenderer<CraftingForgeB
             pose.pushPose();
             pose.translate(SPOTS[i][0] / 16.0, 1.0 + 0.002, SPOTS[i][1] / 16.0);
             pose.mulPose(Axis.YP.rotationDegrees(i * 53.0F + 20.0F));
-            if (s.getItem() instanceof BlockItem) {
+            if (s.getItem() instanceof com.holeydigsite.item.IngotItem) {
+                // the bar model already lies flat, lift it by the half-height below its centre
+                float scale = 0.65F;
+                pose.translate(0, 0.01 + scale / 16.0F, 0);
+                pose.scale(scale, scale, scale);
+            } else if (FlatItems.isLump(s)) {
+                float scale = 0.8F;
+                pose.translate(0, 0.01 + scale / 16.0F, 0);
+                pose.scale(scale, scale, scale);
+            } else if (s.getItem() instanceof BlockItem) {
                 pose.translate(0, 0.1, 0);
                 pose.scale(0.3F, 0.3F, 0.3F);
             } else {
@@ -79,12 +90,7 @@ public class CraftingForgeRenderer implements BlockEntityRenderer<CraftingForgeB
         }
         if (FloatingText.focused(f.getBlockPos(), 1.0)) {
             float sc = FloatingText.labelScale(f.getBlockPos());
-            double gap = FloatingText.LINE * sc / FloatingText.SMALL;
-            double y = 1.2 + gap * (c.lines.size() - 1);
-            for (Component line : c.lines) {
-                FloatingText.draw(pose, buffers, line, 0.5, y, 0.5, sc, light);
-                y -= gap;
-            }
+            FloatingText.drawLines(pose, buffers, c.lines, 0.5, 1.2, 0.5, sc, light);
         }
     }
 

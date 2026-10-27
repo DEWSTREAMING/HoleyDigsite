@@ -77,16 +77,17 @@ HOME_ROWS = {   # row name -> items in slot order (None = empty display, kept fo
                  'holeydigsite:gem_cutter', 'holeydigsite:down_incline_belt', 'holeydigsite:drop_chute'],
     'forge':    ['minecraft:lava_bucket', 'holeydigsite:lava_intake', 'holeydigsite:lava_pipe', 'holeydigsite:forge',
                  'holeydigsite:crucible', 'holeydigsite:mold'],
-    'crafting': ['minecraft:bread', 'holeydigsite:smithing_anvil', 'holeydigsite:crafting_forge', 'holeydigsite:blacksmith_hammer', 'holeydigsite:prospectors_ledger'],
+    'crafting': ['minecraft:bread', 'holeydigsite:smithing_anvil', 'holeydigsite:crafting_forge', 'holeydigsite:blacksmith_hammer', 'holeydigsite:prospectors_ledger', 'holeydigsite:skin_bench'],
     'land':     ['holeydigsite:land_deed_deep_dig', 'holeydigsite:land_deed_gravel_flats', 'holeydigsite:land_deed_sand_dunes'],
+    'crates':   ['holeydigsite:wooden_crate', 'holeydigsite:iron_crate', 'holeydigsite:gold_crate'],
 }
 KIOSK_ITEMS = {
     'deep_dig': ['holeydigsite:dirt_clump', 'holeydigsite:mining_drill', 'holeydigsite:miners_lantern', 'holeydigsite:water_intake',
                  'holeydigsite:water_pipe', 'holeydigsite:clump_belt', 'holeydigsite:prospectors_pick'],
     'gravel_flats': ['holeydigsite:gravel_clump', 'holeydigsite:sluice_box', 'holeydigsite:river_stone_lamp', 'holeydigsite:water_intake',
-                     'holeydigsite:water_pipe', 'holeydigsite:clump_belt', 'holeydigsite:riffle_insert'],
+                     'holeydigsite:water_pipe', 'holeydigsite:clump_belt', 'holeydigsite:riffle_insert', 'holeydigsite:gravel_head'],
     'sand_dunes': ['holeydigsite:sand_clump', 'holeydigsite:sluice_box', 'holeydigsite:sandstone_lamp', 'holeydigsite:water_intake',
-                   'holeydigsite:water_pipe', 'holeydigsite:clump_belt', 'holeydigsite:fine_mesh_screen'],
+                   'holeydigsite:water_pipe', 'holeydigsite:clump_belt', 'holeydigsite:fine_mesh_screen', 'holeydigsite:sand_head'],
 }
 
 
@@ -333,7 +334,7 @@ def stamp(local, size, anchor, facing):
 FENCE_LIKE = ('_fence', 'glass_pane', 'iron_bars', '_wall')
 NOT_FULL = ('stairs', 'slab', 'lantern', 'sign', 'water', 'light', 'leaves', 'fence', 'pane', 'bars', 'torch', 'ladder', 'rail',
             'chain', 'flower', 'poppy', 'dandelion', 'cornflower', 'daisy', 'bluet', 'tulip', 'allium', 'short_grass', 'fern', 'bush', 'cane', 'cocoa', 'carpet',
-            'scaffolding', 'shop_display', 'pad', 'button', 'money_pan', 'plot_board', 'trapdoor', 'door', 'campfire', 'barrel_x',
+            'scaffolding', 'shop_display', 'contract_board', 'pad', 'button', 'money_pan', 'plot_board', 'trapdoor', 'door', 'campfire', 'barrel_x',
             'flower_pot', 'lily', 'kelp', 'seagrass', 'cactus', 'bell', 'azalea', 'wall', 'site_marker', 'pointed', 'anvil', 'hay_x',
             'cauldron', 'grindstone', 'composter_x')
 
@@ -916,6 +917,13 @@ def build_store():
     # Phase 21i: extra belt displays on Belts island
     disp(14, 12, cx, 'belts')
     disp(16, 12, cx, 'belts')
+    # Phase 22: Skin Bench on Crafting counter
+    disp(22, 7, cz, 'crafting')
+    # Mining Crates in the gaps of the Crafting counter (the counter is already there in old worlds)
+    for lz in (9, 11, 13):
+        disp(22, lz, cz, 'crates')
+    # Contract Board on the west wall, right of the door (old worlds get it placed into air on load)
+    L(6, FL + 2, 12, 'holeydigsite:contract_board{facing:east}')
     # ---- outside: yard, wood pile, cart wheel, lantern posts, flower beds
     for lx in range(X0 + 1, X1, 3):
         pass
@@ -1530,7 +1538,7 @@ def build_kiosk(pid):
             K(kx, 3, kz, t['wood'])
     # displays: back counter (kz 5) + the side counters (kx 1 and 5)
     slots = []
-    for (kx, kz) in ((2, 5), (4, 5), (1, 4), (5, 4), (1, 2), (5, 2), (3, 5)):
+    for (kx, kz) in ((2, 5), (4, 5), (1, 4), (5, 4), (1, 2), (5, 2), (3, 5), (1, 3)):
         K(kx, 3, kz, t['counter'])
         slots.append((kx, kz))
     for kx in range(1, 6):

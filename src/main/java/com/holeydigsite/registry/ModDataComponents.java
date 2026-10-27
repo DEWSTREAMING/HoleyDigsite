@@ -71,4 +71,32 @@ public final class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("weight", builder -> builder
                     .persistent(Codec.intRange(1, 1_000_000))
                     .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    /**
+     * {@code holeydigsite:skin}, the skin id applied to a machine item (e.g. "rustic", "obsidian"), see {@link com.holeydigsite.skin.SkinDefs}.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> SKIN =
+            DATA_COMPONENTS.registerComponentType("skin", builder -> builder
+                    .persistent(Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
+    /** {@code holeydigsite:skin_family}, the machine family a Skin Kit fits ("mining_drill" or "sluice_box"). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> SKIN_FAMILY =
+            DATA_COMPONENTS.registerComponentType("skin_family", builder -> builder
+                    .persistent(Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
+    /** {@code holeydigsite:skin_wear}, the wear of the skin on a machine item; absent means Fresh from the Forge. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> SKIN_WEAR =
+            DATA_COMPONENTS.registerComponentType("skin_wear", builder -> builder
+                    .persistent(Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
+    /**
+     * {@code holeydigsite:pick_head}, the head fitted onto a Prospector's Pick as an {@link Item}, see {@link com.holeydigsite.item.ProspectorPickItem}.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Item>> PICK_HEAD =
+            DATA_COMPONENTS.registerComponentType("pick_head", builder -> builder
+                    .persistent(net.minecraft.core.registries.BuiltInRegistries.ITEM.byNameCodec())
+                    .networkSynchronized(ByteBufCodecs.registry(Registries.ITEM)));
 }

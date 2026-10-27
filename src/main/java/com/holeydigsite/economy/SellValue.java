@@ -25,6 +25,11 @@ public record SellValue(double copperPerGram, Optional<Double> ingotCopperPerGra
         return ingot ? ingotCopperPerGram.orElse(copperPerGram) : copperPerGram;
     }
 
+    /** What an uncut gem sells for compared with the cut one, as a fraction. */
+    public double uncutRatio() {
+        return copperPerGram <= 0 ? 1.0 : perGram(ResourceInfo.UNCUT) / copperPerGram;
+    }
+
     /** Price per gram for an item of this {@link ResourceInfo#form() form} (raw, ingot or uncut). */
     public double perGram(String form) {
         if (ResourceInfo.UNCUT.equals(form)) {

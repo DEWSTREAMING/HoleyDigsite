@@ -48,6 +48,58 @@ public class SluiceBoxBlockEntity extends BlockEntity {
 
     private int progress;
     private final List<ItemStack> tray = new ArrayList<>();
+    private String skin = "";
+    /** Wear of the applied skin, empty for Fresh. */
+    private String wear = "";
+
+    public String getSkin() { return skin; }
+
+    public String getWear() { return wear; }
+
+    public String getSkinKey() { return com.holeydigsite.skin.SkinWear.textureKey(skin, wear); }
+
+    public void setSkin(String skin) {
+        setSkin(skin, "");
+    }
+
+    public void setSkin(String skin, String wear) {
+        this.skin = skin == null ? "" : skin;
+        this.wear = wear == null || com.holeydigsite.skin.SkinWear.isFresh(wear) ? "" : wear;
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            requestModelDataUpdate();
+        }
+    }
+
+    @Override
+    public net.neoforged.neoforge.client.model.data.ModelData getModelData() {
+        return net.neoforged.neoforge.client.model.data.ModelData.builder()
+                .with(com.holeydigsite.skin.SkinModelProperties.SKIN, getSkinKey())
+                .build();
+    }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        String s = input.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (s != null) {
+            this.skin = s;
+            String w = input.get(com.holeydigsite.registry.ModDataComponents.SKIN_WEAR.get());
+            this.wear = w == null ? "" : w;
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(net.minecraft.core.component.DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        if (!skin.isEmpty() && !skin.equals("default")) {
+            builder.set(com.holeydigsite.registry.ModDataComponents.SKIN.get(), skin);
+            if (!wear.isEmpty()) {
+                builder.set(com.holeydigsite.registry.ModDataComponents.SKIN_WEAR.get(), wear);
+            }
+        }
+    }
     @Nullable
     private java.util.UUID owner;
     @Nullable
@@ -306,6 +358,8 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         tag.putBoolean("WaterPowered", waterPowered);
         tag.putInt("Progress", progress);
         if (owner != null) tag.putUUID("Owner", owner);
+        if (!skin.isEmpty()) tag.putString("Skin", skin);
+        if (!skin.isEmpty() && !wear.isEmpty()) tag.putString("SkinWear", wear);
         writeContents(tag, registries);
     }
 
@@ -340,12 +394,16 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         for (Tag t : tag.getList("Tray", Tag.TAG_COMPOUND)) {
             ItemStack.parse(registries, t).ifPresent(tray::add);
         }
+        skin = tag.getString("Skin");
+        wear = tag.getString("SkinWear");
     }
 
     /** Clients get the queue and the tray for the renderer, rather than power or progress. */
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
+        if (!skin.isEmpty()) tag.putString("Skin", skin);
+        if (!skin.isEmpty() && !wear.isEmpty()) tag.putString("SkinWear", wear);
         writeContents(tag, registries);
         return tag;
     }

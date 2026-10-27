@@ -1,0 +1,18 @@
+{
+  "order": 42,
+  "category": "tools",
+  "metals": {
+    "holeydigsite:orchremia": 600,
+    "holeydigsite:silvane": 120
+  },
+  "parts": [
+    {
+      "item": "holeydigsite:prospectors_pick",
+      "count": 1
+    }
+  ],
+  "result": {
+    "item": "holeydigsite:assayers_pick",
+    "count": 1
+  }
+}

@@ -59,6 +59,9 @@ public final class ModCreativeTabs {
                             output.accept(ModItems.COPPER_COIN.get());
                             output.accept(ModItems.SILVER_COIN.get());
                             output.accept(ModItems.GOLD_COIN.get());
+                            output.accept(ModItems.PLATINUM_COIN.get());
+                            output.accept(ModItems.RUBY_CROWN.get());
+                            output.accept(ModItems.MINT_BAR.get());
                             // Drilling and water power
                             output.accept(ModItems.DIRT_CLUMP.get());
                         }));
@@ -149,6 +152,9 @@ public final class ModCreativeTabs {
                         slots.add(new Slot(760, () -> {
                             // Plot exclusive kiosk items
                             output.accept(ModItems.PROSPECTORS_PICK.get());
+                            output.accept(ModItems.GRAVEL_HEAD.get());
+                            output.accept(ModItems.SAND_HEAD.get());
+                            output.accept(ModItems.ASSAYERS_PICK.get());
                             output.accept(ModItems.RIFFLE_INSERT.get());
                             output.accept(ModItems.FINE_MESH_SCREEN.get());
                             output.accept(ModItems.MINERS_LANTERN.get());
@@ -186,6 +192,8 @@ public final class ModCreativeTabs {
                             output.accept(com.holeydigsite.smith.SmithPieces.create(ModItems.SMITH_SWORD.get(),
                                     new com.holeydigsite.smith.SmithData(java.util.List.of(ing.apply("silvane", 200), ing.apply("silvane", 200), ing.apply("goldchro", 200)), none), reg));
                         }));
+                        slots.add(new Slot(768, () -> output.accept(ModItems.SKIN_BENCH.get())));
+                        slots.add(new Slot(769, () -> output.accept(ModItems.CONTRACT_BOARD.get())));
                         slots.add(new Slot(770, () -> {
                             for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.UNCUT_RUBY_SMALL, ModItems.UNCUT_RUBY_MEDIUM,
                                     ModItems.UNCUT_RUBY_LARGE, ModItems.UNCUT_SAPPHIRE_SMALL, ModItems.UNCUT_SAPPHIRE_MEDIUM, ModItems.UNCUT_SAPPHIRE_LARGE,
@@ -198,6 +206,20 @@ public final class ModCreativeTabs {
                             for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.CLAIM_FLAG, ModItems.ORE_CART,
                                     ModItems.TOOL_RACK, ModItems.LUCKY_LANTERN, ModItems.GEM_DISPLAY_CASE, ModItems.GOLDEN_PAN_TROPHY}) {
                                 output.accept(it.get());
+                            }
+                        }));
+                        slots.add(new Slot(776, () -> {
+                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.WOODEN_CRATE, ModItems.IRON_CRATE,
+                                    ModItems.GOLD_CRATE, ModItems.SKIN_SCRAP, ModItems.MINERS_HELMET_STAND, ModItems.RUSTY_MINE_BELL,
+                                    ModItems.SLUICE_MODEL, ModItems.GOLDEN_DRILL_STATUE}) {
+                                output.accept(it.get());
+                            }
+                        }));
+                        slots.add(new Slot(777, () -> {
+                            for (String skin : com.holeydigsite.skin.SkinDefs.skins().keySet()) {
+                                for (String family : com.holeydigsite.skin.SkinDefs.familiesOf(skin)) {
+                                    output.accept(com.holeydigsite.skin.SkinKitItem.of(skin, family, com.holeydigsite.skin.SkinWear.FRESH, 1));
+                                }
                             }
                         }));
                         for (TierFamily family : Tiers.families()) {

@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    },
+    {
+      "item": "holeydigsite:ruby_crown"
+    }
+  ],
+  "result": {
+    "id": "holeydigsite:mint_bar",
+    "count": 1
+  }
+}

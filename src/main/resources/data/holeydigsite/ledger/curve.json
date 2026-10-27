@@ -20,6 +20,7 @@
     "smith_renown": 5,
     "smith_cap": 1000,
     "sell_copper_per_renown": 500,
-    "sell_cap": 2000
+    "sell_cap": 2000,
+    "contract_cap": 400
   }
 }

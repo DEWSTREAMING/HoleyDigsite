@@ -68,6 +68,7 @@ public final class LedgerManager {
         } else if (!data.starterBedGiven()) {
             checkStarterBed(sp, data);
         }
+        com.holeydigsite.skin.SkinKitMigration.run(sp);
         sp.refreshDisplayName();
         LedgerNetwork.syncToClient(sp);
     }
@@ -339,6 +340,13 @@ public final class LedgerManager {
             } else if (r.blueprint().isPresent()) {
                 ItemStack bp = BlueprintItem.of(BuiltInRegistries.ITEM.get(r.blueprint().get()));
                 giveCountOrDrop(sp, bp, r.count());
+            } else if (r.skin().isPresent()) {
+                // Ledger skins are the drill kit, Fresh from the Forge
+                ItemStack kit = com.holeydigsite.skin.SkinKitItem.of(r.skin().get(), com.holeydigsite.skin.SkinDefs.DRILL,
+                        com.holeydigsite.skin.SkinWear.FRESH, Math.max(1, r.count()));
+                giveOrDrop(sp, kit.copy());
+                sp.displayClientMessage(Component.translatable("message.holeydigsite.skin.kit_reward", kit.getHoverName())
+                        .withStyle(ChatFormatting.GOLD), true);
             }
         }
 
@@ -432,6 +440,9 @@ public final class LedgerManager {
         if (r.blueprint().isPresent()) {
             Optional<Item> opt = BuiltInRegistries.ITEM.getOptional(r.blueprint().get());
             return opt.isPresent() && opt.get() != Items.AIR && ShopCatalogue.find(registries, opt.get()).isPresent();
+        }
+        if (r.skin().isPresent()) {
+            return com.holeydigsite.skin.SkinDefs.hasSkin(r.skin().get());
         }
         return false;
     }

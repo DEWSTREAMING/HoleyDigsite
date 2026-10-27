@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/contract_board"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/contract_board",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/contract_board",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/contract_board",
+      "y": 270
+    }
+  }
+}

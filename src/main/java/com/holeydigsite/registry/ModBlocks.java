@@ -178,6 +178,22 @@ public final class ModBlocks {
                     .noOcclusion()
                     .pushReaction(PushReaction.BLOCK)));
 
+    /** {@code holeydigsite:skin_bench} for previewing and applying unlocked machine skins. */
+    public static final DeferredBlock<com.holeydigsite.skin.SkinBenchBlock> SKIN_BENCH = BLOCKS.register("skin_bench",
+            () -> new com.holeydigsite.skin.SkinBenchBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(2.0F, 5.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
+    /** {@code holeydigsite:contract_board}, the wall board that shows a player's contracts. */
+    public static final DeferredBlock<com.holeydigsite.contract.ContractBoardBlock> CONTRACT_BOARD = BLOCKS.register("contract_board",
+            () -> new com.holeydigsite.contract.ContractBoardBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(2.0F, 5.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
     /** {@code holeydigsite:mining_drill_t2} as a Tier 2 Mining Drill. */
     public static final DeferredBlock<MiningDrillBlock> MINING_DRILL_T2 = Tiers.block("mining_drill_t2");
 
@@ -258,6 +274,32 @@ public final class ModBlocks {
     /** {@code holeydigsite:golden_pan_trophy} as a golden pan on a plinth. */
     public static final DeferredBlock<com.holeydigsite.block.DecorBlock> GOLDEN_PAN_TROPHY = BLOCKS.register("golden_pan_trophy",
             () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.GOLD, SoundType.METAL), com.holeydigsite.block.DecorBlock.Kind.GOLDEN_PAN_TROPHY));
+
+    /** {@code holeydigsite:miners_helmet_stand}, crate-only decor: a post with a miner's helmet. */
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> MINERS_HELMET_STAND = BLOCKS.register("miners_helmet_stand",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.WOOD, SoundType.WOOD).lightLevel(s -> 7),
+                    com.holeydigsite.block.DecorBlock.Kind.MINERS_HELMET_STAND));
+    /** {@code holeydigsite:rusty_mine_bell}, crate-only decor: an old bell in a timber frame. */
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> RUSTY_MINE_BELL = BLOCKS.register("rusty_mine_bell",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.COLOR_ORANGE, SoundType.METAL), com.holeydigsite.block.DecorBlock.Kind.RUSTY_MINE_BELL));
+    /** {@code holeydigsite:sluice_model}, crate-only decor: a small sluice box on a stand. */
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> SLUICE_MODEL = BLOCKS.register("sluice_model",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.WOOD, SoundType.WOOD), com.holeydigsite.block.DecorBlock.Kind.SLUICE_MODEL));
+    /** {@code holeydigsite:golden_drill_statue}, crate-only decor: a gold drill on a plinth. */
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> GOLDEN_DRILL_STATUE = BLOCKS.register("golden_drill_statue",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.GOLD, SoundType.METAL), com.holeydigsite.block.DecorBlock.Kind.GOLDEN_DRILL_STATUE));
+
+    private static BlockBehaviour.Properties crate(MapColor color, SoundType sound, float strength) {
+        return BlockBehaviour.Properties.of().mapColor(color).strength(strength, 3.0F).sound(sound).noOcclusion();
+    }
+
+    /** {@code holeydigsite:wooden_crate}, a Mining Crate: place it and right-click to open. */
+    public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> WOODEN_CRATE = BLOCKS.register("wooden_crate",
+            () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.WOOD, SoundType.WOOD, 1.0F), "wooden_crate"));
+    public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> IRON_CRATE = BLOCKS.register("iron_crate",
+            () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.METAL, SoundType.WOOD, 1.5F), "iron_crate"));
+    public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> GOLD_CRATE = BLOCKS.register("gold_crate",
+            () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.GOLD, SoundType.WOOD, 1.5F), "gold_crate"));
 
     /** {@code holeydigsite:plot_board} for land plot status. */
     public static final DeferredBlock<com.holeydigsite.plot.PlotBoardBlock> PLOT_BOARD = BLOCKS.register("plot_board",

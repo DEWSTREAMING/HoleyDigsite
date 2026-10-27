@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "holeydigsite:mint_bar"
+    }
+  ],
+  "result": {
+    "id": "holeydigsite:ruby_crown",
+    "count": 8
+  }
+}

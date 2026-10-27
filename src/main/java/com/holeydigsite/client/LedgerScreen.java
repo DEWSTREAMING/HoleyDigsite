@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -363,12 +364,15 @@ public class LedgerScreen extends Screen {
                 if (opt.isPresent() && opt.get() != Items.AIR) {
                     out.add(BlueprintItem.of(opt.get(), r.count()));
                 }
+            } else if (r.skin().isPresent()) {
+                out.add(com.holeydigsite.skin.SkinKitItem.of(r.skin().get(), com.holeydigsite.skin.SkinDefs.DRILL,
+                        com.holeydigsite.skin.SkinWear.FRESH, Math.min(64, Math.max(1, r.count()))));
             }
         }
         if (def.coins().isPresent()) {
             int copper = curve.coinCopper(def.coins().get());
-            int gold = copper / Selling.GOLD;
-            out.add(new ItemStack(ModItems.GOLD_COIN.get(), Math.max(1, Math.min(64, gold))));
+            List<ItemStack> coins = Selling.coins(copper);
+            out.add(coins.isEmpty() ? new ItemStack(ModItems.COPPER_COIN.get()) : coins.get(0).copy());
         }
         return out;
     }
@@ -392,6 +396,9 @@ public class LedgerScreen extends Screen {
             } else if (r.blueprint().isPresent()) {
                 Optional<Item> opt = BuiltInRegistries.ITEM.getOptional(r.blueprint().get());
                 opt.ifPresent(item -> parts.add(BlueprintItem.of(item).getHoverName().getString()));
+            } else if (r.skin().isPresent()) {
+                parts.add(com.holeydigsite.skin.SkinKitItem.of(r.skin().get(), com.holeydigsite.skin.SkinDefs.DRILL,
+                        com.holeydigsite.skin.SkinWear.FRESH, 1).getHoverName().getString());
             }
         }
         def.coins().ifPresent(c -> parts.add("+" + Selling.format(curve.coinCopper(c)).getString()));
@@ -502,6 +509,8 @@ public class LedgerScreen extends Screen {
                 data.harvestRenown(), curve.harvest().cap(), data.smithRenown(), curve.smith().cap())));
         rows.add(new MilestoneRow(null, null, Component.translatable("screen.holeydigsite.ledger.ongoing.sell",
                 data.sellRenown(), curve.sell().cap(), Selling.format(data.lifetimeCopper()))));
+        rows.add(new MilestoneRow(null, null, Component.translatable("screen.holeydigsite.ledger.ongoing.contract",
+                data.contractRenown(), curve.contract().cap(), data.contracts().completed())));
         return rows;
     }
 
@@ -510,7 +519,7 @@ public class LedgerScreen extends Screen {
     /** Gets the title ID for a given row index. */
     private static String titleAtRow(int row) {
         if (row == 0) return "";
-        List<String> titles = LedgerDefs.titles();
+        List<String> titles = LedgerDefs.allTitles();
         return row - 1 < titles.size() ? titles.get(row - 1) : null;
     }
 
@@ -526,7 +535,7 @@ public class LedgerScreen extends Screen {
     }
 
     private void renderTitlesTab(GuiGraphics g, LedgerData data, int listX, int listY, int listW, int listH, int mouseX, int mouseY) {
-        int rows = 1 + LedgerDefs.titles().size();
+        int rows = 1 + LedgerDefs.allTitles().size();
         int totalH = rows * TITLE_ROW_H;
         int maxScroll = Math.max(0, totalH - listH);
         scrollTitles = Mth.clamp(scrollTitles, 0, maxScroll);
@@ -556,6 +565,10 @@ public class LedgerScreen extends Screen {
                 hint = Component.translatable("screen.holeydigsite.ledger.title_none.hint");
             } else if (unlocked) {
                 hint = Component.translatable("screen.holeydigsite.ledger.title_hint", name);
+            } else if (LedgerDefs.isCrateTitle(id)) {
+                hint = Component.translatable("screen.holeydigsite.ledger.title_crate");
+            } else if (LedgerDefs.isContractTitle(id)) {
+                hint = Component.translatable("screen.holeydigsite.ledger.title_contract");
             } else {
                 int lvl = levelOfTitle(id);
                 hint = Component.translatable("screen.holeydigsite.ledger.title_locked", lvl);

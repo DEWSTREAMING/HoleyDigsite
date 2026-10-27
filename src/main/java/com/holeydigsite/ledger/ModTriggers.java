@@ -46,6 +46,8 @@ public final class ModTriggers {
             TRIGGERS.register("line_running", LineRunningTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, WearingTrigger> WEARING =
             TRIGGERS.register("wearing", WearingTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, ContractsDoneTrigger> CONTRACTS_DONE =
+            TRIGGERS.register("contracts_done", ContractsDoneTrigger::new);
 
     // holeydigsite:panned
     public static final class PannedTrigger extends SimpleCriterionTrigger<PannedTrigger.Instance> {
@@ -299,6 +301,27 @@ public final class ModTriggers {
             public static final Codec<Instance> CODEC = RecordCodecBuilder.create(i -> i.group(
                     EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(Instance::player),
                     Codec.STRING.optionalFieldOf("slot").forGetter(Instance::slot)
+            ).apply(i, Instance::new));
+        }
+    }
+
+    // holeydigsite:contracts_done
+    public static final class ContractsDoneTrigger extends SimpleCriterionTrigger<ContractsDoneTrigger.Instance> {
+        @Override
+        public Codec<Instance> codec() { return Instance.CODEC; }
+
+        public void trigger(ServerPlayer player, int total) {
+            this.trigger(player, inst -> total >= inst.min);
+            if (total >= 1) LedgerManager.grantMilestone(player, HoleyDigsite.id("first_contract"));
+            if (total >= 10) LedgerManager.grantMilestone(player, HoleyDigsite.id("ten_contracts"));
+            if (total >= 50) LedgerManager.grantMilestone(player, HoleyDigsite.id("fifty_contracts"));
+        }
+
+        public record Instance(Optional<ContextAwarePredicate> player, int min)
+                implements SimpleCriterionTrigger.SimpleInstance {
+            public static final Codec<Instance> CODEC = RecordCodecBuilder.create(i -> i.group(
+                    EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(Instance::player),
+                    Codec.INT.fieldOf("min").forGetter(Instance::min)
             ).apply(i, Instance::new));
         }
     }

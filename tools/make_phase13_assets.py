@@ -170,9 +170,10 @@ def hot_forge():
         h = heat(img, lit)
         if n in ('forge_side', 'forge_front', 'forge_front_lit', 'forge_back'):   # brass bands top and bottom
             w, hh = h.size
-            for x in range(w):
-                for y, c in ((0, 2), (1, 1), (hh - 2, 1), (hh - 1, 0)):
-                    h.putpixel((x, y), GOLD[c])
+            for top in range(0, hh, w):   # every frame of an animated strip gets its own bands
+                for x in range(w):
+                    for y, c in ((0, 2), (1, 1), (w - 2, 1), (w - 1, 0)):
+                        h.putpixel((x, top + y), GOLD[c])
         save(h, TB, 'hot_' + n + '.png')
     meta = os.path.join(TB, 'forge_front_lit.png.mcmeta')
     open(os.path.join(TB, 'hot_forge_front_lit.png.mcmeta'), 'w').write(open(meta).read())

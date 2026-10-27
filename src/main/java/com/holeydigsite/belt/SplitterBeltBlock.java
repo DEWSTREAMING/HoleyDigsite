@@ -18,17 +18,17 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * Phase 13 Belt Splitter: a full-height, water-powered belt block that shares one line between up to three outputs.
+ * Belt Splitter: a full-height, water-powered belt block that shares one line between up to three outputs.
  *
- * <ul>
- *   <li>Items enter from the back (or a side, like any belt) and stop in the middle, where the splitter picks an output
- *       ROUND-ROBIN: left, front, right, left, ... An output is only used if something that takes the item is there (a
- *       belt with room at that entry, a Crucible with room, a Crafting Forge, a Sell Pad, a Gem Cutter...). An output that
- *       is missing or refuses right now is skipped and the next one is tried; if all of them refuse, the item waits.</li>
- *   <li>Mode ({@link #TWO_WAY}): empty-hand right-click on the TOP toggles between 3-way (left / front / right) and 2-way
- *       (left / right only; the front stays closed). Empty-hand clicks on the sides still take the items off.</li>
- *   <li>Left and right items leave at the middle (like the Filter Belt's side exit); front items carry on to the end.</li>
- * </ul>
+ * Items enter from the back (or a side, like any belt) and stop in the middle, where the splitter picks an output
+ * ROUND-ROBIN: left, front, right, left, ... An output is only used if something that takes the item is there (a
+ * belt with room at that entry, a Crucible with room, a Crafting Forge, a Sell Pad, a Gem Cutter...). An output that
+ * is missing or refuses right now is skipped and the next one is tried; if all of them refuse, the item waits.
+ *
+ * Mode ({@link #TWO_WAY}): empty-hand right-click on the TOP toggles between 3-way (left / front / right) and 2-way
+ * (left / right only; the front stays closed). Empty-hand clicks on the sides still take the items off.
+ *
+ * Left and right items leave at the middle (like the Filter Belt's side exit); front items carry on to the end.
  */
 public class SplitterBeltBlock extends ClumpBeltBlock {
     public static final MapCodec<SplitterBeltBlock> CODEC = simpleCodec(SplitterBeltBlock::new);

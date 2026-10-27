@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "holeydigsite:item/chunk_shape_large",
   "textures": {
-    "layer0": "holeydigsite:item/silvane_chunk_large"
+    "t": "holeydigsite:item/chunk/silvane"
   }
 }

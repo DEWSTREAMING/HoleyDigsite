@@ -214,9 +214,28 @@ public final class Panning {
         if (rare) {
             level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 0.6F, 1.5F);
         }
+        panCrateFind(level, pos, player);
 
         if (newFill <= 0) {
             player.releaseUsingItem();
+        }
+    }
+
+    private static long crateFindRolls;
+
+    /** How many hand-pan scoops rolled for a crate find since the server started (for tests). */
+    public static long crateFindRolls() {
+        return crateFindRolls;
+    }
+
+    /** Very rare crate finds, from hand panning only (sluices and drills never call this). */
+    static void panCrateFind(ServerLevel level, BlockPos pos, Player player) {
+        crateFindRolls++;
+        ItemStack crate = com.holeydigsite.crate.CrateRolls.panFind(level.random);
+        if (!crate.isEmpty()) {
+            popOut(level, pos, crate, player);
+            player.displayClientMessage(Component.translatable("message.holeydigsite.crate.found"), true);
+            level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 0.8F, 1.2F);
         }
     }
 

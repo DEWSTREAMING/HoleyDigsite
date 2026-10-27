@@ -50,6 +50,15 @@ public final class ModItems {
     public static final DeferredItem<CoinItem> GOLD_COIN = ITEMS.register("gold_coin",
             () -> new CoinItem(CoinItem.GOLD_VALUE, new Item.Properties().rarity(Rarity.UNCOMMON)));
 
+    public static final DeferredItem<CoinItem> PLATINUM_COIN = ITEMS.register("platinum_coin",
+            () -> new CoinItem(CoinItem.PLATINUM_VALUE, new Item.Properties().rarity(Rarity.RARE)));
+
+    public static final DeferredItem<CoinItem> RUBY_CROWN = ITEMS.register("ruby_crown",
+            () -> new CoinItem(CoinItem.CROWN_VALUE, new Item.Properties().rarity(Rarity.EPIC)));
+
+    public static final DeferredItem<CoinItem> MINT_BAR = ITEMS.register("mint_bar",
+            () -> new CoinItem(CoinItem.BAR_VALUE, new Item.Properties().rarity(Rarity.EPIC)));
+
     // Drilling and water power.
 
     /**
@@ -142,6 +151,15 @@ public final class ModItems {
     /** {@code holeydigsite:prospectors_pick} for Deep Dig, finds buried Deep and Abyssal Dirtrock nearby. */
     public static final DeferredItem<com.holeydigsite.item.ProspectorPickItem> PROSPECTORS_PICK = ITEMS.register("prospectors_pick",
             () -> new com.holeydigsite.item.ProspectorPickItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)));
+    /** {@code holeydigsite:sand_head} for Prospector's Pick, sold at Sand Dunes kiosk. */
+    public static final DeferredItem<com.holeydigsite.item.PickHeadItem> SAND_HEAD = ITEMS.register("sand_head",
+            () -> new com.holeydigsite.item.PickHeadItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), com.holeydigsite.tier.DirtTier.SAND));
+    /** {@code holeydigsite:gravel_head} for Prospector's Pick, sold at Gravel Flats kiosk. */
+    public static final DeferredItem<com.holeydigsite.item.PickHeadItem> GRAVEL_HEAD = ITEMS.register("gravel_head",
+            () -> new com.holeydigsite.item.PickHeadItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON), com.holeydigsite.tier.DirtTier.GRAVEL));
+    /** {@code holeydigsite:assayers_pick} Tier 2 pick crafted in Crafting Forge. */
+    public static final DeferredItem<com.holeydigsite.item.AssayersPickItem> ASSAYERS_PICK = ITEMS.register("assayers_pick",
+            () -> new com.holeydigsite.item.AssayersPickItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)));
     /** {@code holeydigsite:riffle_insert} for Gravel Flats as a sluice upgrade giving plus 25 percent from gravel clumps. */
     public static final DeferredItem<com.holeydigsite.item.SluiceUpgradeItem> RIFFLE_INSERT = ITEMS.register("riffle_insert",
             () -> new com.holeydigsite.item.SluiceUpgradeItem(com.holeydigsite.sluice.SluiceUpgrade.RIFFLE,
@@ -261,6 +279,8 @@ public final class ModItems {
     public static final DeferredItem<Item> UNCUT_TOPAZ_LARGE = ITEMS.registerSimpleItem("uncut_topaz_large", new Item.Properties().rarity(Rarity.UNCOMMON));
     // Smithing Anvil, Blacksmith Hammer, and the five smithed pieces with materials in the holeydigsite:smith component.
     public static final DeferredItem<BlockItem> SMITHING_ANVIL = ITEMS.registerSimpleBlockItem(ModBlocks.SMITHING_ANVIL);
+    public static final DeferredItem<BlockItem> SKIN_BENCH = ITEMS.registerSimpleBlockItem(ModBlocks.SKIN_BENCH);
+    public static final DeferredItem<BlockItem> CONTRACT_BOARD = ITEMS.registerSimpleBlockItem(ModBlocks.CONTRACT_BOARD);
     public static final DeferredItem<com.holeydigsite.smith.SmithItems.Hammer> BLACKSMITH_HAMMER = ITEMS.register("blacksmith_hammer",
             () -> new com.holeydigsite.smith.SmithItems.Hammer(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<com.holeydigsite.smith.SmithItems.Jewellery> SMITH_RING = ITEMS.register("smith_ring",
@@ -284,6 +304,21 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> LUCKY_LANTERN = ITEMS.registerSimpleBlockItem(ModBlocks.LUCKY_LANTERN);
     public static final DeferredItem<BlockItem> GEM_DISPLAY_CASE = ITEMS.registerSimpleBlockItem(ModBlocks.GEM_DISPLAY_CASE);
     public static final DeferredItem<BlockItem> GOLDEN_PAN_TROPHY = ITEMS.registerSimpleBlockItem(ModBlocks.GOLDEN_PAN_TROPHY);
+
+    // Mining Crates and what only they give
+    public static final DeferredItem<BlockItem> MINERS_HELMET_STAND = ITEMS.registerSimpleBlockItem(ModBlocks.MINERS_HELMET_STAND);
+    public static final DeferredItem<BlockItem> RUSTY_MINE_BELL = ITEMS.registerSimpleBlockItem(ModBlocks.RUSTY_MINE_BELL);
+    public static final DeferredItem<BlockItem> SLUICE_MODEL = ITEMS.registerSimpleBlockItem(ModBlocks.SLUICE_MODEL);
+    public static final DeferredItem<BlockItem> GOLDEN_DRILL_STATUE = ITEMS.registerSimpleBlockItem(ModBlocks.GOLDEN_DRILL_STATUE);
+    public static final DeferredItem<BlockItem> WOODEN_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.WOODEN_CRATE, new Item.Properties().stacksTo(16));
+    public static final DeferredItem<BlockItem> IRON_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.IRON_CRATE, new Item.Properties().stacksTo(16));
+    public static final DeferredItem<BlockItem> GOLD_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.GOLD_CRATE,
+            new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+    /** {@code holeydigsite:skin_scrap}, what a scrapped Skin Kit or a duplicate crate title turns into. Only sells at the Sell Pad. */
+    public static final DeferredItem<Item> SKIN_SCRAP = ITEMS.registerSimpleItem("skin_scrap");
+    /** {@code holeydigsite:skin_kit}, one machine skin as a tradeable item (skin, family and wear components). */
+    public static final DeferredItem<com.holeydigsite.skin.SkinKitItem> SKIN_KIT = ITEMS.register("skin_kit",
+            () -> new com.holeydigsite.skin.SkinKitItem(new Item.Properties()));
 
     // Prospector's Ledger.
     public static final DeferredItem<com.holeydigsite.ledger.ProspectorsLedgerItem> PROSPECTORS_LEDGER = ITEMS.register("prospectors_ledger",

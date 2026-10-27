@@ -265,6 +265,28 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         if (!level.isClientSide && placer instanceof net.minecraft.server.level.ServerPlayer sp && level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice) {
             sluice.setOwnerPlayer(sp);
         }
+        String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (skin != null && !skin.isEmpty() && level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice) {
+            sluice.setSkin(skin, com.holeydigsite.skin.SkinWear.of(stack));
+        }
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity be = params.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof SluiceBoxBlockEntity sluice) {
+            String skin = sluice.getSkin();
+            if (skin != null && !skin.isEmpty() && !skin.equals("default")) {
+                for (ItemStack drop : drops) {
+                    if (drop.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof SluiceBoxBlock) {
+                        drop.set(com.holeydigsite.registry.ModDataComponents.SKIN.get(), skin);
+                        com.holeydigsite.skin.SkinWear.set(drop, sluice.getWear());
+                    }
+                }
+            }
+        }
+        return drops;
     }
 
     @Override

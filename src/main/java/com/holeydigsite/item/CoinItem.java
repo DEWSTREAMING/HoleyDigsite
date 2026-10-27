@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * A coin worth a fixed number of copper coins. Coins exchange 8:1 in a crafting grid
- * (8 copper = 1 silver, 8 silver = 1 gold, and back) - see {@code data/holeydigsite/recipe/}.
+ * (8 copper = 1 silver, and so on up to the Mint Bar, and back) - see {@code data/holeydigsite/recipe/}.
  * Coins are the shop currency: Sell Pad sales are paid into a Money Pan, purchases are paid from it (see {@code shop/}).
  */
 public class CoinItem extends Item {
@@ -20,6 +20,9 @@ public class CoinItem extends Item {
     public static final int COPPER_VALUE = 1;
     public static final int SILVER_VALUE = COPPER_VALUE * EXCHANGE_RATE; // 8
     public static final int GOLD_VALUE = SILVER_VALUE * EXCHANGE_RATE;   // 64
+    public static final int PLATINUM_VALUE = GOLD_VALUE * EXCHANGE_RATE; // 512
+    public static final int CROWN_VALUE = PLATINUM_VALUE * EXCHANGE_RATE; // 4096
+    public static final int BAR_VALUE = CROWN_VALUE * EXCHANGE_RATE;     // 32768
 
     private final int value;
 

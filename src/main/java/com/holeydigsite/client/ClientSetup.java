@@ -12,7 +12,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import java.util.Map;
 
 /**
  * Registers item model properties used by overrides on the client.
@@ -55,6 +59,13 @@ public final class ClientSetup {
                     (stack, level, entity, seed) -> PanBlock.getTier(stack));
             ItemProperties.register(ModItems.DIRT_CLUMP.get(), HoleyDigsite.id("tier"),
                     (stack, level, entity, seed) -> DirtTier.ofClump(stack));
+            // Ingot size by weight (model overrides).
+            for (var item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+                if (item instanceof com.holeydigsite.item.IngotItem) {
+                    ItemProperties.register(item, HoleyDigsite.id("size"),
+                            (stack, level, entity, seed) -> com.holeydigsite.item.IngotItem.sizeStep(com.holeydigsite.item.IngotItem.grams(stack)));
+                }
+            }
             // Rings with a gem show the gem dot.
             ItemProperties.register(ModItems.SMITH_RING.get(), HoleyDigsite.id("gem"),
                     (stack, level, entity, seed) -> {
@@ -76,5 +87,36 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(ModBlockEntities.CRAFTING_FORGE.get(), CraftingForgeRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SMITHING_ANVIL.get(), SmithingAnvilRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PLOT_BOARD.get(), PlotBoardRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.SKIN_BENCH.get(), SkinBenchRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CONTRACT_BOARD.get(), ContractBoardRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerItemDecorations(net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent event) {
+        event.register(ModItems.SKIN_KIT.get(), SkinKitModel.DECORATOR);
+    }
+
+    @SubscribeEvent
+    public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
+        var models = event.getModels();
+        for (Map.Entry<ModelResourceLocation, BakedModel> entry : models.entrySet()) {
+            ModelResourceLocation key = entry.getKey();
+            if (HoleyDigsite.MODID.equals(key.id().getNamespace())) {
+                String path = key.id().getPath();
+                if (isSkinnableModel(path)) {
+                    entry.setValue(new SkinnedBakedModel(entry.getValue()));
+                } else if (path.equals("skin_kit") || path.equals("item/skin_kit")) {
+                    entry.setValue(new SkinKitModel(entry.getValue()));
+                }
+            }
+        }
+    }
+
+    private static boolean isSkinnableModel(String path) {
+        if (path.startsWith("sluice_upgrade") || path.startsWith("block/sluice_upgrade") || path.startsWith("item/sluice_upgrade")) {
+            return false;
+        }
+        return path.startsWith("mining_drill") || path.startsWith("block/mining_drill") || path.startsWith("item/mining_drill")
+                || path.startsWith("sluice_box") || path.startsWith("block/sluice_box") || path.startsWith("item/sluice_box");
     }
 }

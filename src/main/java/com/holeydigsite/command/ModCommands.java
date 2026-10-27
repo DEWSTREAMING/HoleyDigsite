@@ -5,6 +5,7 @@ import com.holeydigsite.ledger.LedgerCommands;
 import com.holeydigsite.plot.PlotCommands;
 import com.holeydigsite.site.SiteCommands;
 import com.holeydigsite.site.WorldCommands;
+import com.holeydigsite.skin.SkinCommands;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 
@@ -21,5 +22,8 @@ public final class ModCommands {
         PlotCommands.register(dispatcher);
         WorldCommands.register(dispatcher);
         com.holeydigsite.shop.custom.DisplayCommands.register(dispatcher);
+        SkinCommands.register(dispatcher);
+        com.holeydigsite.crate.CrateCommands.register(dispatcher);
+        com.holeydigsite.contract.ContractCommands.register(dispatcher);
     }
 }

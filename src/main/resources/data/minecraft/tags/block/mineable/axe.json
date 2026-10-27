@@ -7,6 +7,12 @@
     "holeydigsite:money_pan",
     "holeydigsite:shop_button",
     "holeydigsite:sluice_box_t2",
-    "holeydigsite:gem_cutter"
+    "holeydigsite:gem_cutter",
+    "holeydigsite:wooden_crate",
+    "holeydigsite:iron_crate",
+    "holeydigsite:gold_crate",
+    "holeydigsite:miners_helmet_stand",
+    "holeydigsite:sluice_model",
+    "holeydigsite:contract_board"
   ]
 }

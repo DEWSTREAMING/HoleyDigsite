@@ -75,18 +75,32 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
     public static final BooleanProperty CASTING = BooleanProperty.create("casting");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    /** Depth of the handle zone on the front, in pixels (the body starts behind it). */
+    /**
+     * Where the cast lever sits. FRONT: on the front face of the top section under the brim edge. SIDE: on the viewer's right
+     * face. CLASSIC: the first design, a handle standing on the front with the brim cut back. Keep in step with HANDLE in
+     * tools/make_phase10_assets.py.
+     */
+    public static final String HANDLE_FRONT = "front", HANDLE_SIDE = "side", HANDLE_CLASSIC = "classic";
+    public static final String HANDLE = HANDLE_FRONT;
+    /** Closed brim all round (front and side designs). */
+    public static final boolean SIDE_HANDLE = !HANDLE_CLASSIC.equals(HANDLE);
+
+    /** Depth of the handle zone on the front, in pixels (the body starts behind it). Front handle only. */
     public static final double HANDLE_DEPTH = 4.0;
 
     private static final VoxelShape[] SHAPES = new VoxelShape[4];
 
     static {
         for (Direction d : Direction.Plane.HORIZONTAL) {
-            SHAPES[d.get2DDataValue()] = Shapes.or(
-                    rotated(d, 1, 0, 3, 15, 4, 15),     // foot
-                    rotated(d, 3, 4, 4, 13, 10, 14),    // waist
-                    rotated(d, 0, 10, 3, 16, 16, 16),   // top with the basin
-                    rotated(d, 6, 4, 0, 10, 13, 4));    // cast handle (front)
+            SHAPES[d.get2DDataValue()] = SIDE_HANDLE ? Shapes.or(
+                    rotated(d, 1, 0, 1, 15, 4, 15),     // foot
+                    rotated(d, 4, 4, 3, 12, 10, 13),    // waist
+                    rotated(d, 0, 10, 0, 16, 16, 16))   // top with the basin (the lever hangs off its side face)
+                    : Shapes.or(
+                    rotated(d, 1, 0, 3, 15, 4, 15),
+                    rotated(d, 3, 4, 4, 13, 10, 14),
+                    rotated(d, 0, 10, 3, 16, 16, 16),
+                    rotated(d, 6, 4, 0, 10, 13, 4));   // cast handle (front)
         }
     }
 
@@ -236,9 +250,45 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
 
     // player
 
-    /** True if the hit is on the cast handle, the front {@link #HANDLE_DEPTH} pixels of the block. */
+    /** True if the hit is on the cast lever's own area (front or side face of the top section), or with the classic design the front {@link #HANDLE_DEPTH} pixels. */
     public static boolean isHandle(BlockState state, BlockPos pos, Vec3 hit) {
         Direction facing = state.getValue(FACING);
+        if (HANDLE_FRONT.equals(HANDLE)) {
+            double wx = hit.x - pos.getX(), wz = hit.z - pos.getZ();
+            // lateral position across the front, 0 at the viewer's left, and depth from the front face, in blocks
+            double lat = switch (facing) {
+                case NORTH -> wx;
+                case SOUTH -> 1 - wx;
+                case WEST -> wz;
+                default -> 1 - wz;
+            };
+            double depth = switch (facing) {
+                case NORTH -> wz;
+                case SOUTH -> 1 - wz;
+                case WEST -> wx;
+                default -> 1 - wx;
+            };
+            double y = hit.y - pos.getY();
+            return depth <= 1.0E-4 && lat > 5.0 / 16.0 && lat < 11.0 / 16.0 && y >= 10.5 / 16.0 && y < 14.5 / 16.0;
+        }
+        if (HANDLE_SIDE.equals(HANDLE)) {
+            // the hit in the frame of the north facing model, in blocks: lx 0 is the viewer's right edge, lz 0 the front
+            double wx = hit.x - pos.getX(), wz = hit.z - pos.getZ();
+            double lx = switch (facing) {
+                case NORTH -> wx;
+                case SOUTH -> 1 - wx;
+                case WEST -> 1 - wz;
+                default -> wz;
+            };
+            double lz = switch (facing) {
+                case NORTH -> wz;
+                case SOUTH -> 1 - wz;
+                case WEST -> wx;
+                default -> 1 - wx;
+            };
+            double y = hit.y - pos.getY();
+            return lx <= 1.0E-4 && lz > 5.0 / 16.0 && lz < 11.0 / 16.0 && y >= 10.5 / 16.0 && y < 14.5 / 16.0;
+        }
         double local = switch (facing) {
             case NORTH -> hit.z - pos.getZ();
             case SOUTH -> pos.getZ() + 1 - hit.z;

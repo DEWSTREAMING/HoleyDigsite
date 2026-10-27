@@ -1,0 +1,10 @@
+{
+  "slots": 3,
+  "days": 3,
+  "reward_step": 8,
+  "reward_min": 8,
+  "crates": [
+    { "min_reward": 3000, "wooden": 0.10, "iron": 0.0 },
+    { "min_reward": 7000, "wooden": 0.20, "iron": 0.03 }
+  ]
+}

@@ -10,7 +10,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 /**
- * Large Pan (Phase 10, Tier 2): holds {@value PanBlock#LARGE_MAX_FILL} scoops instead of 4. Everything else is the Pan:
+ * Large Pan (Tier 2): holds {@value PanBlock#LARGE_MAX_FILL} scoops instead of 4. Everything else is the Pan:
  * waterlogging, shovel / clumps / hoppers / drills / belts (bounce and void when full), one dirt tier at a time, hand
  * panning, instant pick-up that keeps fill and tier. Made in the Crafting Forge only.
  */

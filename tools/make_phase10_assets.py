@@ -277,34 +277,89 @@ def crafting_forge_textures():
     save(h, BLOCK, 'crafting_forge_handle')
 
 
+# "front": closed brim all round, lever on the front face of the top section below the brim edge.
+# "side": same brim, lever on the viewer's right face. "classic": the first design, a handle standing on the front with
+# the brim cut back. Keep in step with CraftingForgeBlock.HANDLE, then run python tools/make_phase10_assets.py crafting_forge
+HANDLE = "front"
+SIDE_HANDLE = HANDLE != "classic"
+
+
 def crafting_forge_models():
     tex = {"particle": "holeydigsite:block/crafting_forge_side", "side": "holeydigsite:block/crafting_forge_side",
            "front": "holeydigsite:block/crafting_forge_front"}
     for name, lit in (('crafting_forge', False), ('crafting_forge_lit', True)):
         t = dict(tex)
         t["top"] = "holeydigsite:block/" + ('crafting_forge_top_lit' if lit else 'crafting_forge_top')
-        top = box((0, 10, 3), (16, 16, 16), '#side', north='#front', up='#top')
+        if SIDE_HANDLE:
+            top = box((0, 10, 0), (16, 16, 16), '#side', north='#front', up='#top')
+            parts = [box((1, 0, 1), (15, 4, 15), '#side'), box((4, 4, 3), (12, 10, 13), '#side', north='#front'), top]
+        else:
+            top = box((0, 10, 3), (16, 16, 16), '#side', north='#front', up='#top')
+            parts = [box((1, 0, 3), (15, 4, 15), '#side'), box((3, 4, 4), (13, 10, 14), '#side', north='#front'), top]
         if lit:
             top['faces']['up']['neoforge_data'] = dict(GLOW)
-        block_model(name, t, [
-            box((1, 0, 3), (15, 4, 15), '#side'),
-            box((3, 4, 4), (13, 10, 14), '#side', north='#front'),
-            top,
-        ])
+        block_model(name, t, parts)
     ht = {"particle": "holeydigsite:block/crafting_forge_handle", "h": "holeydigsite:block/crafting_forge_handle",
           "side": "holeydigsite:block/crafting_forge_side"}
-    pivot = {"origin": [8, 5, 3], "axis": "x", "angle": 0}
+    if HANDLE == "front":
+        # lever on the front face of the top section (z = 0 of a north facing model), sticking out 4 px toward the player;
+        # the uvs are set by hand because the boxes lie outside 0..16
+        pivot = {"origin": [8, 12.75, -0.5], "axis": "x", "angle": 0}
 
-    def handle(angle):
-        rot = dict(pivot, angle=angle) if angle else None
-        return [
-            box((6, 4, 2), (10, 6, 4), '#side', rotation=rot),        # hinge block on the front
-            box((7.5, 5, 1.5), (8.5, 12, 2.5), '#h', rotation=rot),   # rod
-            box((6.5, 12, 1), (9.5, 13.5, 3), '#h', rotation=rot),    # red grip
-        ]
-    block_model('crafting_forge_handle', ht, handle(0))
-    # pulled: the grip swings DOWN towards the player (front = north = -z; a negative x angle tips the top north)
-    block_model('crafting_forge_handle_down', ht, handle(-45))
+        def lump(frm, to, tex, rot):
+            uv = [4, 1, 6, 3] if tex == '#h' else [4, 4, 6, 6]
+            el = {"from": list(frm), "to": list(to), "faces": {n: {"texture": tex, "uv": list(uv)}
+                                                             for n in ('north', 'south', 'east', 'west', 'up', 'down')}}
+            if rot:
+                el["rotation"] = rot
+            return el
+
+        def handle(angle):
+            rot = dict(pivot, angle=angle) if angle else None
+            return [
+                lump((6.5, 11.25, -1), (9.5, 14.25, 0), '#side', None),     # boss on the face
+                lump((7.5, 12.25, -2.5), (8.5, 13.25, -1), '#h', rot),      # arm
+                lump((7, 11.5, -4), (9, 14, -2.5), '#h', rot),              # red grip
+            ]
+        block_model('crafting_forge_handle', ht, handle(0))
+        # pulled: the grip swings down (a negative x angle turns the north end downwards)
+        block_model('crafting_forge_handle_down', ht, handle(-45))
+    elif HANDLE == "side":
+        # lever on the outside face of the top section, viewer's right (x = 0 of a north facing model), sticking out about 4 px;
+        # the uvs are set by hand because the boxes lie outside 0..16
+        pivot = {"origin": [-0.5, 12.75, 8], "axis": "z", "angle": 0}
+
+        def lump(frm, to, tex, rot):
+            uv = [4, 1, 6, 3] if tex == '#h' else [4, 4, 6, 6]
+            el = {"from": list(frm), "to": list(to), "faces": {n: {"texture": tex, "uv": list(uv)}
+                                                             for n in ('north', 'south', 'east', 'west', 'up', 'down')}}
+            if rot:
+                el["rotation"] = rot
+            return el
+
+        def handle(angle):
+            rot = dict(pivot, angle=angle) if angle else None
+            return [
+                lump((-1, 11.25, 6.5), (0, 14.25, 9.5), '#side', None),     # boss on the face
+                lump((-2.5, 12.25, 7.5), (-1, 13.25, 8.5), '#h', rot),      # arm
+                lump((-4, 11.5, 7), (-2.5, 14, 9), '#h', rot),              # red grip
+            ]
+        block_model('crafting_forge_handle', ht, handle(0))
+        # pulled: the grip swings down (a positive z angle turns the west end downwards)
+        block_model('crafting_forge_handle_down', ht, handle(45))
+    else:
+        pivot = {"origin": [8, 5, 3], "axis": "x", "angle": 0}
+
+        def handle(angle):
+            rot = dict(pivot, angle=angle) if angle else None
+            return [
+                box((6, 4, 2), (10, 6, 4), '#side', rotation=rot),        # hinge block on the front
+                box((7.5, 5, 1.5), (8.5, 12, 2.5), '#h', rotation=rot),   # rod
+                box((6.5, 12, 1), (9.5, 13.5, 3), '#h', rotation=rot),    # red grip
+            ]
+        block_model('crafting_forge_handle', ht, handle(0))
+        # pulled: the grip swings DOWN towards the player (front = north = -z; a negative x angle tips the top north)
+        block_model('crafting_forge_handle_down', ht, handle(-45))
     parts = []
     for d, y in (('north', 0), ('east', 90), ('south', 180), ('west', 270)):
         for lit, model in (('false', 'crafting_forge'), ('true', 'crafting_forge_lit')):
@@ -327,6 +382,11 @@ def crafting_forge_models():
 
 
 if __name__ == '__main__':
+    import sys
+    if sys.argv[1:] == ['crafting_forge']:
+        crafting_forge_models()
+        print('crafting forge models written')
+        sys.exit(0)
     drill_t2()
     sluice_t2()
     large_pan()

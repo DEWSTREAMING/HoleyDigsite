@@ -172,18 +172,51 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
         return state;
     }
 
-    /** Creative players breaking the upper half don't get the drill dropped by the lower half. */
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide && !isLower(state) && player.getAbilities().instabuild) {
+        if (!level.isClientSide && !isLower(state)) {
             BlockPos below = pos.below();
             BlockState b = level.getBlockState(below);
             if (b.is(this) && isLower(b)) {
-                level.setBlock(below, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
-                level.levelEvent(player, 2001, below, Block.getId(b));
+                if (player.getAbilities().instabuild) {
+                    level.setBlock(below, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
+                    level.levelEvent(player, 2001, below, Block.getId(b));
+                } else {
+                    level.destroyBlock(below, true, player);
+                }
             }
         }
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (skin != null && !skin.isEmpty()) {
+            BlockPos lower = lowerPos(pos, state);
+            if (level.getBlockEntity(lower) instanceof MiningDrillBlockEntity drill) {
+                drill.setSkin(skin, com.holeydigsite.skin.SkinWear.of(stack));
+            }
+        }
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity be = params.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof MiningDrillBlockEntity drill) {
+            String skin = drill.getSkin();
+            if (skin != null && !skin.isEmpty() && !skin.equals("default")) {
+                for (ItemStack drop : drops) {
+                    if (drop.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof MiningDrillBlock) {
+                        drop.set(com.holeydigsite.registry.ModDataComponents.SKIN.get(), skin);
+                        com.holeydigsite.skin.SkinWear.set(drop, drill.getWear());
+                    }
+                }
+            }
+        }
+        return drops;
     }
 
     @Override

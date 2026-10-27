@@ -1,0 +1,73 @@
+{
+  "odds": {
+    "common": 70,
+    "rare": 25,
+    "epic": 5,
+    "legendary": 0
+  },
+  "pan_find_one_in": 1500,
+  "pools": {
+    "common": [
+      {
+        "skin": "rustic"
+      },
+      {
+        "skin": "rustic_weathered"
+      },
+      {
+        "title": "lucky_strike"
+      },
+      {
+        "item": "holeydigsite:miners_helmet_stand"
+      },
+      {
+        "coins": 192
+      },
+      {
+        "item": "holeydigsite:dirt_clump",
+        "count": 4
+      },
+      {
+        "item": "holeydigsite:riverbean_seeds",
+        "count": 3
+      },
+      {
+        "ingot": "holeydigsite:folkiron_ingot",
+        "grams": 100
+      }
+    ],
+    "rare": [
+      {
+        "skin": "brass"
+      },
+      {
+        "skin": "frosted"
+      },
+      {
+        "title": "crate_cracker"
+      },
+      {
+        "item": "holeydigsite:rusty_mine_bell"
+      }
+    ],
+    "epic": [
+      {
+        "skin": "obsidian"
+      },
+      {
+        "title": "high_roller"
+      },
+      {
+        "item": "holeydigsite:sluice_model"
+      }
+    ],
+    "legendary": [
+      {
+        "title": "jackpot"
+      },
+      {
+        "item": "holeydigsite:golden_drill_statue"
+      }
+    ]
+  }
+}

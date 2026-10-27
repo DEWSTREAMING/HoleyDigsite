@@ -1,0 +1,24 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/skin_bench_top",
+    "top": "holeydigsite:block/skin_bench_top",
+    "bottom": "holeydigsite:block/skin_bench_bottom",
+    "front": "holeydigsite:block/skin_bench_front",
+    "side": "holeydigsite:block/skin_bench_side"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 14, 16],
+      "faces": {
+        "down":  { "texture": "#bottom", "cullface": "down" },
+        "up":    { "texture": "#top" },
+        "north": { "texture": "#front", "cullface": "north" },
+        "south": { "texture": "#side", "cullface": "south" },
+        "west":  { "texture": "#side", "cullface": "west" },
+        "east":  { "texture": "#side", "cullface": "east" }
+      }
+    }
+  ]
+}

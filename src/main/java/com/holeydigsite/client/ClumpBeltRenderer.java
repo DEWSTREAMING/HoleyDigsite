@@ -1,5 +1,6 @@
 package com.holeydigsite.client;
 
+import com.holeydigsite.belt.BeltLanes;
 import com.holeydigsite.belt.BeltMode;
 import com.holeydigsite.belt.BeltShape;
 import com.holeydigsite.belt.ClumpBeltBlock;
@@ -40,8 +41,15 @@ import java.util.Iterator;
 public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEntity> {
     /** Size of an item relative to a dropped item. */
     private static final float SCALE = 0.75F;
-    /** GROUND display moves items up 2/16 * 0.5, lifting so the sprite's bottom sits on the belt. */
-    private static final float LIFT = SCALE * 2.0F / 16.0F;
+    /** GROUND display moves items up 2/16 * 0.5, so lifting by scale * 2/16 puts the model's bottom on the belt. */
+    private static float lift(float scale) {
+        return scale * 2.0F / 16.0F;
+    }
+
+    /** Draw scale of an item on a belt: lumps are a bit smaller so a busy line does not run together. */
+    private static float beltScale(ItemStack stack) {
+        return FlatItems.isLump(stack) ? SCALE * BeltLanes.LUMP_SCALE : SCALE;
+    }
     /** Where on the belt (0 = back edge, 1 = front edge) an item at step 0 sits, plus 1/STEPS per step. */
     private static final float START = 1.5F / ClumpBeltBlockEntity.STEPS;
     /** Pan dirt surface height inside the pan, in blocks. */
@@ -87,6 +95,9 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
         for (ClumpBeltBlockEntity.Clump c : belt.clumps()) {
             float step = Mth.lerp(pt, c.prevPos(), c.pos());
             float along = START + step / ClumpBeltBlockEntity.STEPS;
+            float sc = beltScale(c.stack());
+            float lift = lift(sc);
+            float lane = BeltLanes.offset(c.seed());
             pose.pushPose();
             float yaw = yaw0 + c.seed() * 1.41F;
             if (shape != BeltShape.STRAIGHT && c.side() < 0) {
@@ -97,9 +108,11 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
                 float cx = 0.5F + facing.getStepX() * 0.5F + right.getStepX() * 0.5F * sign;
                 float cz = 0.5F + facing.getStepZ() * 0.5F + right.getStepZ() * 0.5F * sign;
                 float cos = Mth.cos(theta), sin = Mth.sin(theta);
-                float x = cx + 0.5F * (-cos * facing.getStepX() - sign * sin * right.getStepX());
-                float z = cz + 0.5F * (-cos * facing.getStepZ() - sign * sin * right.getStepZ());
-                pose.translate(x, ClumpBeltBlock.SURFACE + LIFT, z);
+                // the lane changes the radius: the curve's centre is on the inner side
+                float radius = 0.5F - lane * sign;
+                float x = cx + radius * (-cos * facing.getStepX() - sign * sin * right.getStepX());
+                float z = cz + radius * (-cos * facing.getStepZ() - sign * sin * right.getStepZ());
+                pose.translate(x, ClumpBeltBlock.SURFACE + lift, z);
                 yaw += sign * (90F - theta * Mth.RAD_TO_DEG);
             } else {
                 float side = 0;
@@ -108,25 +121,27 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
                     from = Direction.from3DDataValue(c.side());
                     side = 0.5F * Mth.lerp(pt, c.prevSideTicks(), c.sideTicks()) / ClumpBeltBlockEntity.SIDE_TICKS;
                 }
+                // an item still sliding in from the side moves into its lane as it arrives
+                lane *= 1.0F - side * 2.0F;
                 if (incline) {
                     // Stand on the 45 degree surface, tilting up to the surface normal and lifting along it. The tilt eases out over the ends so the handover to flat belts is smooth.
-                    translateOnBelt(pose, facing, along, from, side, InclineBeltBlock.surfaceAt(along));
+                    translateOnBelt(pose, facing, along, from, side, lane, InclineBeltBlock.surfaceAt(along));
                     float tilt = 45F * Mth.clamp(Math.min(along, 1F - along) / 0.06F, 0F, 1F);
                     Direction right = facing.getClockWise();
                     pose.mulPose(new Quaternionf().rotationAxis(tilt * Mth.DEG_TO_RAD, right.getStepX(), 0, right.getStepZ()));
-                    pose.translate(0, LIFT, 0);
+                    pose.translate(0, lift, 0);
                 } else if (downIncline) {
                     // Stand on the 45 degree surface sloping downwards, leaning forward.
-                    translateOnBelt(pose, facing, along, from, side, DownInclineBeltBlock.surfaceAt(along));
+                    translateOnBelt(pose, facing, along, from, side, lane, DownInclineBeltBlock.surfaceAt(along));
                     float tilt = -45F * Mth.clamp(Math.min(along, 1F - along) / 0.06F, 0F, 1F);
                     Direction right = facing.getClockWise();
                     pose.mulPose(new Quaternionf().rotationAxis(tilt * Mth.DEG_TO_RAD, right.getStepX(), 0, right.getStepZ()));
-                    pose.translate(0, LIFT, 0);
+                    pose.translate(0, lift, 0);
                 } else {
-                    translateOnBelt(pose, facing, along, from, side, ClumpBeltBlock.SURFACE + LIFT);
+                    translateOnBelt(pose, facing, along, from, side, lane, ClumpBeltBlock.SURFACE + lift);
                 }
             }
-            draw(pose, buffers, light, yaw, SCALE, level, c.seed(), c.stack());
+            draw(pose, buffers, light, yaw, sc, level, c.seed(), c.stack());
             pose.popPose();
         }
 
@@ -146,11 +161,13 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             }
             t = Math.max(0, t);
             float along = Mth.lerp(t, exit, 1.5F);
-            float y = Mth.lerp(t, dropStartY, dropTargetY) + 0.2F * Mth.sin(t * Mth.PI) + LIFT;
-            float scale = t > 0.7F ? SCALE * (1.0F - (t - 0.7F)) : SCALE;
+            ItemStack dropStack = clumps[DirtTier.clamp(d.tier())];
+            float base = beltScale(dropStack);
+            float y = Mth.lerp(t, dropStartY, dropTargetY) + 0.2F * Mth.sin(t * Mth.PI) + lift(base);
+            float scale = t > 0.7F ? base * (1.0F - (t - 0.7F)) : base;
             pose.pushPose();
-            translateOnBelt(pose, facing, along, null, 0, y);
-            draw(pose, buffers, light, yaw0 + d.seed() * 1.41F, scale, level, d.seed(), clumps[DirtTier.clamp(d.tier())]);
+            translateOnBelt(pose, facing, along, null, 0, BeltLanes.offset(d.seed()) * (1.0F - t), y);
+            draw(pose, buffers, light, yaw0 + d.seed() * 1.41F, scale, level, d.seed(), dropStack);
             pose.popPose();
         }
 
@@ -165,11 +182,12 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
             }
             t = Math.max(0, t);
             float along = exit - 0.18F * t;
-            float y = bounceBaseY + 0.3F * Mth.sin(t * Mth.PI) + LIFT;
+            ItemStack bounceStack = clumps[DirtTier.clamp(b.tier())];
+            float base = beltScale(bounceStack);
+            float y = bounceBaseY + 0.3F * Mth.sin(t * Mth.PI) + lift(base);
             pose.pushPose();
-            translateOnBelt(pose, facing, along, null, 0, y);
-            draw(pose, buffers, light, yaw0 + b.seed() * 1.41F + t * 120.0F, SCALE * (1.0F - 0.4F * t), level, b.seed(),
-                    clumps[DirtTier.clamp(b.tier())]);
+            translateOnBelt(pose, facing, along, null, 0, BeltLanes.offset(b.seed()), y);
+            draw(pose, buffers, light, yaw0 + b.seed() * 1.41F + t * 120.0F, base * (1.0F - 0.4F * t), level, b.seed(), bounceStack);
             pose.popPose();
         }
 
@@ -195,11 +213,13 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
 
     /**
      * Moves to a point on the belt: {@code along} 0..1 from the back edge to the front edge (more than 1 = past the
-     * front), {@code side} 0..0.5 towards the {@code from} edge.
+     * front), {@code side} 0..0.5 towards the {@code from} edge,
+     * {@code lane} blocks to the right of the belt's direction.
      */
-    private static void translateOnBelt(PoseStack pose, Direction facing, float along, Direction from, float side, float y) {
-        float x = 0.5F + facing.getStepX() * (along - 0.5F);
-        float z = 0.5F + facing.getStepZ() * (along - 0.5F);
+    private static void translateOnBelt(PoseStack pose, Direction facing, float along, Direction from, float side, float lane, float y) {
+        Direction right = facing.getClockWise();
+        float x = 0.5F + facing.getStepX() * (along - 0.5F) + right.getStepX() * lane;
+        float z = 0.5F + facing.getStepZ() * (along - 0.5F) + right.getStepZ() * lane;
         if (from != null) {
             x += from.getStepX() * side;
             z += from.getStepZ() * side;

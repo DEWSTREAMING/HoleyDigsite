@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * The world's content version (Phase 14) - a general hook so later phases can fix up existing worlds
+ * The world's content version - a general hook to fix up existing worlds
  * ({@code data/holeydigsite_world.dat} in the overworld).
  *
  * <p>On every world load, each {@link Step} in {@link #STEPS} whose version is higher than the world's runs once, in order,
@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 public class WorldVersion extends SavedData {
     public static final String NAME = "holeydigsite_world";
 
-    /** Content version of this mod build. 1 = Phase 14 (1.12.0): sites + this hook. 2 = Phase 16.1 (1.14.2): floating-block fix-ups. 3 = 1.14.4: slits under the Trading Post corner / kiosk foundation. 4 = 1.18.1: new sign texts. */
+    /** Content version of this mod build. 1 = 1.12.0: sites + this hook. 2 = 1.14.2: floating-block fix-ups. 3 = 1.14.4: slits under the Trading Post corner / kiosk foundation. 4 = 1.18.1: new sign texts. */
     public static final int CURRENT = 4;
 
     /** One upgrade: runs once on worlds older than {@code version}. */

@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
  * the crucible forgets its metal and accepts any meltable again.
  *
  * <p>Ticks only while melting (the block's ticker exists only for {@code chunks=true, heated=true}). Clients get the
- * numbers for the floating text every time a gram melts and on every other change.</p>
+ * numbers for the floating text at most every 10 ticks while melting, and at once on every other change.</p>
  */
 public class CrucibleBlockEntity extends BlockEntity {
     public static final int CAPACITY = com.holeydigsite.tier.Tiers.stat("crucible", "capacity");
@@ -34,7 +34,12 @@ public class CrucibleBlockEntity extends BlockEntity {
 
     @Nullable
     private ResourceLocation metal;
+    /** Ticks between client updates while melting. */
+    public static final int SYNC_INTERVAL = 10;
     private int unmelted;
+    private long lastSync;
+    private boolean syncPending;
+    private int syncCount;
     private int molten;
     private int progress;
 
@@ -45,6 +50,11 @@ public class CrucibleBlockEntity extends BlockEntity {
     @Nullable
     public ResourceLocation metal() {
         return metal;
+    }
+
+    /** How many client updates this crucible has sent since it loaded (tests). */
+    public int syncCount() {
+        return syncCount;
     }
 
     public int unmelted() {
@@ -131,6 +141,9 @@ public class CrucibleBlockEntity extends BlockEntity {
         }
         int heat = ForgeBlock.heatAt(level, pos.below());
         if (heat <= 0) {
+            if (crucible.syncPending) {
+                crucible.changed(true);
+            }
             return; // the forge just went out; its block update turns our ticker off
         }
         int perGram = crucible.ticksPerGram();
@@ -146,7 +159,14 @@ public class CrucibleBlockEntity extends BlockEntity {
             crucible.progress = 0;
         }
         if (melted) {
-            crucible.changed(true);          // state + numbers to clients whenever a gram melts, and when the last gram melts
+            // clients get the numbers at most every SYNC_INTERVAL ticks, and always when the last gram melts
+            long now = level.getGameTime();
+            if (crucible.unmelted == 0 || now - crucible.lastSync >= SYNC_INTERVAL) {
+                crucible.changed(true);
+            } else {
+                crucible.syncPending = true;
+                level.blockEntityChanged(pos);
+            }
         } else {
             level.blockEntityChanged(pos);   // just mark the chunk for saving
         }
@@ -184,6 +204,9 @@ public class CrucibleBlockEntity extends BlockEntity {
         if (!sync || level == null || level.isClientSide) {
             return;
         }
+        syncPending = false;
+        lastSync = level.getGameTime();
+        syncCount++;
         BlockState state = level.getBlockState(worldPosition);   // the live state (the cached one can lag behind)
         if (state.getBlock() instanceof CrucibleBlock) {
             BlockState next = CrucibleBlock.withContents(state, this);

@@ -134,15 +134,17 @@ public class Phase21kTests {
             Sites.Result r = Sites.build(l, d, a, null, false);
             BoundingBox z = r.site().zone();
 
-            // Locate displays 34 and 35
+            // Locate displays 34, 35 and 36
             Map<Integer, ShopDisplayBlockEntity> des = displayEntities(l, z);
-            check(h, des.containsKey(34) && des.containsKey(35), "initial store has slots 34 and 35");
+            check(h, des.containsKey(34) && des.containsKey(35) && des.containsKey(36), "initial store has slots 34, 35 and 36");
             BlockPos p34 = des.get(34).getBlockPos().immutable();
             BlockPos p35 = des.get(35).getBlockPos().immutable();
+            BlockPos p36 = des.get(36).getBlockPos().immutable();
 
-            // Simulate real old world: remove displays 34 and 35 (set to AIR)
+            // Simulate real old world: remove displays 34, 35 and 36 (set to AIR)
             l.setBlock(p34, Blocks.AIR.defaultBlockState(), 3);
             l.setBlock(p35, Blocks.AIR.defaultBlockState(), 3);
+            l.setBlock(p36, Blocks.AIR.defaultBlockState(), 3);
 
             // Revert SiteData to 33 items (pre-21i state)
             SiteData data = SiteData.get(l);
@@ -151,13 +153,18 @@ public class Phase21kTests {
             List<String> pre21iShown = new ArrayList<>(oldSite.shown());
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.DOWN_INCLINE_BELT.get()).toString());
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.DROP_CHUTE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.SKIN_BENCH.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.WOODEN_CRATE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.IRON_CRATE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.GOLD_CRATE.get()).toString());
             check(h, pre21iShown.size() == 33, "pre-21i shown has 33 items: " + pre21iShown.size());
             data.put(new SiteData.Site(oldSite.id(), oldSite.anchor(), oldSite.zone(), oldSite.version(), pre21iShown, oldSite.parent()));
 
             // Verify the world is now simulating an old world
             check(h, l.getBlockState(p34).isAir(), "slot 34 is air in simulated old world");
             check(h, l.getBlockState(p35).isAir(), "slot 35 is air in simulated old world");
-            check(h, !displays(l, z).containsKey(34) && !displays(l, z).containsKey(35), "old store missing 34 and 35");
+            check(h, l.getBlockState(p36).isAir(), "slot 36 is air in simulated old world");
+            check(h, !displays(l, z).containsKey(34) && !displays(l, z).containsKey(35) && !displays(l, z).containsKey(36), "old store missing 34, 35 and 36");
 
             // Place a player block inside the store to verify no full rebuild occurs
             BlockPos litter = a.offset(15, 11, 10);
@@ -181,15 +188,16 @@ public class Phase21kTests {
                     "added contains drop chute");
             check(h, homeResult.message() != null, "announcement message generated");
 
-            // Verify display blocks 34 and 35 were placed into the world and populated
+            // Verify display blocks 34, 35 and 36 were placed into the world and populated
             Map<Integer, Item> shown = displays(l, z);
             check(h, shown.get(34) == ModItems.DOWN_INCLINE_BELT.get(), "slot 34 shows down incline belt");
             check(h, shown.get(35) == ModItems.DROP_CHUTE.get(), "slot 35 shows drop chute");
+            check(h, shown.get(36) == ModItems.SKIN_BENCH.get(), "slot 36 shows skin bench");
             check(h, l.getBlockState(litter).is(Blocks.GLASS), "player litter glass untouched (no rebuild)");
 
-            // Verify SiteData updated to 35 items
+            // Verify SiteData updated to 36 items
             SiteData.Site updatedSite = data.get(d.id(), a);
-            check(h, updatedSite != null && updatedSite.shown().size() == 35, "updated site records 35 shown items");
+            check(h, updatedSite != null && updatedSite.shown().size() == 39, "updated site records 39 shown items");
 
             // Verify custom display preserved
             ShopDisplayBlockEntity postCustom = (ShopDisplayBlockEntity) l.getBlockEntity(customPos);

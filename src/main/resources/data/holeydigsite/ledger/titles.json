@@ -10,5 +10,14 @@
     "mother_lode",
     "claim_baron",
     "digsite_legend"
+  ],
+  "crate_titles": [
+    "lucky_strike",
+    "crate_cracker",
+    "high_roller",
+    "jackpot"
+  ],
+  "contract_titles": [
+    "contractor"
   ]
 }

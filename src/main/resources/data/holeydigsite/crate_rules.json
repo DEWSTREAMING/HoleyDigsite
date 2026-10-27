@@ -1,0 +1,10 @@
+{
+  "wears": [
+    {"id": "fresh_from_the_forge", "odds": 10, "scrap_multiplier": 2.0},
+    {"id": "workshop_clean", "odds": 20, "scrap_multiplier": 1.5},
+    {"id": "field_worn", "odds": 35, "scrap_multiplier": 1.0},
+    {"id": "pit_scarred", "odds": 25, "scrap_multiplier": 0.75},
+    {"id": "cave_battered", "odds": 10, "scrap_multiplier": 0.5}
+  ],
+  "scrap": {"common": 1, "rare": 3, "epic": 8, "legendary": 20}
+}

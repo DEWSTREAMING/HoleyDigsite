@@ -34,6 +34,10 @@ import java.util.WeakHashMap;
  * The text is rebuilt only when the block entity received new data or the block state changed (cached).
  */
 public class SmithingAnvilRenderer implements BlockEntityRenderer<SmithingAnvilBlockEntity> {
+    /** Longest ingot bar (15 px) after the fixed display scale of 0.5, in blocks. */
+    private static final float BAR_LENGTH = 15.0F / 16.0F * 0.5F;
+    /** The bar's underside sits 2 px below the model centre, which is 1/16 block after the fixed scale. */
+    private static final float BAR_LIFT = 1.0F / 16.0F;
     private record Cached(int version, BlockState state, List<Component> lines) {}
     private final WeakHashMap<SmithingAnvilBlockEntity, Cached> cache = new WeakHashMap<>();
     private final ItemRenderer itemRenderer;
@@ -65,8 +69,15 @@ public class SmithingAnvilRenderer implements BlockEntityRenderer<SmithingAnvilB
             pose.mulPose(Axis.YP.rotationDegrees(-modelY));
             pose.translate((spot[0] - 8.0F) / 16.0, 0, (spot[1] - 8.0F) / 16.0);
             pose.translate(0, 0.02, 0);
+            float scale;
+            if (isIngot) {
+                // the bar model lies flat already (fixed display turns it), the biggest bar is INGOT_SIZE long
+                scale = AnvilLayout.INGOT_SIZE / 16.0F / BAR_LENGTH;
+                pose.translate(0, scale * BAR_LIFT, 0);
+            } else {
+                scale = AnvilLayout.GEM_SIZE / 16.0F;
+            }
             pose.mulPose(Axis.XP.rotationDegrees(90.0F));
-            float scale = (isIngot ? AnvilLayout.INGOT_SIZE : AnvilLayout.GEM_SIZE) / 16.0F;
             pose.scale(scale, scale, scale);
             itemRenderer.renderStatic(s, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffers,
                     a.getLevel(), (int) a.getBlockPos().asLong() + n++);
@@ -74,12 +85,7 @@ public class SmithingAnvilRenderer implements BlockEntityRenderer<SmithingAnvilB
         }
         if (FloatingText.focused(a.getBlockPos(), 1.0)) {
             float sc = FloatingText.labelScale(a.getBlockPos());
-            double gap = FloatingText.LINE * sc / FloatingText.SMALL;
-            double y = 1.25 + gap * (c.lines.size() - 1);
-            for (Component line : c.lines) {
-                FloatingText.draw(pose, buffers, line, 0.5, y, 0.5, sc, light);
-                y -= gap;
-            }
+            FloatingText.drawLines(pose, buffers, c.lines, 0.5, 1.25, 0.5, sc, light);
         }
     }
 

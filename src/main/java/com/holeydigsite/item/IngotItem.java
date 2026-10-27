@@ -24,6 +24,18 @@ public class IngotItem extends Item {
         super(properties.component(ModDataComponents.WEIGHT.get(), DEFAULT_GRAMS));
     }
 
+    /** Weights where the model gets bigger (a bar under 40 g is size 0, 40-89 size 1, 90-249 size 2, 250 and up size 3). */
+    private static final int[] SIZE_FROM = {40, 90, 250};
+
+    /** Model size 0-3 for a weight; the {@code holeydigsite:size} item property and the model overrides use it. */
+    public static int sizeStep(int grams) {
+        int step = 0;
+        for (int from : SIZE_FROM) {
+            if (grams >= from) step++;
+        }
+        return step;
+    }
+
     /** An ingot of {@code item} weighing {@code grams}. */
     public static ItemStack of(Item item, int grams) {
         ItemStack stack = new ItemStack(item);

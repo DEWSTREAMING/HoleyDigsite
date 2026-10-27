@@ -10,7 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,6 +35,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     private int smithRemainder;
     private int sellRenown;
     private long sellRemainder;
+    private int contractRenown;
+    private final com.holeydigsite.contract.ContractData contracts = new com.holeydigsite.contract.ContractData();
 
     private final Set<ResourceLocation> harvestedCrops = new LinkedHashSet<>();
     private final Set<String> smithedPieces = new LinkedHashSet<>();
@@ -41,6 +45,10 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     private boolean oldWorldChecked;
     private String chosenTitle = "";
     private final Set<String> unlockedTitles = new LinkedHashSet<>();
+    private final Set<String> unlockedSkins = new LinkedHashSet<>();
+    /** Wear of each old unlocked skin that is not Fresh from the Forge (missing = Fresh). */
+    private final Map<String, String> skinWears = new LinkedHashMap<>();
+    private boolean skinsMigrated;
 
     public static LedgerData get(Player player) {
         return player.getData(ModAttachments.LEDGER_DATA.get());
@@ -79,6 +87,15 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     public int harvestRenown() { return harvestRenown; }
     public int smithRenown() { return smithRenown; }
     public int sellRenown() { return sellRenown; }
+    public int contractRenown() { return contractRenown; }
+    public com.holeydigsite.contract.ContractData contracts() { return contracts; }
+
+    public void setPanRenown(int val) { this.panRenown = Math.max(0, val); }
+    public void setSluiceRenown(int val) { this.sluiceRenown = Math.max(0, val); }
+    public void setHarvestRenown(int val) { this.harvestRenown = Math.max(0, val); }
+    public void setSmithRenown(int val) { this.smithRenown = Math.max(0, val); }
+    public void setSellRenown(int val) { this.sellRenown = Math.max(0, val); }
+    public void setContractRenown(int val) { this.contractRenown = Math.max(0, val); }
 
     public int addPanProgress(int count, LedgerDefs.OngoingRule rule) {
         if (count <= 0 || panRenown >= rule.cap()) return 0;
@@ -140,6 +157,15 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         return gain;
     }
 
+    /** Adds Renown from a finished contract, up to what is left under the cap. Returns the Renown added. */
+    public int addContractRenown(int amount, LedgerDefs.OngoingRule rule) {
+        if (amount <= 0 || contractRenown >= rule.cap()) return 0;
+        int gain = Math.min(amount, rule.cap() - contractRenown);
+        contractRenown += gain;
+        renown += gain;
+        return gain;
+    }
+
     public Set<ResourceLocation> harvestedCrops() { return harvestedCrops; }
     public int recordCropHarvested(ResourceLocation cropId) {
         harvestedCrops.add(cropId);
@@ -168,6 +194,34 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     public boolean hasTitle(String id) { return unlockedTitles.contains(id); }
     public boolean unlockTitle(String id) { return unlockedTitles.add(id); }
 
+    /**
+     * Skins unlocked on the player before Skin Kits existed. Nothing adds to this any more; {@link
+     * com.holeydigsite.skin.SkinKitMigration} turns it into kits once and clears it.
+     */
+    public Set<String> unlockedSkins() { return unlockedSkins; }
+
+    /** Wear of an old unlocked skin (Fresh if it was unlocked without one). */
+    public String skinWear(String id) {
+        return skinWears.getOrDefault(id, com.holeydigsite.skin.SkinWear.FRESH);
+    }
+
+    public void setSkinWear(String id, String wear) {
+        if (com.holeydigsite.skin.SkinWear.isFresh(wear)) {
+            skinWears.remove(id);
+        } else {
+            skinWears.put(id, com.holeydigsite.skin.SkinWear.normalize(wear));
+        }
+    }
+
+    public void clearOldSkins() {
+        unlockedSkins.clear();
+        skinWears.clear();
+    }
+
+    /** True once the old unlocks were turned into kits (so it never happens twice). */
+    public boolean skinsMigrated() { return skinsMigrated; }
+    public void setSkinsMigrated(boolean skinsMigrated) { this.skinsMigrated = skinsMigrated; }
+
     /** Chosen title if it is still unlocked, else empty string (no title). */
     public String activeTitle() { return unlockedTitles.contains(chosenTitle) ? chosenTitle : ""; }
 
@@ -183,6 +237,7 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.smithRemainder = 0;
         this.sellRenown = 0;
         this.sellRemainder = 0;
+        this.contractRenown = 0;
     }
 
     /** Wipes all Ledger progress, including renown, claims, milestones, titles, caps, and lifetime sales. */
@@ -199,6 +254,10 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.oldWorldChecked = true;
         this.chosenTitle = "";
         this.unlockedTitles.clear();
+        this.unlockedSkins.clear();
+        this.skinWears.clear();
+        this.skinsMigrated = true;
+        this.contracts.clear();
     }
 
     public void copyFrom(LedgerData other) {
@@ -218,6 +277,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.smithRemainder = other.smithRemainder;
         this.sellRenown = other.sellRenown;
         this.sellRemainder = other.sellRemainder;
+        this.contractRenown = other.contractRenown;
+        this.contracts.copyFrom(other.contracts);
         this.harvestedCrops.clear();
         this.harvestedCrops.addAll(other.harvestedCrops);
         this.smithedPieces.clear();
@@ -228,6 +289,11 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.chosenTitle = other.chosenTitle;
         this.unlockedTitles.clear();
         this.unlockedTitles.addAll(other.unlockedTitles);
+        this.unlockedSkins.clear();
+        this.unlockedSkins.addAll(other.unlockedSkins);
+        this.skinWears.clear();
+        this.skinWears.putAll(other.skinWears);
+        this.skinsMigrated = other.skinsMigrated;
     }
 
     @Override
@@ -252,6 +318,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         tag.putInt("SmithRemainder", smithRemainder);
         tag.putInt("SellRenown", sellRenown);
         tag.putLong("SellRemainder", sellRemainder);
+        tag.putInt("ContractRenown", contractRenown);
+        tag.put("Contracts", contracts.serialize());
 
         ListTag crops = new ListTag();
         for (ResourceLocation id : harvestedCrops) {
@@ -272,6 +340,15 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
             titles.add(StringTag.valueOf(id));
         }
         tag.put("UnlockedTitles", titles);
+        ListTag skins = new ListTag();
+        for (String id : unlockedSkins) {
+            skins.add(StringTag.valueOf(id));
+        }
+        tag.put("UnlockedSkins", skins);
+        CompoundTag wears = new CompoundTag();
+        skinWears.forEach(wears::putString);
+        tag.put("SkinWears", wears);
+        tag.putBoolean("SkinsMigrated", skinsMigrated);
         return tag;
     }
 
@@ -299,6 +376,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.smithRemainder = tag.getInt("SmithRemainder");
         this.sellRenown = tag.getInt("SellRenown");
         this.sellRemainder = tag.getLong("SellRemainder");
+        this.contractRenown = tag.getInt("ContractRenown");
+        this.contracts.deserialize(tag.getCompound("Contracts"));
 
         this.harvestedCrops.clear();
         ListTag crops = tag.getList("HarvestedCrops", Tag.TAG_STRING);
@@ -319,5 +398,16 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         for (int i = 0; i < titles.size(); i++) {
             this.unlockedTitles.add(titles.getString(i));
         }
+        this.unlockedSkins.clear();
+        ListTag skins = tag.getList("UnlockedSkins", Tag.TAG_STRING);
+        for (int i = 0; i < skins.size(); i++) {
+            this.unlockedSkins.add(skins.getString(i));
+        }
+        this.skinWears.clear();
+        CompoundTag wears = tag.getCompound("SkinWears");
+        for (String key : wears.getAllKeys()) {
+            this.skinWears.put(key, wears.getString(key));
+        }
+        this.skinsMigrated = tag.getBoolean("SkinsMigrated");
     }
 }

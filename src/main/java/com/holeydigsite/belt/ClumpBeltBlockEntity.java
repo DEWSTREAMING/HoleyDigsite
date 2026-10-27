@@ -31,7 +31,6 @@ import java.util.List;
  * Contents of one belt block (Conveyor Belt, Fast, Inclined, Filter Belt, Gem Cutter): up to {@value #MAX_CLUMPS} items
  * (one item each) and their positions, plus clumps that have just left the belt and are dropping into the pan in front.
  *
- * <h2>Positions</h2>
  * An item's position is an integer step {@code 0..}{@value #LAST} along the belt, from the back edge to the front.
  * {@code speed} steps per tick ({@value #STEPS} steps per block). Items keep at least {@value #SPACING} steps between them
  * and queue up behind the one in front. An item at its exit step that wants to move on leaves the block: into the next
@@ -39,7 +38,6 @@ import java.util.List;
  * waits. Filter Belts send matching items out of their side at {@value #MID}; Gem Cutters hold uncut gems at {@value #MID}
  * for {@value #CUT_TICKS} ticks and cut them.
  *
- * <h2>Cost</h2>
  * The belt only ticks while it holds something and runs (water, no redstone: {@link ClumpBeltBlock#running}). The server
  * syncs the contents to clients only when an item enters or leaves the block, an item is cut and when the belt starts
  * or stops; clients run the same movement rules locally ({@link #clientTick}) and the renderer interpolates.

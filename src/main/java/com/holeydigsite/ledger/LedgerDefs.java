@@ -41,18 +41,18 @@ public final class LedgerDefs {
     public static final int MAX_LEVEL = 50;
 
     public static final List<String> CHAPTER_ORDER = List.of(
-            "start", "machines", "metal", "gems", "land", "farming", "smithing", "riches"
+            "start", "machines", "metal", "gems", "land", "farming", "smithing", "contracts", "riches"
     );
 
     private static final String[] BUILTIN_MILESTONES = {
             "abyssal_rock", "all_crops", "all_plots", "belt_splitter", "big_sale",
             "buff_food", "buy_anvil", "cut_gem", "deep_dig", "earned_10k",
-            "earned_1m", "every_piece", "filter_belt", "first_belt", "first_blueprint",
-            "first_drill", "first_gem", "first_harvest", "first_ingot", "first_line",
+            "earned_1m", "every_piece", "fifty_contracts", "filter_belt", "first_belt", "first_blueprint",
+            "first_contract", "first_drill", "first_gem", "first_harvest", "first_ingot", "first_line",
             "first_pan", "first_piece", "first_sale", "first_sluice", "gem_necklace",
             "goldchro_ingot", "gravel_flats", "large_crucible", "large_gem", "lava_forge",
             "mixed_piece", "netherite_sword", "plot_upgrade", "sand_dunes", "seed_screen",
-            "tier2_machine", "water_intake", "wear_jewellery"
+            "ten_contracts", "tier2_machine", "water_intake", "wear_jewellery"
     };
 
     public record OngoingRule(int per, int renown, int cap) {}
@@ -66,7 +66,8 @@ public final class LedgerDefs {
             OngoingRule sluice,
             OngoingRule harvest,
             OngoingRule smith,
-            OngoingRule sell
+            OngoingRule sell,
+            OngoingRule contract
     ) {
         public int costForLevel(int level) {
             if (level < 1 || level > levelCosts.length) return 0;
@@ -110,8 +111,13 @@ public final class LedgerDefs {
             Optional<ResourceLocation> item,
             int count,
             Optional<Integer> clumpTier,
-            Optional<ResourceLocation> blueprint
-    ) {}
+            Optional<ResourceLocation> blueprint,
+            Optional<String> skin
+    ) {
+        public RewardEntry(Optional<ResourceLocation> item, int count, Optional<Integer> clumpTier, Optional<ResourceLocation> blueprint) {
+            this(item, count, clumpTier, blueprint, Optional.empty());
+        }
+    }
 
     public record LevelDef(
             int level,
@@ -125,6 +131,8 @@ public final class LedgerDefs {
     private static volatile Map<ResourceLocation, Milestone> BY_ADVANCEMENT = Map.of();
     private static volatile Map<Integer, LevelDef> LEVELS = Map.of();
     private static volatile List<String> TITLES = List.of();
+    private static volatile List<String> CRATE_TITLES = List.of();
+    private static volatile List<String> CONTRACT_TITLES = List.of();
 
     static {
         loadBuiltinFromClasspath();
@@ -169,8 +177,34 @@ public final class LedgerDefs {
         return TITLES;
     }
 
+    /** Titles that only come from Mining Crates ({@code crate_titles} in titles.json). */
+    public static List<String> crateTitles() {
+        return CRATE_TITLES;
+    }
+
+    /** Titles that come from contract milestones ({@code contract_titles} in titles.json). */
+    public static List<String> contractTitles() {
+        return CONTRACT_TITLES;
+    }
+
+    /** Level titles first, then crate titles, then contract titles. */
+    public static List<String> allTitles() {
+        List<String> all = new ArrayList<>(TITLES);
+        all.addAll(CRATE_TITLES);
+        all.addAll(CONTRACT_TITLES);
+        return all;
+    }
+
     public static boolean hasTitle(String id) {
-        return TITLES.contains(id);
+        return TITLES.contains(id) || CRATE_TITLES.contains(id) || CONTRACT_TITLES.contains(id);
+    }
+
+    public static boolean isContractTitle(String id) {
+        return CONTRACT_TITLES.contains(id);
+    }
+
+    public static boolean isCrateTitle(String id) {
+        return CRATE_TITLES.contains(id);
     }
 
     /** Lang key of a title's display name. */
@@ -232,7 +266,10 @@ public final class LedgerDefs {
             BY_ADVANCEMENT = Map.copyOf(byAdv);
             LEVELS = Map.copyOf(lvs);
             try (Reader r = openClasspath("/data/holeydigsite/ledger/titles.json")) {
-                TITLES = parseTitles(JsonParser.parseReader(r).getAsJsonObject());
+                JsonObject titlesRoot = JsonParser.parseReader(r).getAsJsonObject();
+                TITLES = parseTitles(titlesRoot, "titles");
+                CRATE_TITLES = parseTitles(titlesRoot, "crate_titles");
+                CONTRACT_TITLES = parseTitles(titlesRoot, "contract_titles");
             }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to load built-in Ledger definitions from classpath", e);
@@ -279,7 +316,10 @@ public final class LedgerDefs {
             Optional<Resource> titlesRes = manager.getResource(HoleyDigsite.id("ledger/titles.json"));
             if (titlesRes.isPresent()) {
                 try (Reader r = titlesRes.get().openAsReader()) {
-                    TITLES = parseTitles(JsonParser.parseReader(r).getAsJsonObject());
+                    JsonObject titlesRoot = JsonParser.parseReader(r).getAsJsonObject();
+                    TITLES = parseTitles(titlesRoot, "titles");
+                    CRATE_TITLES = parseTitles(titlesRoot, "crate_titles");
+                    CONTRACT_TITLES = parseTitles(titlesRoot, "contract_titles");
                 }
             }
         } catch (IOException e) {
@@ -334,7 +374,8 @@ public final class LedgerDefs {
                 new OngoingRule(ongoing.get("sluice_clumps_per_renown").getAsInt(), 1, ongoing.get("sluice_cap").getAsInt()),
                 new OngoingRule(1, ongoing.get("harvest_renown").getAsInt(), ongoing.get("harvest_cap").getAsInt()),
                 new OngoingRule(1, ongoing.get("smith_renown").getAsInt(), ongoing.get("smith_cap").getAsInt()),
-                new OngoingRule(ongoing.get("sell_copper_per_renown").getAsInt(), 1, ongoing.get("sell_cap").getAsInt())
+                new OngoingRule(ongoing.get("sell_copper_per_renown").getAsInt(), 1, ongoing.get("sell_cap").getAsInt()),
+                new OngoingRule(1, 1, ongoing.has("contract_cap") ? ongoing.get("contract_cap").getAsInt() : 400)
         );
     }
 
@@ -358,9 +399,10 @@ public final class LedgerDefs {
         );
     }
 
-    private static List<String> parseTitles(JsonObject root) {
+    private static List<String> parseTitles(JsonObject root, String key) {
         List<String> out = new ArrayList<>();
-        for (JsonElement el : root.getAsJsonArray("titles")) {
+        if (!root.has(key)) return List.of();
+        for (JsonElement el : root.getAsJsonArray(key)) {
             out.add(el.getAsString());
         }
         return List.copyOf(out);
@@ -386,7 +428,10 @@ public final class LedgerDefs {
                 Optional<ResourceLocation> bp = ro.has("blueprint")
                         ? Optional.of(ResourceLocation.parse(ro.get("blueprint").getAsString()))
                         : Optional.empty();
-                rewards.add(new RewardEntry(item, count, clumpTier, bp));
+                Optional<String> skin = ro.has("skin")
+                        ? Optional.of(ro.get("skin").getAsString())
+                        : Optional.empty();
+                rewards.add(new RewardEntry(item, count, clumpTier, bp, skin));
             }
         }
         Optional<String> coins = obj.has("coins") ? Optional.of(obj.get("coins").getAsString()) : Optional.empty();

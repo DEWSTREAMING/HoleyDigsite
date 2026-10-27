@@ -1,6 +1,26 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "holeydigsite:item/ingot_size_0",
   "textures": {
-    "layer0": "holeydigsite:item/folkiron_ingot"
-  }
+    "bar": "holeydigsite:item/ingot/folkiron"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "holeydigsite:size": 1
+      },
+      "model": "holeydigsite:item/folkiron_ingot_1"
+    },
+    {
+      "predicate": {
+        "holeydigsite:size": 2
+      },
+      "model": "holeydigsite:item/folkiron_ingot_2"
+    },
+    {
+      "predicate": {
+        "holeydigsite:size": 3
+      },
+      "model": "holeydigsite:item/folkiron_ingot_3"
+    }
+  ]
 }

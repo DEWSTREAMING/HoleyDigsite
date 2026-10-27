@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "holeydigsite:item/chunk_shape_medium",
   "textures": {
-    "layer0": "holeydigsite:item/goldchro_chunk_medium"
+    "t": "holeydigsite:item/chunk/goldchro"
   }
 }

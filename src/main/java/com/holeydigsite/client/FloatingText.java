@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,13 +45,21 @@ public final class FloatingText {
     public static final double LINE = 10 * SMALL;
     /** Closer than this, labels shrink so they keep about the size they have at this distance. */
     public static final double FULL_SIZE_DIST = 3.0;
+    /** Widest label line in font pixels (about 28 characters); longer lines wrap. */
+    public static final int MAX_WIDTH = 165;
     /** Ticks without any candidate before the focus is dropped. */
     private static final int KEEP_TICKS = 5;
 
     /** Candidates offered since the last pick, mapping position to the world point of the labelled thing. */
     private static final Map<BlockPos, Vec3> CANDIDATES = new HashMap<>();
     private static BlockPos focus;
+    /** The block whose wheel is open: its label stays hidden so it does not show through the wheel. */
+    private static BlockPos hidden;
     private static int emptyTicks;
+
+    public static void hideAt(BlockPos pos) {
+        hidden = pos == null ? null : pos.immutable();
+    }
 
     /** Squared distance from the camera to the middle of the block. */
     public static double distSq(BlockPos pos) {
@@ -67,7 +76,7 @@ public final class FloatingText {
      * {@code anchorY} is the height above the block's bottom of the thing being labelled.
      */
     public static boolean focused(BlockPos pos, double anchorY) {
-        if (!near(pos, TEXT_RANGE)) {
+        if (!near(pos, TEXT_RANGE) || pos.equals(hidden)) {
             return false;
         }
         CANDIDATES.putIfAbsent(pos.immutable(), new Vec3(pos.getX() + 0.5, pos.getY() + anchorY, pos.getZ() + 0.5));
@@ -154,5 +163,21 @@ public final class FloatingText {
         font.drawInBatch(text, w, 0, 553648127, false, m, buffers, Font.DisplayMode.SEE_THROUGH, bg, light);
         font.drawInBatch(text, w, 0, -1, false, m, buffers, Font.DisplayMode.NORMAL, 0, light);
         pose.popPose();
+    }
+
+    /**
+     * Draws a block's lines stacked: the last line sits at {@code bottomY}, the rest above it. Lines wider than
+     * {@link #MAX_WIDTH} are wrapped first, so the block never overlaps itself.
+     */
+    public static void drawLines(PoseStack pose, MultiBufferSource buffers, List<Component> lines, double x, double bottomY,
+                                 double z, float scale, int light) {
+        Font font = Minecraft.getInstance().font;
+        List<Component> all = com.holeydigsite.util.LabelWrap.wrap(lines, font::width, MAX_WIDTH);
+        double gap = LINE * scale / SMALL;
+        double y = bottomY + gap * (all.size() - 1);
+        for (Component line : all) {
+            draw(pose, buffers, line, x, y, z, scale, light);
+            y -= gap;
+        }
     }
 }

@@ -37,7 +37,11 @@ public class ShopDisplayRenderer implements BlockEntityRenderer<ShopDisplayBlock
         pose.pushPose();
         pose.translate(0.5, 0.62, 0.5);
         pose.mulPose(Axis.YP.rotationDegrees(angle));
-        pose.scale(1.1F, 1.1F, 1.1F);
+        float scale = 1.1F;
+        if (FlatItems.isFlat(shownStack)) {
+            scale = FlatItems.isLump(shownStack) ? 1.4F : 1.6F;   // flat 3D models are smaller than a sprite
+        }
+        pose.scale(scale, scale, scale);
         itemRenderer.renderStatic(shownStack, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffers,
                 display.getLevel(), (int) display.getBlockPos().asLong());
         pose.popPose();

@@ -1,0 +1,139 @@
+{
+  "kind": "food",
+  "entries": [
+    {
+      "id": "wheat",
+      "item": "minecraft:wheat",
+      "amount": [16, 56],
+      "step": 8,
+      "min_level": 1,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 13
+    },
+    {
+      "id": "beetroot",
+      "item": "minecraft:beetroot",
+      "amount": [12, 36],
+      "step": 4,
+      "min_level": 1,
+      "weight": 6,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 12
+    },
+    {
+      "id": "glowroot",
+      "item": "holeydigsite:glowroot",
+      "amount": [16, 40],
+      "step": 8,
+      "min_level": 14,
+      "weight": 6,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 24
+    },
+    {
+      "id": "roasted_glowroot",
+      "item": "holeydigsite:roasted_glowroot",
+      "amount": [20, 48],
+      "step": 4,
+      "min_level": 14,
+      "weight": 6,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 24
+    },
+    {
+      "id": "riverbean",
+      "item": "holeydigsite:riverbean",
+      "amount": [40, 96],
+      "step": 8,
+      "min_level": 12,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 24,
+      "plot": "gravel_flats"
+    },
+    {
+      "id": "riverbean_stew",
+      "item": "holeydigsite:riverbean_stew",
+      "amount": [12, 32],
+      "step": 4,
+      "min_level": 20,
+      "weight": 6,
+      "reward": 1.4,
+      "renown": 12,
+      "max_level": 24,
+      "plot": "gravel_flats"
+    },
+    {
+      "id": "dune_melon_slice",
+      "item": "holeydigsite:dune_melon_slice",
+      "amount": [40, 96],
+      "step": 8,
+      "min_level": 14,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 24,
+      "plot": "sand_dunes"
+    },
+    {
+      "id": "dune_melon_juice",
+      "item": "holeydigsite:dune_melon_juice",
+      "amount": [24, 64],
+      "step": 8,
+      "min_level": 20,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 12,
+      "max_level": 24,
+      "plot": "sand_dunes"
+    },
+    {
+      "id": "glowroot_bulk",
+      "item": "holeydigsite:glowroot",
+      "amount": [128, 256],
+      "step": 32,
+      "min_level": 24,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 15
+    },
+    {
+      "id": "roasted_glowroot_bulk",
+      "item": "holeydigsite:roasted_glowroot",
+      "amount": [128, 224],
+      "step": 32,
+      "min_level": 24,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 15
+    },
+    {
+      "id": "riverbean_stew_bulk",
+      "item": "holeydigsite:riverbean_stew",
+      "amount": [64, 128],
+      "step": 8,
+      "min_level": 24,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 18,
+      "plot": "gravel_flats"
+    },
+    {
+      "id": "dune_melon_juice_bulk",
+      "item": "holeydigsite:dune_melon_juice",
+      "amount": [128, 256],
+      "step": 32,
+      "min_level": 24,
+      "weight": 5,
+      "reward": 1.4,
+      "renown": 18,
+      "plot": "sand_dunes"
+    }
+  ]
+}

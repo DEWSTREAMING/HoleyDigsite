@@ -41,6 +41,9 @@ public final class SiteEvents {
             return;
         }
         ServerLevel level = player.serverLevel().getServer().overworld();
+        for (ServerLevel l : level.getServer().getAllLevels()) {
+            com.holeydigsite.plot.PlotData.get(l).syncOwner(player.getUUID(), player.getGameProfile().getName());
+        }
         CompoundTag pd = player.getPersistentData();
         int seen = pd.getInt(SEEN);
         int last = seen;

@@ -1,0 +1,11 @@
+{
+  "parent": "holeydigsite:block/crate_closed",
+  "textures": {
+    "side": "holeydigsite:block/iron_crate_side",
+    "front": "holeydigsite:block/iron_crate_front",
+    "top": "holeydigsite:block/iron_crate_top",
+    "bottom": "holeydigsite:block/iron_crate_bottom",
+    "inside": "holeydigsite:block/crate_inside",
+    "particle": "holeydigsite:block/iron_crate_side"
+  }
+}

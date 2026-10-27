@@ -159,7 +159,7 @@ public class PlotBoardBlock extends BaseEntityBlock {
             return false;
         }
         b.register();
-        PlotData.get(sl).setOwned(b.plotId(), pos, true, player.getGameProfile().getName());
+        PlotData.get(sl).setOwned(b.plotId(), pos, true, player.getGameProfile().getName(), player.getUUID());
         if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
             int ownedCount = (int) PlotData.get(sl).all().stream().filter(PlotData.Plot::owned).map(PlotData.Plot::id).distinct().count();
             com.holeydigsite.ledger.ModTriggers.PLOT_BOUGHT.get().trigger(sp, b.plotId(), ownedCount);

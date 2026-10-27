@@ -174,7 +174,7 @@ public class ShopButtonBlock extends Block {
             }
             cashSound(level, pos);
             player.displayClientMessage(Component.translatable("message.holeydigsite.button.sold", itemsSold,
-                    Selling.format(sold)).withStyle(ChatFormatting.GOLD), true);
+                    Selling.format(sold, 34)).withStyle(ChatFormatting.GOLD), true);
         }
 
         // Buy all adjacent buy pads at once.
@@ -207,7 +207,7 @@ public class ShopButtonBlock extends Block {
         if (cost > 0) {
             if (!pan.withdraw(cost)) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.button.not_enough",
-                        Selling.format(cost - pan.balance())).withStyle(ChatFormatting.RED), true);
+                        Selling.format(cost - pan.balance(), 26)).withStyle(ChatFormatting.RED), true);
                 level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 0.6F, 1.0F);
                 return new Result(sold, itemsSold, 0, 0);
             }
@@ -228,7 +228,7 @@ public class ShopButtonBlock extends Block {
             level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 0.5F, 1.4F);
             cashSound(level, pos);
             player.displayClientMessage(Component.translatable("message.holeydigsite.button.bought", stacks,
-                    Selling.format(cost)).withStyle(ChatFormatting.GREEN), true);
+                    Selling.format(cost, 32)).withStyle(ChatFormatting.GREEN), true);
         }
         return new Result(sold, itemsSold, spent, stacks);
     }

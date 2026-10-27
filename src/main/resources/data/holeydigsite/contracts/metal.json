@@ -1,0 +1,150 @@
+{
+  "kind": "metal",
+  "entries": [
+    {
+      "id": "folkiron_small",
+      "metal": "holeydigsite:folkiron",
+      "amount": [30, 100],
+      "step": 10,
+      "min_level": 1,
+      "weight": 10,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 11
+    },
+    {
+      "id": "goldchro_small",
+      "metal": "holeydigsite:goldchro",
+      "amount": [15, 40],
+      "step": 5,
+      "min_level": 5,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 10,
+      "max_level": 12
+    },
+    {
+      "id": "folkiron_mid",
+      "metal": "holeydigsite:folkiron",
+      "amount": [100, 300],
+      "step": 50,
+      "min_level": 10,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 12,
+      "max_level": 24
+    },
+    {
+      "id": "goldchro_mid",
+      "metal": "holeydigsite:goldchro",
+      "amount": [50, 150],
+      "step": 25,
+      "min_level": 12,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 15,
+      "max_level": 24
+    },
+    {
+      "id": "orchremia_small",
+      "metal": "holeydigsite:orchremia",
+      "amount": [50, 140],
+      "step": 10,
+      "min_level": 12,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 12,
+      "max_level": 24,
+      "plot": "gravel_flats"
+    },
+    {
+      "id": "folkiron_big",
+      "metal": "holeydigsite:folkiron",
+      "amount": [300, 700],
+      "step": 50,
+      "min_level": 22,
+      "weight": 7,
+      "reward": 1.4,
+      "renown": 15,
+      "max_level": 40
+    },
+    {
+      "id": "folkiron_min",
+      "metal": "holeydigsite:folkiron",
+      "amount": [300, 600],
+      "step": 50,
+      "min_level": 22,
+      "weight": 5,
+      "reward": 1.5,
+      "renown": 18,
+      "min_ingot": 100
+    },
+    {
+      "id": "goldchro_big",
+      "metal": "holeydigsite:goldchro",
+      "amount": [150, 350],
+      "step": 25,
+      "min_level": 22,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 20,
+      "max_level": 40
+    },
+    {
+      "id": "orchremia_big",
+      "metal": "holeydigsite:orchremia",
+      "amount": [200, 450],
+      "step": 50,
+      "min_level": 22,
+      "weight": 7,
+      "reward": 1.4,
+      "renown": 20,
+      "plot": "gravel_flats"
+    },
+    {
+      "id": "silvane_small",
+      "metal": "holeydigsite:silvane",
+      "amount": [60, 150],
+      "step": 10,
+      "min_level": 22,
+      "weight": 7,
+      "reward": 1.4,
+      "renown": 18,
+      "max_level": 38,
+      "plot": "sand_dunes"
+    },
+    {
+      "id": "goldchro_vast",
+      "metal": "holeydigsite:goldchro",
+      "amount": [350, 700],
+      "step": 50,
+      "min_level": 36,
+      "weight": 7,
+      "reward": 1.4,
+      "renown": 25
+    },
+    {
+      "id": "silvane_big",
+      "metal": "holeydigsite:silvane",
+      "amount": [150, 300],
+      "step": 10,
+      "min_level": 34,
+      "weight": 8,
+      "reward": 1.4,
+      "renown": 22,
+      "plot": "sand_dunes"
+    },
+    {
+      "id": "silvane_min",
+      "metal": "holeydigsite:silvane",
+      "amount": [200, 400],
+      "step": 50,
+      "min_level": 38,
+      "weight": 5,
+      "reward": 1.5,
+      "renown": 25,
+      "min_ingot": 100,
+      "plot": "sand_dunes"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    },
+    {
+      "item": "holeydigsite:platinum_coin"
+    }
+  ],
+  "result": {
+    "id": "holeydigsite:ruby_crown",
+    "count": 1
+  }
+}

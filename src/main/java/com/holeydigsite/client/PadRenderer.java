@@ -49,13 +49,21 @@ public class PadRenderer implements BlockEntityRenderer<PadBlockEntity> {
             pose.pushPose();
             pose.translate(CELLS[i % 3] / 16.0, TOP + 0.001, CELLS[i / 3] / 16.0);
             pose.mulPose(Axis.YP.rotationDegrees(i * 37.0F));
-            if (!(s.getItem() instanceof BlockItem)) {
+            float scale = 0.3F;
+            if (s.getItem() instanceof com.holeydigsite.item.IngotItem) {
+                // the bar model lies flat already
+                scale = 0.65F;
+                pose.translate(0, 0.01 + scale / 16.0F, 0);
+            } else if (FlatItems.isLump(s)) {
+                scale = 0.8F;
+                pose.translate(0, 0.01 + scale / 16.0F, 0);
+            } else if (!(s.getItem() instanceof BlockItem)) {
                 pose.translate(0, 0.06, 0);
                 pose.mulPose(Axis.XP.rotationDegrees(90.0F));
             } else {
                 pose.translate(0, 0.14, 0);
             }
-            pose.scale(0.3F, 0.3F, 0.3F);
+            pose.scale(scale, scale, scale);
             itemRenderer.renderStatic(s, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffers,
                     pad.getLevel(), (int) pad.getBlockPos().asLong() + i);
             pose.popPose();

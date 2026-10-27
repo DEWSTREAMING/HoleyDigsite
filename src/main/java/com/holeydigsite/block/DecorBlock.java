@@ -25,22 +25,26 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.List;
 
 /**
- * Phase 21b: the simple decorative blocks given out by the Prospector's Ledger (claim flag, ore cart, tool rack, lucky
- * lantern, gem display case, golden pan trophy). One class, one {@code FACING} state; the front faces the player when placed.
+ * Simple decorative blocks from the Prospector's Ledger (claim flag, ore cart, tool rack, lucky
+ * lantern, gem display case, golden pan trophy) and Mining Crates (helmet stand, mine bell, sluice model, drill statue). One class, one {@code FACING} state; the front faces the player when placed.
  * The collision shape of each kind is given for the NORTH-facing model and rotated for the other directions.
  * The Tool Rack is a wall block: it hangs on the side of the block it was placed against and faces away from that wall.
  */
 public class DecorBlock extends HorizontalDirectionalBlock {
     public static final MapCodec<DecorBlock> CODEC = simpleCodec(p -> new DecorBlock(p, Kind.CLAIM_FLAG));
 
-    /** The six kinds: the NORTH-facing boxes (x1, y1, z1, x2, y2, z2 in 1/16 blocks) and whether it hangs on a wall. */
+    /** The kinds: the NORTH-facing boxes (x1, y1, z1, x2, y2, z2 in 1/16 blocks) and whether it hangs on a wall. */
     public enum Kind {
         CLAIM_FLAG(false, new double[][]{{6, 0, 6, 10, 16, 10}}),
         ORE_CART(false, new double[][]{{0, 0, 2, 16, 10, 14}}),
         TOOL_RACK(true, new double[][]{{0, 1, 12, 16, 15, 16}}),
         LUCKY_LANTERN(false, new double[][]{{5, 0, 5, 11, 15, 11}}),
         GEM_DISPLAY_CASE(false, new double[][]{{1, 0, 1, 15, 16, 15}}),
-        GOLDEN_PAN_TROPHY(false, new double[][]{{2, 0, 2, 14, 10, 16}});
+        GOLDEN_PAN_TROPHY(false, new double[][]{{2, 0, 2, 14, 10, 16}}),
+        MINERS_HELMET_STAND(false, new double[][]{{4, 0, 4, 12, 2, 12}, {7, 2, 7, 9, 11, 9}, {4, 11, 4, 12, 16, 12}}),
+        RUSTY_MINE_BELL(false, new double[][]{{1, 0, 6, 15, 16, 10}}),
+        SLUICE_MODEL(false, new double[][]{{1, 0, 3, 15, 9, 13}}),
+        GOLDEN_DRILL_STATUE(false, new double[][]{{2, 0, 2, 14, 4, 14}, {4, 4, 4, 12, 16, 12}});
 
         private final boolean wall;
         private final VoxelShape[] shapes = new VoxelShape[4]; // by Direction.get2DDataValue (S, W, N, E)

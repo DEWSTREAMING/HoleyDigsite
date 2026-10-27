@@ -210,7 +210,7 @@ def main():
     save(overlay_mesh(), os.path.join(TEX_B, 'sluice_insert_mesh.png'))
     rotation = {'origin': [8, 8, 8], 'axis': 'x', 'angle': -22.5}
     # Riffle Insert: three more raised bars in between the sluice's own riffles (same slope as the ramp)
-    bars = [{'from': [2, 8, z], 'to': [14, 9.4, z + 1], 'rotation': rotation, 'faces': face_all()} for z in (7.5, 10.5, 13.5)]
+    bars = [{'from': [2, 8, z], 'to': [14, 9.4, z + 0.9], 'rotation': rotation, 'faces': face_all()} for z in (7.5, 10.5, 13.5)]   # 0.9: not flush with the tray dirt
     overlay_model('sluice_upgrade_riffle', 'sluice_insert_riffle', bars)
     # Fine Mesh Screen: a flat grid lying just above the ramp
     mesh = [{'from': [2, 8.6, 4], 'to': [14, 8.7, 15], 'rotation': rotation,
