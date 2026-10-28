@@ -1,0 +1,11 @@
+name: Idea
+description: A suggestion for the mod or the modpack.
+labels: ["idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What you would like and why it would be fun.
+    validations:
+      required: true

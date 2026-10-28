@@ -1,0 +1,43 @@
+name: Mod bug
+description: Something in Holey Digsite is broken (any pack or no pack).
+labels: ["bug", "mod"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Holey Digsite version
+      description: The number in the jar name or the mods list, e.g. 1.25.0.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what happened instead. Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to make it happen again
+      placeholder: |
+        1. Place a sluice next to ...
+        2. ...
+  - type: input
+    id: mods
+    attributes:
+      label: Other mods or modpack
+      description: Leave empty if you only run Holey Digsite. Name the modpack if you use one.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Single player or server
+      options:
+        - Single player
+        - Server / LAN
+  - type: textarea
+    id: log
+    attributes:
+      label: Crash report or log
+      description: For a crash, paste a link to the crash report or latest.log (mclo.gs works well).
+      render: text

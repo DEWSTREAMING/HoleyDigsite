@@ -1,0 +1,42 @@
+name: Modpack bug
+description: Something is wrong with the Holey Digsite - First Up modpack (world setup, island, missing mods, configs).
+labels: ["bug", "modpack"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Modpack version
+      description: Shown in the CurseForge app, e.g. 1.0.0.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: What is it about
+      options:
+        - New world / the island
+        - Trading Post or plots
+        - Starter kit
+        - A mod in the pack
+        - Install or launch
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected and what happened instead. Screenshots help.
+    validations:
+      required: true
+  - type: input
+    id: changes
+    attributes:
+      label: Did you add or remove mods?
+      placeholder: No, the pack as it is
+  - type: textarea
+    id: log
+    attributes:
+      label: Crash report or log
+      description: For a crash, paste a link to the crash report or latest.log (mclo.gs works well).
+      render: text

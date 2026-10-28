@@ -5,6 +5,11 @@ into water-powered machines, new land, metal casting and smithing.
 
 The mod is in alpha. Downloads and the full description are on CurseForge.
 
+## Reporting issues
+Bugs and ideas for the mod and for the Holey Digsite - First Up modpack both go in the
+[issues](https://github.com/DEWSTREAMING/HoleyDigsite/issues/new/choose) here. Pick "Mod bug" or "Modpack bug" so it
+gets the right label, and add a crash report or log link if the game crashed.
+
 ## Fair play
 Everything in Holey Digsite is earned in game. Coins, crates, cosmetics and every other reward can only be obtained by
 playing. Selling any of it for real money, whether crates, coins, items, cosmetics, ranks or any other advantage, directly or
