@@ -42,7 +42,8 @@ import java.util.List;
  * here, never from the player's inventory; Sell Pad sales are paid in here.
  * <ul>
  *   <li>Right-click with coins: deposits that stack. Sneak-right-click: deposits every coin in the inventory.</li>
- *   <li>Empty-hand right-click: withdraws the whole balance as coins, largest first (overflow at the feet).</li>
+ *   <li>Empty-hand right-click: withdraws the whole balance as coins, largest first (overflow at the feet). Only the
+ *       island's team may (see {@link com.holeydigsite.team.TeamAccess}); anyone may pay in.</li>
  *   <li>Coins thrown onto it are deposited.</li>
  *   <li>{@link #PILE} 0-3 picks the baked coin-pile model (empty / a few coppers / silver pile / big gold pile).</li>
  *   <li>Breaking a crafted pan drops it plus its balance as coins; {@code locked=true} (island) can't be broken.</li>
@@ -185,6 +186,11 @@ public class MoneyPanBlock extends BaseEntityBlock {
         if (pan == null) {
             return 0;
         }
+        if (!mayTake(level, pos, player)) {
+            player.displayClientMessage(Component.translatable("message.holeydigsite.money_pan.other_team")
+                    .withStyle(ChatFormatting.RED), true);
+            return 0;
+        }
         long all = pan.withdrawAll();
         if (all <= 0) {
             player.displayClientMessage(Component.translatable("message.holeydigsite.money_pan.empty")
@@ -201,6 +207,12 @@ public class MoneyPanBlock extends BaseEntityBlock {
         player.displayClientMessage(Component.translatable("message.holeydigsite.money_pan.withdrew", Selling.format(all, 46))
                 .withStyle(ChatFormatting.GOLD), true);
         return all;
+    }
+
+    /** Only the island's team takes coins out; anyone may pay in. Creative players are never stopped. */
+    public static boolean mayTake(Level level, BlockPos pos, Player player) {
+        return !(level instanceof ServerLevel sl) || !com.holeydigsite.plot.PlotLock.restricted(player)
+                || com.holeydigsite.team.TeamAccess.get().allows(sl, pos, player.getUUID());
     }
 
     private static void depositFeedback(Level level, BlockPos pos, @Nullable Player player, long copper, long balance) {

@@ -37,6 +37,24 @@ repositories {
         url = 'https://maven.blamejared.com/'
         content { includeGroup 'mezz.jei' }
     }
+    // Team mods (optional): Skyblock Builder + LibX, FTB Teams + FTB Library + Architectury. Compile only; they run in dev
+    // only with -PteamsRuntime, so normal runs and GameTests stay without them.
+    maven {
+        url = 'https://maven.melanx.de/release/'
+        content { includeGroup 'de.melanx' }
+    }
+    maven {
+        url = 'https://maven.moddingx.org/release/'
+        content { includeGroup 'org.moddingx' }
+    }
+    maven {
+        url = 'https://maven.ftb.dev/releases/'
+        content { includeGroup 'dev.ftb.mods' }
+    }
+    maven {
+        url = 'https://maven.architectury.dev/'
+        content { includeGroup 'dev.architectury' }
+    }
 }
 
 base {
@@ -136,6 +154,20 @@ dependencies {
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     if (project.hasProperty('jeiRuntime')) {
         localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    }
+
+    // Optional team mods. transitive = false: only the jars we name, nothing pulled into the jar or the normal runs.
+    compileOnly("de.melanx:SkyblockBuilder:${skyblockbuilder_version}") { transitive = false }
+    compileOnly("org.moddingx:LibX:${libx_version}") { transitive = false }
+    compileOnly("dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}") { transitive = false }
+    compileOnly("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") { transitive = false }
+    compileOnly("dev.architectury:architectury-neoforge:${architectury_version}") { transitive = false }
+    if (project.hasProperty('teamsRuntime')) {
+        localRuntime("de.melanx:SkyblockBuilder:${skyblockbuilder_version}") { transitive = false }
+        localRuntime("org.moddingx:LibX:${libx_version}") { transitive = false }
+        localRuntime("dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}") { transitive = false }
+        localRuntime("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") { transitive = false }
+        localRuntime("dev.architectury:architectury-neoforge:${architectury_version}") { transitive = false }
     }
 
 

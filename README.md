@@ -5,6 +5,9 @@ into water-powered machines, new land, metal casting and smithing.
 
 The mod is in alpha. Downloads and the full description are on CurseForge.
 
+Made by Dewey. Inspired by Hydroneer by Foulball Hangover. Holey Digsite is a fan-made mod and isn't affiliated with
+Hydroneer or its developers. All code, textures and models in this repository were made for this mod.
+
 ## Reporting issues
 Bugs and ideas for the mod and for the Holey Digsite - First Up modpack both go in the
 [issues](https://github.com/DEWSTREAMING/HoleyDigsite/issues/new/choose) here. Pick "Mod bug" or "Modpack bug" so it

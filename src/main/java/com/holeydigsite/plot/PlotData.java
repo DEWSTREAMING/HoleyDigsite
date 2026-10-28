@@ -132,6 +132,17 @@ public class PlotData extends SavedData {
         return null;
     }
 
+    /** The plot containing {@code pos}, bought or not, or null. */
+    @Nullable
+    public Plot plotAt(BlockPos pos) {
+        for (Plot p : plots.values()) {
+            if (p.box().isInside(pos)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
     /** The unbought plot containing {@code pos}, or null. */
     @Nullable
     public Plot lockedAt(BlockPos pos) {

@@ -107,3 +107,19 @@ indirectly (including on servers or in modpacks that use this mod), is not permi
     versionRange="[9.2.0,)"
     ordering="AFTER"
     side="BOTH"
+
+# Team mods: optional. With Skyblock Builder, bought plots and Money Pans belong to the island's team; with FTB Teams too,
+# island teams follow FTB Teams parties.
+[[dependencies.${mod_id}]]
+    modId="skyblockbuilder"
+    type="optional"
+    versionRange="[21.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="ftbteams"
+    type="optional"
+    versionRange="[2101.1.0,)"
+    ordering="AFTER"
+    side="BOTH"

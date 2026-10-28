@@ -72,7 +72,7 @@ public final class RecipeWheelNetwork {
         if (player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > 64.0) {
             return false;
         }
-        if (PlotLock.isLocked(level, pos)) {
+        if (PlotLock.access(player, level, pos) != PlotLock.Access.OK) {
             return false;
         }
         BlockEntity be = level.getBlockEntity(pos);

@@ -1,5 +1,6 @@
 package com.holeydigsite.plot;
 
+import com.holeydigsite.team.TeamAccess;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -142,6 +143,19 @@ public class PlotBoardBlock extends BaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
+    /**
+     * Distinct plots bought on the same island team as the board at {@code board} (the "plot bought" count). Without a
+     * team mod no plot has a team, so this counts every bought plot in the dimension as before.
+     */
+    public static int teamPlotCount(ServerLevel level, BlockPos board) {
+        TeamAccess teams = TeamAccess.get();
+        java.util.UUID team = teams.islandTeamAt(level, board);
+        return (int) PlotData.get(level).all().stream()
+                .filter(PlotData.Plot::owned)
+                .filter(p -> java.util.Objects.equals(team, teams.islandTeamAt(level, p.board())))
+                .map(PlotData.Plot::id).distinct().count();
+    }
+
     /** Claims the plot with a deed. Returns true if the plot became owned. */
     public static boolean claim(Level level, BlockPos pos, Player player, ItemStack deed) {
         PlotBoardBlockEntity b = board(level, pos);
@@ -153,6 +167,10 @@ public class PlotBoardBlock extends BaseEntityBlock {
             player.displayClientMessage(Component.translatable("message.holeydigsite.plot.already_owned").withStyle(ChatFormatting.YELLOW), true);
             return false;
         }
+        if (PlotLock.restricted(player) && !TeamAccess.get().allows(sl, pos, player.getUUID())) {
+            player.displayClientMessage(Component.translatable("message.holeydigsite.plot.claim_other_team").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
         if (!item.plotId().equals(b.plotId())) {
             player.displayClientMessage(Component.translatable("message.holeydigsite.plot.wrong_deed",
                     LandDeedItem.plotName(item.plotId())).withStyle(ChatFormatting.RED), true);
@@ -161,8 +179,7 @@ public class PlotBoardBlock extends BaseEntityBlock {
         b.register();
         PlotData.get(sl).setOwned(b.plotId(), pos, true, player.getGameProfile().getName(), player.getUUID());
         if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
-            int ownedCount = (int) PlotData.get(sl).all().stream().filter(PlotData.Plot::owned).map(PlotData.Plot::id).distinct().count();
-            com.holeydigsite.ledger.ModTriggers.PLOT_BOUGHT.get().trigger(sp, b.plotId(), ownedCount);
+            com.holeydigsite.ledger.ModTriggers.PLOT_BOUGHT.get().trigger(sp, b.plotId(), teamPlotCount(sl, pos));
         }
         level.setBlock(pos, level.getBlockState(pos).setValue(OWNED, true), Block.UPDATE_CLIENTS);
         deed.consume(1, player);

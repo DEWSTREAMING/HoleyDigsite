@@ -106,8 +106,7 @@ public class CrateBlock extends HorizontalDirectionalBlock {
         if (!(state.getBlock() instanceof CrateBlock crate) || state.getValue(OPEN)) {
             return false;
         }
-        if (PlotLock.isLocked(level, pos)) {
-            sp.displayClientMessage(Component.translatable("message.holeydigsite.plot.locked"), true);
+        if (!PlotLock.canUse(sp, level, pos)) {
             return false;
         }
         CrateDefs.CrateTier def = CrateDefs.tier(crate.tier);
