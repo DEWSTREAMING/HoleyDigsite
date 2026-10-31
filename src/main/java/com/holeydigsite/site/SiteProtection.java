@@ -96,7 +96,18 @@ public final class SiteProtection {
             event.setCanceled(true);
             if (e instanceof Player p) {
                 tell(p);
+                resync(p);
             }
+        }
+    }
+
+    /**
+     * The client already took the block out of the hand when it placed it; the server puts the stack back unchanged, so no
+     * slot update would go out and the item looks gone until the inventory is touched. Send the inventory again.
+     */
+    public static void resync(Player p) {
+        if (p instanceof net.minecraft.server.level.ServerPlayer sp) {
+            sp.containerMenu.sendAllDataToRemote();
         }
     }
 

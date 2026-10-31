@@ -119,6 +119,41 @@ public class Phase21kTests {
         return m;
     }
 
+    /** An old Trading Post that still sells the three crates gets Bolt Cutters on the first shelf place and empty displays on the other two. */
+    @GameTest(template = "empty", batch = "p21k_trading_post", timeoutTicks = 100)
+    public static void tradingPostSwapsTheCrateShelfForCutters(GameTestHelper h) {
+        ServerLevel l = h.getLevel();
+        BlockPos a = far(43);
+        prepare(l, a);
+        try {
+            SiteDef d = def(HOME);
+            Sites.Result r = Sites.build(l, d, a, null, false);
+            BoundingBox z = r.site().zone();
+            Map<Integer, ShopDisplayBlockEntity> des = displayEntities(l, z);
+            des.get(37).setItem(ModItems.WOODEN_CRATE.get());
+            des.get(38).setItem(ModItems.IRON_CRATE.get());
+            des.get(39).setItem(ModItems.GOLD_CRATE.get());
+            SiteData data = SiteData.get(l);
+            SiteData.Site old = data.get(d.id(), a);
+            List<String> oldShown = new ArrayList<>(old.shown());
+            oldShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.BOLT_CUTTERS.get()).toString());
+            oldShown.add(BuiltInRegistries.ITEM.getKey(ModItems.WOODEN_CRATE.get()).toString());
+            oldShown.add(BuiltInRegistries.ITEM.getKey(ModItems.IRON_CRATE.get()).toString());
+            oldShown.add(BuiltInRegistries.ITEM.getKey(ModItems.GOLD_CRATE.get()).toString());
+            data.put(new SiteData.Site(old.id(), old.anchor(), old.zone(), old.version(), oldShown, old.parent()));
+            Sites.checkAll(l);
+            Map<Integer, Item> shown = displays(l, z);
+            check(h, shown.get(37) == ModItems.BOLT_CUTTERS.get(), "slot 37 shows Bolt Cutters");
+            check(h, shown.get(38) == null && shown.get(39) == null, "slots 38 and 39 are empty");
+            for (Item item : shown.values()) {
+                check(h, item != ModItems.WOODEN_CRATE.get() && item != ModItems.IRON_CRATE.get() && item != ModItems.GOLD_CRATE.get(), "no crate is on sale");
+            }
+            h.succeed();
+        } finally {
+            cleanup(l, List.of(a));
+        }
+    }
+
     /**
      * 1. Real path: Trading Post in existing world with missing displays (slots 34 and 35) automatically
      * places the display blocks on load and populates them with Down Conveyor Belt and Drop Chute without a rebuild.
@@ -154,9 +189,7 @@ public class Phase21kTests {
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.DOWN_INCLINE_BELT.get()).toString());
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.DROP_CHUTE.get()).toString());
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.SKIN_BENCH.get()).toString());
-            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.WOODEN_CRATE.get()).toString());
-            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.IRON_CRATE.get()).toString());
-            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.GOLD_CRATE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.BOLT_CUTTERS.get()).toString());
             check(h, pre21iShown.size() == 33, "pre-21i shown has 33 items: " + pre21iShown.size());
             data.put(new SiteData.Site(oldSite.id(), oldSite.anchor(), oldSite.zone(), oldSite.version(), pre21iShown, oldSite.parent()));
 
@@ -197,7 +230,7 @@ public class Phase21kTests {
 
             // Verify SiteData updated to 36 items
             SiteData.Site updatedSite = data.get(d.id(), a);
-            check(h, updatedSite != null && updatedSite.shown().size() == 39, "updated site records 39 shown items");
+            check(h, updatedSite != null && updatedSite.shown().size() == 37, "updated site records 37 shown items");
 
             // Verify custom display preserved
             ShopDisplayBlockEntity postCustom = (ShopDisplayBlockEntity) l.getBlockEntity(customPos);

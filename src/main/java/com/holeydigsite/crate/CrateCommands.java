@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * {@code /holeydigsite crate give <player> <tier> [count]} and {@code /holeydigsite crate odds <tier>}.
+ * {@code /holeydigsite crate give <player> <id> [count] [locked]}, {@code crate odds <id>} and {@code crate switch <player> [on|off]}.
  */
 public final class CrateCommands {
     private CrateCommands() {}
@@ -31,16 +31,37 @@ public final class CrateCommands {
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("tier", StringArgumentType.word())
                                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(CrateDefs.tiers().keySet(), b))
-                                                .executes(c -> give(c, 1))
+                                                .executes(c -> give(c, 1, false))
                                                 .then(Commands.argument("count", IntegerArgumentType.integer(1, 64))
-                                                        .executes(c -> give(c, IntegerArgumentType.getInteger(c, "count")))))))
+                                                        .executes(c -> give(c, IntegerArgumentType.getInteger(c, "count"), false))
+                                                        .then(Commands.literal("locked")
+                                                                .executes(c -> give(c, IntegerArgumentType.getInteger(c, "count"), true)))))))
                         .then(Commands.literal("odds")
                                 .then(Commands.argument("tier", StringArgumentType.word())
                                         .suggests((c, b) -> SharedSuggestionProvider.suggest(CrateDefs.tiers().keySet(), b))
-                                        .executes(CrateCommands::odds)))));
+                                        .executes(CrateCommands::odds)))
+                        .then(Commands.literal("switch")
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .executes(c -> switchTo(c, null))
+                                        .then(Commands.literal("on").executes(c -> switchTo(c, true)))
+                                        .then(Commands.literal("off").executes(c -> switchTo(c, false)))))));
     }
 
-    private static int give(CommandContext<CommandSourceStack> c, int count) throws CommandSyntaxException {
+    private static int switchTo(CommandContext<CommandSourceStack> c, Boolean on) throws CommandSyntaxException {
+        ServerPlayer target = EntityArgument.getPlayer(c, "player");
+        if (on == null) {
+            boolean now = com.holeydigsite.ledger.LedgerData.get(target).cratesOn();
+            c.getSource().sendSuccess(() -> Component.translatable(now ? "command.holeydigsite.crate.switch.is_on" : "command.holeydigsite.crate.switch.is_off",
+                    target.getDisplayName()), false);
+            return now ? 1 : 0;
+        }
+        CrateSwitchBlock.set(target, on);
+        c.getSource().sendSuccess(() -> Component.translatable(on ? "command.holeydigsite.crate.switch.set_on" : "command.holeydigsite.crate.switch.set_off",
+                target.getDisplayName()), true);
+        return 1;
+    }
+
+    private static int give(CommandContext<CommandSourceStack> c, int count, boolean locked) throws CommandSyntaxException {
         ServerPlayer target = EntityArgument.getPlayer(c, "player");
         String tier = StringArgumentType.getString(c, "tier");
         Item item = BuiltInRegistries.ITEM.get(HoleyDigsite.id(tier));
@@ -48,7 +69,7 @@ public final class CrateCommands {
             c.getSource().sendFailure(Component.translatable("command.holeydigsite.crate.unknown", tier));
             return 0;
         }
-        LedgerManager.giveCountOrDrop(target, new ItemStack(item), count);
+        LedgerManager.giveCountOrDrop(target, CrateBlock.stack(item, locked), count);
         c.getSource().sendSuccess(() -> Component.translatable("command.holeydigsite.crate.given", count,
                 Component.translatable(item.getDescriptionId()), target.getDisplayName()), true);
         return count;
@@ -77,8 +98,18 @@ public final class CrateCommands {
         if (CrateBlock.hasSkins(def)) {
             c.getSource().sendSuccess(() -> Component.translatable("command.holeydigsite.crate.odds.skins"), false);
         }
-        if (def.panFindOneIn() > 0) {
-            c.getSource().sendSuccess(() -> Component.translatable("command.holeydigsite.crate.odds.pan", def.panFindOneIn()), false);
+        for (String source : CrateDefs.FIND_SOURCES) {
+            if (def.findOneIn(source) > 0) {
+                c.getSource().sendSuccess(() -> Component.translatable("command.holeydigsite.crate.odds.find." + source, def.findOneIn(source)), false);
+            }
+        }
+        for (String r : CrateDefs.RARITIES) {
+            if (def.percent(r) <= 0) continue;
+            for (CrateDefs.Entry e : def.pool(r)) {
+                c.getSource().sendSuccess(() -> Component.translatable("command.holeydigsite.crate.odds.entry",
+                        Component.translatable("rarity.holeydigsite." + r).withStyle(CrateDefs.rarityFormatting(r)),
+                        CrateCollections.entryName(e)), false);
+            }
         }
         return 1;
     }

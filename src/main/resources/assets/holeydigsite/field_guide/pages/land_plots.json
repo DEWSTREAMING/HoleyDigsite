@@ -1,0 +1,15 @@
+{
+  "order": 7,
+  "title": "field_guide.holeydigsite.page.land_plots.title",
+  "text": [
+    "field_guide.holeydigsite.page.land_plots.line1",
+    "field_guide.holeydigsite.page.land_plots.line2",
+    "field_guide.holeydigsite.page.land_plots.line3"
+  ],
+  "clip": "land_plots",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

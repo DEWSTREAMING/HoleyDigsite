@@ -300,7 +300,7 @@ public class Phase22Tests {
         for (String id : SkinDefs.skins().keySet()) {
             check(h, kitCount(player, id, SkinDefs.SLUICE, fresh) == 1, "sluice kit for " + id);
         }
-        check(h, SkinDefs.skins().size() >= 5, "all 5 skins exist");
+        check(h, SkinDefs.skins().size() >= 12, "all 12 skins exist");
 
         // Unknown skin gives nothing
         cmds.performPrefixedCommand(src, "holeydigsite skin give @s nonexistent mining_drill");
@@ -411,7 +411,7 @@ public class Phase22Tests {
 
     @GameTest(template = "empty")
     public static void testAllSkinTexturesExist(GameTestHelper h) {
-        String[] skins = {"rustic", "rustic_weathered", "brass", "frosted", "obsidian"};
+        String[] skins = {"rustic", "rustic_weathered", "brass", "frosted", "obsidian", "outback", "outback_dusty", "outback_ochre", "opal_calm", "opal", "opal_boulder", "black_opal"};
         File baseDir = new File("src/main/resources/assets/holeydigsite/textures/block/skin");
         if (!baseDir.exists()) {
             baseDir = new File("../src/main/resources/assets/holeydigsite/textures/block/skin");
@@ -436,7 +436,7 @@ public class Phase22Tests {
         for (String skin : skins) {
             File skinDir = new File(baseDir, skin);
             check(h, skinDir.isDirectory(), "skin directory exists for " + skin);
-            File[] files = skinDir.listFiles((dir, name) -> name.endsWith(".png"));
+            File[] files = skinDir.listFiles((dir, name) -> name.endsWith(".png") && !name.endsWith("_s.png") && !name.endsWith("_n.png"));
             check(h, files != null && files.length == 54, "skin " + skin + " must have 54 png files, got " + (files == null ? 0 : files.length));
 
             for (String req : requiredTextures) {

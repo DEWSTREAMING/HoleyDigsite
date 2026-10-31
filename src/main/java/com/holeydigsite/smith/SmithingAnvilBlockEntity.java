@@ -149,9 +149,13 @@ public class SmithingAnvilBlockEntity extends BlockEntity {
     // ------------------------------------------------------------------------------------------------ laying things on
 
     /** Why an item can't be laid on the anvil, or {@link Refusal#NONE}. */
-    public enum Refusal { NONE, NOT_ACCEPTED, UNCUT, UNKNOWN_METAL, LIGHT, FULL, SECOND_GEM }
+    public enum Refusal { NONE, NOT_ACCEPTED, UNCUT, UNKNOWN_METAL, LIGHT, FULL, SECOND_GEM, EVENT_ITEM }
 
     public Refusal check(ItemStack stack) {
+        if (com.holeydigsite.event.EventDefs.isEventMetal(stack) || com.holeydigsite.event.EventDefs.isEventGem(stack)
+                || com.holeydigsite.event.EventDefs.isEventItem(stack)) {
+            return Refusal.EVENT_ITEM;
+        }
         ResourceInfo info = Selling.resource(stack);
         if (stack.isEmpty() || info == null) {
             return Refusal.NOT_ACCEPTED;

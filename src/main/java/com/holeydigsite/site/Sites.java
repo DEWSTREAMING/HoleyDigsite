@@ -95,6 +95,12 @@ public final class Sites {
         QUEUE.computeIfAbsent(level.dimension(), k -> new LinkedHashMap<>()).putIfAbsent(pos.immutable(), 0);
     }
 
+    /** True once any queued site markers in this dimension have finished building. */
+    public static boolean isIslandReady(ServerLevel level) {
+        Map<BlockPos, Integer> q = QUEUE.get(level.dimension());
+        return q == null || q.isEmpty();
+    }
+
     /** Level tick: builds the queued markers whose block entity has its site (the template sets the NBT after the block). */
     public static void buildQueued(ServerLevel level) {
         Map<BlockPos, Integer> q = QUEUE.get(level.dimension());
@@ -136,6 +142,9 @@ public final class Sites {
         Result r = build(level, def, pos, null, false);
         if (r.built()) {
             WorldFixups.applyNewIsland(level, siteId, pos);   // An island placed from an older pack template gets fixed too
+            if (siteId.equals(HoleyDigsite.id("home"))) {
+                com.holeydigsite.event.EventIsland.onHomeBuilt(level, pos);
+            }
         }
     }
 

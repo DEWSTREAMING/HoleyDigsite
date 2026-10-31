@@ -19,6 +19,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import com.holeydigsite.crate.CrateCollections;
+import com.holeydigsite.crate.CrateDefs;
 import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -38,7 +40,7 @@ import java.util.Optional;
  * milestones grouped by chapter, and the title picker.
  */
 public class LedgerScreen extends Screen {
-    private static final int WIN_W = 340;
+    private static final int WIN_W = 420;
     private static final int WIN_H = 216;
     private static final int LIST_TOP_OFFSET = 50;
     private static final int LIST_BOTTOM_OFFSET = 12;
@@ -52,11 +54,14 @@ public class LedgerScreen extends Screen {
     private double scrollTrack = 0;
     private double scrollMilestones = 0;
     private double scrollTitles = 0;
+    private double scrollCollections = 0;
     private boolean autoScrolled = false;
 
     private Button tabTrackBtn;
     private Button tabMilestonesBtn;
     private Button tabTitlesBtn;
+    private Button tabCollectionsBtn;
+    private Button fieldGuideBtn;
     private Button claimAllBtn;
 
     public LedgerScreen() {
@@ -72,17 +77,30 @@ public class LedgerScreen extends Screen {
         this.tabTrackBtn = this.addRenderableWidget(Button.builder(
                 Component.translatable("screen.holeydigsite.ledger.tab.track"),
                 b -> switchTab(0)
-        ).bounds(leftPos + 10, topPos + 26, 84, 18).build());
+        ).bounds(leftPos + 10, topPos + 26, 74, 18).build());
 
         this.tabMilestonesBtn = this.addRenderableWidget(Button.builder(
                 Component.translatable("screen.holeydigsite.ledger.tab.milestones"),
                 b -> switchTab(1)
-        ).bounds(leftPos + 96, topPos + 26, 104, 18).build());
+        ).bounds(leftPos + 86, topPos + 26, 96, 18).build());
 
         this.tabTitlesBtn = this.addRenderableWidget(Button.builder(
                 Component.translatable("screen.holeydigsite.ledger.tab.titles"),
                 b -> switchTab(2)
-        ).bounds(leftPos + 202, topPos + 26, 56, 18).build());
+        ).bounds(leftPos + 184, topPos + 26, 44, 18).build());
+
+        this.tabCollectionsBtn = this.addRenderableWidget(Button.builder(
+                Component.translatable("screen.holeydigsite.ledger.tab.collections"),
+                b -> switchTab(3)
+        ).bounds(leftPos + 230, topPos + 26, 64, 18).build());
+
+        this.fieldGuideBtn = this.addRenderableWidget(Button.builder(
+                Component.translatable("screen.holeydigsite.ledger.field_guide"),
+                b -> {
+                    com.holeydigsite.guide.FieldGuideNetwork.sendRequestOpenToServer();
+                    com.holeydigsite.guide.FieldGuideClientHooks.openScreen();
+                }
+        ).bounds(leftPos + 296, topPos + 26, 60, 18).build());
 
         this.claimAllBtn = this.addRenderableWidget(Button.builder(
                 Component.translatable("screen.holeydigsite.ledger.claim_all"),
@@ -90,7 +108,7 @@ public class LedgerScreen extends Screen {
                     PacketDistributor.sendToServer(new LedgerNetwork.ClaimPayload(0));
                     Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 }
-        ).bounds(leftPos + WIN_W - 78, topPos + 26, 68, 18).build());
+        ).bounds(leftPos + WIN_W - 62, topPos + 26, 52, 18).build());
 
         if (!autoScrolled) {
             autoScrolled = true;
@@ -151,8 +169,17 @@ public class LedgerScreen extends Screen {
             this.claimAllBtn.active = hasClaimable;
         }
         if (this.tabTrackBtn != null) this.tabTrackBtn.active = activeTab != 0;
+        if (this.fieldGuideBtn != null) this.fieldGuideBtn.visible = activeTab == 0;
         if (this.tabMilestonesBtn != null) this.tabMilestonesBtn.active = activeTab != 1;
         if (this.tabTitlesBtn != null) this.tabTitlesBtn.active = activeTab != 2;
+        boolean cratesOn = data.cratesOn();
+        if (this.tabCollectionsBtn != null) {
+            this.tabCollectionsBtn.visible = cratesOn;
+            this.tabCollectionsBtn.active = activeTab != 3;
+        }
+        if (!cratesOn && activeTab == 3) {
+            activeTab = 0;
+        }
     }
 
     @Override
@@ -227,6 +254,8 @@ public class LedgerScreen extends Screen {
             hoveredLines = hover.lines;
         } else if (activeTab == 1) {
             renderMilestonesTab(g, data, curve, listX, listY, listW, listH, mouseX, mouseY);
+        } else if (activeTab == 3) {
+            renderCollectionsTab(g, player, data, listX, listY, listW, listH);
         } else {
             renderTitlesTab(g, data, listX, listY, listW, listH, mouseX, mouseY);
         }
@@ -511,6 +540,13 @@ public class LedgerScreen extends Screen {
                 data.sellRenown(), curve.sell().cap(), Selling.format(data.lifetimeCopper()))));
         rows.add(new MilestoneRow(null, null, Component.translatable("screen.holeydigsite.ledger.ongoing.contract",
                 data.contractRenown(), curve.contract().cap(), data.contracts().completed())));
+        if (this.minecraft != null && this.minecraft.player != null) {
+            var chips = com.holeydigsite.event.OpalChips.get(this.minecraft.player);
+            if (!chips.active().isEmpty()) {
+                rows.add(new MilestoneRow(null, null, Component.translatable("screen.holeydigsite.ledger.ongoing.chips",
+                        chips.balance(chips.active()), chips.earned(chips.active()))));
+            }
+        }
         return rows;
     }
 
@@ -589,6 +625,50 @@ public class LedgerScreen extends Screen {
         renderScrollbar(g, listX + listW - 5, listY, listH, scrollTitles, maxScroll);
     }
 
+    // Collections tab rendering
+
+    private static final int COLLECTION_ROW_H = 13;
+
+    private void renderCollectionsTab(GuiGraphics g, Player player, LedgerData data, int listX, int listY, int listW, int listH) {
+        List<CrateDefs.CrateTier> tiers = CrateCollections.shown();
+        int rows = 0;
+        for (CrateDefs.CrateTier t : tiers) rows += 1 + CrateCollections.total(t);
+        int totalH = rows * COLLECTION_ROW_H + 4;
+        int maxScroll = Math.max(0, totalH - listH);
+        scrollCollections = Mth.clamp(scrollCollections, 0, maxScroll);
+        int y = listY + 2 - (int) scrollCollections;
+        for (CrateDefs.CrateTier t : tiers) {
+            Component head = Component.translatable(t.name()).append("  " + CrateCollections.have(player, t) + " / " + CrateCollections.total(t));
+            g.fill(listX + 1, y, listX + listW - 7, y + COLLECTION_ROW_H - 1, 0xFF3E311B);
+            g.drawString(this.font, head, listX + 8, y + 2, 0xFFFFD35B, false);
+            y += COLLECTION_ROW_H;
+            for (String r : CrateDefs.RARITIES) {
+                for (CrateDefs.Entry e : t.pool(r)) {
+                    boolean has = CrateCollections.has(player, t.id(), e);
+                    int colour = 0xFF000000 | rarityColour(r);
+                    g.drawString(this.font, Component.translatable("rarity.holeydigsite." + r), listX + 16, y + 2, colour, false);
+                    g.drawString(this.font, CrateCollections.entryName(e), listX + 80, y + 2, has ? colour : 0xFF77706A, false);
+                    Component state = Component.translatable(has ? "screen.holeydigsite.ledger.collection_have" : "screen.holeydigsite.ledger.collection_missing");
+                    g.drawString(this.font, state, listX + listW - 14 - this.font.width(state), y + 2, has ? 0xFF68D868 : 0xFF6E655F, false);
+                    y += COLLECTION_ROW_H;
+                }
+            }
+        }
+        if (tiers.isEmpty()) {
+            g.drawString(this.font, Component.translatable("screen.holeydigsite.ledger.collection_none"), listX + 8, listY + 6, 0xFF9E9489, false);
+        }
+        renderScrollbar(g, listX + listW - 5, listY, listH, scrollCollections, maxScroll);
+    }
+
+    private static int rarityColour(String rarity) {
+        return switch (rarity) {
+            case "rare" -> 0x6F8FFF;
+            case "epic" -> 0xC77DFF;
+            case "legendary" -> 0xFFB830;
+            default -> 0xEAE2D6;
+        };
+    }
+
     private void renderScrollbar(GuiGraphics g, int x, int y, int h, double scroll, int maxScroll) {
         g.fill(x, y, x + 4, y + h, 0xFF16110C);
         if (maxScroll <= 0) {
@@ -607,6 +687,8 @@ public class LedgerScreen extends Screen {
             scrollTrack -= scrollY * step;
         } else if (activeTab == 1) {
             scrollMilestones -= scrollY * step;
+        } else if (activeTab == 3) {
+            scrollCollections -= scrollY * step;
         } else {
             scrollTitles -= scrollY * step;
         }

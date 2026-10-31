@@ -219,10 +219,15 @@ public class PhaseEightTests {
                 {ModItems.DOWN_INCLINE_BELT.get(), 1, 32L}, {ModItems.DROP_CHUTE.get(), 1, 24L},
                 // Phase 22: Skin Bench
                 {ModItems.SKIN_BENCH.get(), 1, 2048L},
-                // Mining Crates
-                {ModItems.WOODEN_CRATE.get(), 1, 1536L}, {ModItems.IRON_CRATE.get(), 1, 4096L}, {ModItems.GOLD_CRATE.get(), 1, 12288L},
+                // Bolt Cutters (the crates left the shop in Phase 30)
+                {ModItems.BOLT_CUTTERS.get(), 1, 1536L},
                 // pick heads (kiosks)
-                {ModItems.GRAVEL_HEAD.get(), 1, 2048L}, {ModItems.SAND_HEAD.get(), 1, 2560L}};
+                {ModItems.GRAVEL_HEAD.get(), 1, 2048L}, {ModItems.SAND_HEAD.get(), 1, 2560L},
+                // Phase 28b: the event store (deeds in gold, the rest in Opal Chips, no coin price)
+                {ModItems.LAND_DEED_EVENT_T1.get(), 1, 400L * 64}, {ModItems.LAND_DEED_EVENT_T2.get(), 1, 2000L * 64},
+                {ModItems.LAND_DEED_EVENT_T3.get(), 1, 3600L * 64}, {ModItems.OUTBACK_CRATE.get(), 1, 0L},
+                {ModItems.CORRUGATED_IRON_SHEET.get(), 1, 0L}, {ModItems.SOUTHERN_CROSS_BANNER.get(), 1, 0L},
+                {ModItems.LITTLE_WINDMILL.get(), 1, 0L}, {ModItems.UTE_ORE_CART.get(), 1, 0L}, {ModItems.WELCOME_STRANGER_STAND.get(), 1, 0L}};
         for (Object[] e : expected) {
             var entry = ShopCatalogue.find(reg, (Item) e[0]);
             check(h, entry.isPresent(), "catalogue has " + e[0]);

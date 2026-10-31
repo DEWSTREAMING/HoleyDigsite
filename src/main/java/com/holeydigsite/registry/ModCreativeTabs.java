@@ -52,6 +52,7 @@ public final class ModCreativeTabs {
                             // Tools of the trade including a vanilla wooden shovel for convenience
                             output.accept(Items.WOODEN_SHOVEL);
                             output.accept(ModItems.PROSPECTORS_LEDGER.get());
+                            output.accept(ModItems.FIELD_GUIDE.get());
                             output.accept(ShovelHelper.createFullShovel());
                         }));
                         slots.add(new Slot(200, () -> {
@@ -209,7 +210,8 @@ public final class ModCreativeTabs {
                             }
                         }));
                         slots.add(new Slot(776, () -> {
-                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.WOODEN_CRATE, ModItems.IRON_CRATE,
+                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.PROSPECTOR_CRATE, ModItems.BOLT_CUTTERS,
+                                    ModItems.CRATE_SWITCH, ModItems.WOODEN_CRATE, ModItems.IRON_CRATE,
                                     ModItems.GOLD_CRATE, ModItems.SKIN_SCRAP, ModItems.MINERS_HELMET_STAND, ModItems.RUSTY_MINE_BELL,
                                     ModItems.SLUICE_MODEL, ModItems.GOLDEN_DRILL_STATUE}) {
                                 output.accept(it.get());
@@ -221,6 +223,49 @@ public final class ModCreativeTabs {
                                     output.accept(com.holeydigsite.skin.SkinKitItem.of(skin, family, com.holeydigsite.skin.SkinWear.FRESH, 1));
                                 }
                             }
+                        }));
+                        slots.add(new Slot(780, () -> {
+                            output.accept(ModBlocks.RED_DIRT_ROCK.get());
+                            output.accept(ModBlocks.MULLOCK_ROCK.get());
+                            output.accept(ModBlocks.OPAL_CLAY_ROCK.get());
+                            output.accept(ModBlocks.HARDPAN.get());
+                            output.accept(ModItems.RED_DIRT_CLUMP.get());
+                            output.accept(ModItems.MULLOCK_CLUMP.get());
+                            output.accept(ModItems.OPAL_CLAY_CLUMP.get());
+                            output.accept(ModItems.OUTBACK_GOLD_CHUNK_SMALL.get());
+                            output.accept(ModItems.OUTBACK_GOLD_CHUNK_MEDIUM.get());
+                            output.accept(ModItems.OUTBACK_GOLD_CHUNK_LARGE.get());
+                            output.accept(ModItems.OUTBACK_GOLD_INGOT.get());
+                            output.accept(ModItems.IRONSTONE_PEBBLE.get());
+                            output.accept(ModItems.POTCH.get());
+                            output.accept(ModItems.UNCUT_POTCH.get());
+                            output.accept(ModItems.BOULDER_OPAL.get());
+                            output.accept(ModItems.UNCUT_BOULDER_OPAL.get());
+                            output.accept(ModItems.SAPPHIRE_PARTI.get());
+                            output.accept(ModItems.UNCUT_SAPPHIRE_PARTI.get());
+                            output.accept(ModItems.BLACK_OPAL.get());
+                            output.accept(ModItems.UNCUT_BLACK_OPAL.get());
+                            output.accept(ModItems.FIRE_OPAL.get());
+                            output.accept(ModItems.UNCUT_FIRE_OPAL.get());
+                            output.accept(ModItems.PINK_DIAMOND.get());
+                            output.accept(ModItems.UNCUT_PINK_DIAMOND.get());
+                            output.accept(ModItems.WELCOME_STRANGER.get());
+                        }));
+                        slots.add(new Slot(781, () -> {
+                            output.accept(ModBlocks.PINDAN.get());
+                            output.accept(ModItems.LAND_DEED_EVENT_T1.get());
+                            output.accept(ModItems.LAND_DEED_EVENT_T2.get());
+                            output.accept(ModItems.LAND_DEED_EVENT_T3.get());
+                            output.accept(ModItems.EVENT_SELL_PAD.get());
+                            output.accept(com.holeydigsite.item.ShopBlockItem.locked(ModBlocks.EVENT_SELL_PAD.get()));
+                            output.accept(ModItems.OUTBACK_CRATE.get());
+                            output.accept(ModItems.CORRUGATED_IRON_SHEET.get());
+                            output.accept(ModItems.LITTLE_WINDMILL.get());
+                            output.accept(ModItems.UTE_ORE_CART.get());
+                            output.accept(ModItems.SOUTHERN_CROSS_BANNER.get());
+                            output.accept(ModItems.WELCOME_STRANGER_STAND.get());
+                            output.accept(ModItems.EVENT_BOARD.get());
+                            output.accept(ModItems.LEADERBOARD.get());
                         }));
                         for (TierFamily family : Tiers.families()) {
                             for (TierDef def : family.tiers()) {

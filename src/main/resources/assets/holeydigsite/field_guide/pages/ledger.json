@@ -1,0 +1,15 @@
+{
+  "order": 8,
+  "title": "field_guide.holeydigsite.page.ledger.title",
+  "text": [
+    "field_guide.holeydigsite.page.ledger.line1",
+    "field_guide.holeydigsite.page.ledger.line2",
+    "field_guide.holeydigsite.page.ledger.line3"
+  ],
+  "clip": "ledger",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

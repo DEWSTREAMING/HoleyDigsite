@@ -388,6 +388,26 @@ public class Phase27Tests {
         }
     }
 
+    /** Leaving a party goes back to the island left for it, unless someone has moved onto it. */
+    @GameTest(template = "empty")
+    public static void leaversGoBackToTheirOldIsland(GameTestHelper h) {
+        World w = new World();
+        UUID a = UUID.randomUUID(), b = UUID.randomUUID(), c = UUID.randomUUID();
+        UUID home = UUID.randomUUID(), other = UUID.randomUUID();
+        w.island.put(a, other);
+        w.island.put(b, home);
+        check(h, TeamSyncRules.leavesOwnIsland(home, other, b, w), "alone on it: it is the island to come back to");
+        check(h, !TeamSyncRules.leavesOwnIsland(other, home, b, w), "someone else lives there");
+        check(h, !TeamSyncRules.leavesOwnIsland(null, other, b, w) && !TeamSyncRules.leavesOwnIsland(other, other, b, w), "no move");
+        w.island.put(b, other);
+        check(h, home.equals(TeamSyncRules.oldIsland(home, b, w)), "empty, so back there");
+        check(h, TeamSyncRules.oldIsland(null, b, w) == null, "nothing saved: a fresh island");
+        check(h, TeamSyncRules.oldIsland(other, b, w) == null, "already there");
+        w.island.put(c, home);
+        check(h, TeamSyncRules.oldIsland(home, b, w) == null, "someone moved onto it: a fresh island");
+        h.succeed();
+    }
+
     /** Join, leave, kick, disband, made-on-a-held-island, login mismatch, newcomers, island command, sync off, no loop. */
     @GameTest(template = "empty")
     public static void syncDecisions(GameTestHelper h) {

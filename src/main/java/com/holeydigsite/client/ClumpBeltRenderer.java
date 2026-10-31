@@ -58,7 +58,11 @@ public class ClumpBeltRenderer implements BlockEntityRenderer<ClumpBeltBlockEnti
     private final ItemRenderer itemRenderer;
     /** One clump stack per kind (index = kind) for the drop and bounce animations. */
     private final ItemStack[] clumps = {ItemStack.EMPTY, DirtTier.clumps(1, 1), DirtTier.clumps(2, 1), DirtTier.clumps(3, 1),
-            DirtTier.clumps(4, 1), DirtTier.clumps(5, 1), DirtTier.clumps(6, 1), DirtTier.clumps(7, 1), DirtTier.clumps(8, 1)};
+            DirtTier.clumps(4, 1), DirtTier.clumps(5, 1), DirtTier.clumps(6, 1), DirtTier.clumps(7, 1), DirtTier.clumps(8, 1),
+            DirtTier.clumps(9, 1), DirtTier.clumps(10, 1), DirtTier.clumps(11, 1)};
+
+
+
 
     public ClumpBeltRenderer(BlockEntityRendererProvider.Context context) {
         this.itemRenderer = context.getItemRenderer();

@@ -55,6 +55,11 @@ repositories {
         url = 'https://maven.architectury.dev/'
         content { includeGroup 'dev.architectury' }
     }
+    // Jade (optional): compile only, for the skin line in its block tooltip.
+    maven {
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
 }
 
 base {
@@ -150,6 +155,7 @@ dependencies {
 
 
     // Optional JEI API (Phase 25)
+    compileOnly "maven.modrinth:jade:${jade_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     if (project.hasProperty('jeiRuntime')) {

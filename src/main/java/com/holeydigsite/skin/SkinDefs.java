@@ -94,7 +94,8 @@ public final class SkinDefs {
     private static volatile Map<String, SkinDef> SKINS = Map.of();
 
     private static final String[] BUILTIN_SKINS = {
-            "rustic", "rustic_weathered", "brass", "obsidian", "frosted"
+            "rustic", "rustic_weathered", "brass", "obsidian", "frosted", "outback", "outback_dusty", "outback_ochre",
+            "opal_calm", "opal", "opal_boulder", "black_opal"
     };
 
     static {

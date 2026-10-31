@@ -1,0 +1,26 @@
+{
+  "parent": "holeydigsite:item/ingot_size_0",
+  "textures": {
+    "bar": "holeydigsite:item/ingot/outback_gold"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "holeydigsite:size": 1
+      },
+      "model": "holeydigsite:item/outback_gold_ingot_1"
+    },
+    {
+      "predicate": {
+        "holeydigsite:size": 2
+      },
+      "model": "holeydigsite:item/outback_gold_ingot_2"
+    },
+    {
+      "predicate": {
+        "holeydigsite:size": 3
+      },
+      "model": "holeydigsite:item/outback_gold_ingot_3"
+    }
+  ]
+}

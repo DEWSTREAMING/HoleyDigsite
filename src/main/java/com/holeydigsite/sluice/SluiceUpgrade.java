@@ -35,7 +35,11 @@ public enum SluiceUpgrade implements StringRepresentable {
     public static final int ANY_KIND = 0;
 
     private static final String[] SEED_TABLES = {null, "panning/seeds_dirt_1", "panning/seeds_dirt_2", "panning/seeds_dirt_3",
-            "panning/seeds_gravel", "panning/seeds_sand", "panning/seeds_dirt_1", "panning/seeds_dirt_1", "panning/seeds_dirt_1"};
+            "panning/seeds_gravel", "panning/seeds_sand", "panning/seeds_dirt_1", "panning/seeds_dirt_1", "panning/seeds_dirt_1",
+            "panning/seeds_dirt_1", "panning/seeds_dirt_1", "panning/seeds_dirt_1"};
+
+
+
 
     private final String key;
     private final int kind;

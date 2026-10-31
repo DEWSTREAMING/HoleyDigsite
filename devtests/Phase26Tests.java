@@ -268,7 +268,7 @@ public class Phase26Tests {
         }
         check(h, dropped, "obsidian kit dropped at the feet with a full inventory");
         check(h, skinsInWorld(h, ps, bench) == start, "swap with a full inventory keeps the count");
-        for (ItemEntity e : h.getLevel().getEntitiesOfClass(ItemEntity.class, p.getBoundingBox().inflate(16))) e.discard();
+        for (ItemEntity e : h.getLevel().getEntitiesOfClass(ItemEntity.class, p.getBoundingBox().inflate(4))) e.discard();
         for (int i = 1; i < 36; i++) p.getInventory().setItem(i, ItemStack.EMPTY);
         p.getInventory().setItem(1, SkinKitItem.of("obsidian", SkinDefs.DRILL, "pit_scarred", 1));
 

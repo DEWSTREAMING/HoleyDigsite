@@ -407,32 +407,33 @@ public class Phase24Tests {
 
     @GameTest(template = "empty")
     public static void cratesComeOnlyFromBiggerContractsAndNeverGold(GameTestHelper h) {
-        int wooden = 0, iron = 0, gold = 0, smallCrate = 0;
+        int one = 0, two = 0, other = 0, smallCrate = 0;
         RandomSource rng = RandomSource.create(24L);
         int n = 20000;
         for (int i = 0; i < n; i++) {
-            Item small = ContractManager.crateFor(1000, rng);
-            if (small != null) smallCrate++;
-            Item mid = ContractManager.crateFor(4000, rng);
-            if (mid == ModItems.WOODEN_CRATE.get()) wooden++;
-            Item big = ContractManager.crateFor(9000, rng);
-            if (big == ModItems.IRON_CRATE.get()) iron++;
-            if (mid == ModItems.GOLD_CRATE.get() || big == ModItems.GOLD_CRATE.get()) gold++;
+            ItemStack small = ContractManager.crateFor(1000, rng);
+            if (!small.isEmpty()) smallCrate++;
+            ItemStack mid = ContractManager.crateFor(4000, rng);
+            if (mid.is(ModItems.PROSPECTOR_CRATE.get()) && mid.getCount() == 1) one++;
+            ItemStack big = ContractManager.crateFor(9000, rng);
+            if (big.is(ModItems.PROSPECTOR_CRATE.get()) && big.getCount() == 2) two++;
+            if ((!mid.isEmpty() && !mid.is(ModItems.PROSPECTOR_CRATE.get())) || (!big.isEmpty() && !big.is(ModItems.PROSPECTOR_CRATE.get()))
+                    || com.holeydigsite.crate.CrateBlock.isLocked(mid) || com.holeydigsite.crate.CrateBlock.isLocked(big)) other++;
         }
         check(h, smallCrate == 0, "small contracts never give a crate");
-        check(h, gold == 0, "never a Gold Crate");
-        check(h, Math.abs(wooden / (double) n - 0.10) < 0.02, "mid contracts: Wooden about 10%: " + wooden / (double) n);
-        check(h, Math.abs(iron / (double) n - 0.03) < 0.015, "big contracts: Iron about 3%: " + iron / (double) n);
+        check(h, other == 0, "only unlocked Prospector Crates");
+        check(h, Math.abs(one / (double) n - 0.10) < 0.02, "mid contracts: one crate about 10%: " + one / (double) n);
+        check(h, Math.abs(two / (double) n - 0.03) < 0.015, "big contracts: two crates about 3%: " + two / (double) n);
         // a rolled crate arrives in the inventory
         ServerPlayer p = fresh(h);
         long seed = 0;
-        while (ContractManager.crateFor(9000, RandomSource.create(seed)) == null) seed++;
-        Item expected = ContractManager.crateFor(9000, RandomSource.create(seed));
+        while (ContractManager.crateFor(9000, RandomSource.create(seed)).isEmpty()) seed++;
+        ItemStack expected = ContractManager.crateFor(9000, RandomSource.create(seed));
         Contract c = new Contract("t", ContractKind.FOOD, BuiltInRegistries.ITEM.getKey(Items.WHEAT), "", null, null, 1, 0, 9000, 20, 0);
         ContractManager.data(p).set(0, c);
         c.markDone();
         ContractManager.complete(p, c, RandomSource.create(seed));
-        check(h, count(p, expected) == 1, "the crate is in the inventory");
+        check(h, count(p, expected.getItem()) == expected.getCount(), "the crate(s) are in the inventory");
         check(h, coinValue(p) == 9000, "and the coins");
         h.succeed();
     }
@@ -495,6 +496,16 @@ public class Phase24Tests {
         check(h, ContractBoardBlock.cardAt(pos, f, eye, new Vec3(0, 0, -1)) == 1, "looking away falls back to the middle");
         check(h, ContractBoardBlock.cardCentreY(0) > ContractBoardBlock.cardCentreY(1) && ContractBoardBlock.cardCentreY(1) > ContractBoardBlock.cardCentreY(2),
                 "cards are stacked top to bottom");
+        // text hanging over the block above the board still counts as the top card, from the front and from the side
+        Vec3 aboveTop = new Vec3(plane.x, 70 + ContractBoardBlock.cardCentreY(0) + 0.15, plane.z);
+        check(h, ContractBoardBlock.cardUnderCrosshair(pos, f, eye, aboveTop.subtract(eye)) == 0, "text over the block above");
+        Vec3 side = new Vec3(8.0, 70.2, 8.0);
+        Vec3 belowLow = new Vec3(plane.x, 70 + ContractBoardBlock.cardCentreY(2) - 0.15, plane.z);
+        check(h, ContractBoardBlock.cardUnderCrosshair(pos, f, side, belowLow.subtract(side)) == 2, "text over the block below, from the side");
+        check(h, ContractBoardBlock.cardUnderCrosshair(pos, f, eye, new Vec3(plane.x, 72.5, plane.z).subtract(eye)) == -1,
+                "well above the cards is no card");
+        check(h, ContractBoardBlock.cardUnderCrosshair(pos, f, eye, new Vec3(plane.x + 2.0, 70.5, plane.z).subtract(eye)) == -1,
+                "beside the cards is no card");
         h.succeed();
     }
 
@@ -642,8 +653,14 @@ public class Phase24Tests {
             Sites.Result r = Sites.build(l, d, a, null, false);
             SiteData.Site site = r.site();
             List<Boards.Spot> spots = Boards.ensure(l, site, d);
-            check(h, spots.size() == 1 && spots.get(0).state() == Boards.State.THERE, "a new Trading Post has its board from the template: " + spots);
-            BlockPos at = spots.get(0).pos();
+            check(h, spots.size() == 3 && spots.stream().allMatch(s -> s.state() == Boards.State.THERE),
+                    "a new Trading Post has its Contract Board, Leaderboard and Crate Switch from the template: " + spots);
+            List<Boards.Spot> switches = spots.stream().filter(s -> l.getBlockState(s.pos()).getBlock() instanceof com.holeydigsite.crate.CrateSwitchBlock).toList();
+            check(h, switches.size() == 1, "one Crate Switch: " + spots);
+            BlockPos switchAt = switches.get(0).pos();
+            List<Boards.Spot> contract = spots.stream().filter(s -> l.getBlockState(s.pos()).getBlock() instanceof ContractBoardBlock).toList();
+            check(h, contract.size() == 1, "one Contract Board: " + spots);
+            BlockPos at = contract.get(0).pos();
             check(h, l.getBlockState(at).getBlock() instanceof ContractBoardBlock && l.getBlockState(at).getValue(ContractBoardBlock.FACING) == Direction.EAST,
                     "facing into the store");
 
@@ -653,12 +670,16 @@ public class Phase24Tests {
             l.setBlock(litter, Blocks.GLASS.defaultBlockState(), 3);
             Sites.checkAll(l);
             check(h, l.getBlockState(at).getBlock() instanceof ContractBoardBlock, "placed into air on load");
+            l.setBlock(switchAt, Blocks.AIR.defaultBlockState(), 3);
+            Sites.checkAll(l);
+            check(h, l.getBlockState(switchAt).getBlock() instanceof com.holeydigsite.crate.CrateSwitchBlock, "the Crate Switch is placed into air in an old store too");
             check(h, l.getBlockState(litter).is(Blocks.GLASS), "nothing else touched (no rebuild)");
 
             // a player block at the spot is never replaced
             l.setBlock(at, Blocks.CHEST.defaultBlockState(), 3);
             List<Boards.Spot> blocked = Boards.ensure(l, SiteData.get(l).get(d.id(), a), d);
-            check(h, blocked.size() == 1 && blocked.get(0).state() == Boards.State.BLOCKED, "blocked spot is reported");
+            check(h, blocked.stream().filter(s -> s.state() == Boards.State.BLOCKED).map(Boards.Spot::pos).toList().equals(List.of(at)),
+                    "blocked spot is reported: " + blocked);
             check(h, l.getBlockState(at).is(Blocks.CHEST), "the player's chest stays");
             Sites.checkAll(l);
             check(h, l.getBlockState(at).is(Blocks.CHEST), "still there after a load check");

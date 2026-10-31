@@ -32,6 +32,7 @@ public final class SiteEvents {
         WorldVersion.upgrade(server);
         for (ServerLevel level : server.getAllLevels()) {
             Sites.checkAll(level);
+            com.holeydigsite.event.EventIsland.checkEventChange(level);
         }
     }
 
@@ -67,6 +68,14 @@ public final class SiteEvents {
     public static void onLevelTick(net.neoforged.neoforge.event.tick.LevelTickEvent.Post event) {
         if (event.getLevel() instanceof ServerLevel level) {
             Sites.buildQueued(level);
+            if (Sites.isIslandReady(level)) {
+                for (ServerPlayer sp : level.players()) {
+                    com.holeydigsite.ledger.LedgerData data = com.holeydigsite.ledger.LedgerData.get(sp);
+                    if (data.starterGiven() && !data.fieldGuideOpened()) {
+                        com.holeydigsite.guide.FieldGuideManager.checkFirstJoinOpen(sp);
+                    }
+                }
+            }
         }
     }
 

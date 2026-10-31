@@ -41,6 +41,10 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     /** Tray slots; the sluice stops once they are all used. */
     public static final int TRAY_SLOTS = com.holeydigsite.tier.Tiers.stat("sluice_box", "tray_slots");
 
+    /** Save format marker: sluices saved before the long sluice have none and are handed back (see {@link LongSluiceBlock#refundOld}). */
+    private static final int LAYOUT = 1;
+    private int layout = LAYOUT;
+    private boolean refunded;
     private boolean waterPowered;
     /** Tiers of the queued clumps, oldest first, where each clump keeps its tier and rolls that tier's table. */
     private final List<Integer> queue = new ArrayList<>(8);
@@ -67,7 +71,12 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         this.wear = wear == null || com.holeydigsite.skin.SkinWear.isFresh(wear) ? "" : wear;
         setChanged();
         if (level != null) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            if (getBlockState().getBlock() instanceof SluiceBoxBlock block) {
+                for (BlockPos part : block.allParts(worldPosition, getBlockState())) {
+                    BlockState ps = level.getBlockState(part);
+                    level.sendBlockUpdated(part, ps, ps, 3);
+                }
+            }
             requestModelDataUpdate();
         }
     }
@@ -136,6 +145,28 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         super(ModBlockEntities.SLUICE_BOX.get(), pos, state);
     }
 
+    /** True once the contents were handed back, so removing the block drops nothing more. */
+    boolean refunded() {
+        return refunded;
+    }
+
+    void markRefunded() {
+        refunded = true;
+    }
+
+    /** A long sluice block entity read from a save without the layout marker: the one-block Tier 2 sluice of an old world. */
+    public boolean isOldLayout() {
+        return layout != LAYOUT && getBlockState().getBlock() instanceof LongSluiceBlock;
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level instanceof ServerLevel sl && isOldLayout()) {
+            sl.scheduleTick(worldPosition, getBlockState().getBlock(), 1);
+        }
+    }
+
     // ------------------------------------------------------------------------------------------------
     // Tick (WORKING only)
     // ------------------------------------------------------------------------------------------------
@@ -167,14 +198,19 @@ public class SluiceBoxBlockEntity extends BlockEntity {
             com.holeydigsite.ledger.LedgerManager.recordSluice(ownerSp, tier, 1);
         }
         List<ItemStack> loot = new ArrayList<>(Panning.rollScoop(level, pos, null, tier));
-        SluiceUpgrade upgrade = getBlockState().getValue(SluiceBoxBlock.UPGRADE);
-        if (upgrade.appliesTo(tier)) {
-            if (upgrade.extraChance() > 0 && level.random.nextDouble() < upgrade.extraChance()) {
-                loot.addAll(Panning.rollScoop(level, pos, null, tier));
+        for (SluiceUpgrade upgrade : inserts()) {
+            if (upgrade.appliesTo(tier)) {
+                if (upgrade.extraChance() > 0 && level.random.nextDouble() < upgrade.extraChance()) {
+                    loot.addAll(Panning.rollScoop(level, pos, null, tier));
+                }
+                if (upgrade.bonusTable(tier) != null) {
+                    loot.addAll(Panning.rollTable(level, pos, null, upgrade.bonusTable(tier)));
+                }
             }
-            if (upgrade.bonusTable(tier) != null) {
-                loot.addAll(Panning.rollTable(level, pos, null, upgrade.bonusTable(tier)));
-            }
+        }
+        ItemStack crate = com.holeydigsite.crate.CrateFinds.sluiceFind(level, pos, ownerSp);
+        if (!crate.isEmpty()) {
+            loot.add(crate);
         }
         for (ItemStack stack : loot) {
             addToTray(stack);
@@ -199,6 +235,11 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     /** Tiers of the queued clumps, oldest first (read-only, for tests). */
     public List<Integer> queuedTiers() {
         return Collections.unmodifiableList(queue);
+    }
+
+    /** The inserts in this sluice (one for the Starter sluice, up to two for the long one). */
+    public List<SluiceUpgrade> inserts() {
+        return getBlockState().getBlock() instanceof SluiceBoxBlock b ? b.inserts(getBlockState()) : List.of();
     }
 
     /** This sluice's speed and sizes (Tier 1 or 2, from its block). */
@@ -283,7 +324,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
             return false;
         }
         net.minecraft.core.Direction facing = state.getValue(SluiceBoxBlock.FACING);
-        BlockPos front = pos.relative(facing);
+        BlockPos front = state.getBlock() instanceof SluiceBoxBlock b ? b.trayOutputPos(pos, state) : pos.relative(facing);
         BlockState b = level.getBlockState(front);
         if (!(b.getBlock() instanceof com.holeydigsite.belt.ClumpBeltBlock)
                 || !(level.getBlockEntity(front) instanceof com.holeydigsite.belt.ClumpBeltBlockEntity belt)
@@ -304,6 +345,14 @@ public class SluiceBoxBlockEntity extends BlockEntity {
             changed();
         }
         return !tray.isEmpty();
+    }
+
+    /** Empties the queue (for the old-sluice refund, after {@link #queuedAsItems}). */
+    void clearQueue() {
+        if (!queue.isEmpty()) {
+            queue.clear();
+            changed();
+        }
     }
 
     /** Takes everything out of the tray. */
@@ -357,6 +406,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
         tag.putBoolean("WaterPowered", waterPowered);
         tag.putInt("Progress", progress);
+        tag.putInt("Layout", LAYOUT);
         if (owner != null) tag.putUUID("Owner", owner);
         if (!skin.isEmpty()) tag.putString("Skin", skin);
         if (!skin.isEmpty() && !wear.isEmpty()) tag.putString("SkinWear", wear);
@@ -377,6 +427,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        layout = tag.getInt("Layout");
         owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
         if (tag.contains("WaterPowered")) {
             waterPowered = tag.getBoolean("WaterPowered");
@@ -402,6 +453,7 @@ public class SluiceBoxBlockEntity extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
+        tag.putInt("Layout", LAYOUT);
         if (!skin.isEmpty()) tag.putString("Skin", skin);
         if (!skin.isEmpty() && !wear.isEmpty()) tag.putString("SkinWear", wear);
         writeContents(tag, registries);

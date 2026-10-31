@@ -119,6 +119,51 @@
     },
     "fill=4,tier=8": {
       "model": "holeydigsite:block/pan_fill_4_moss"
+    },
+    "fill=0,tier=9": {
+      "model": "holeydigsite:block/pan"
+    },
+    "fill=1,tier=9": {
+      "model": "holeydigsite:block/pan_fill_1_red_dirt"
+    },
+    "fill=2,tier=9": {
+      "model": "holeydigsite:block/pan_fill_2_red_dirt"
+    },
+    "fill=3,tier=9": {
+      "model": "holeydigsite:block/pan_fill_3_red_dirt"
+    },
+    "fill=4,tier=9": {
+      "model": "holeydigsite:block/pan_fill_4_red_dirt"
+    },
+    "fill=0,tier=10": {
+      "model": "holeydigsite:block/pan"
+    },
+    "fill=1,tier=10": {
+      "model": "holeydigsite:block/pan_fill_1_mullock"
+    },
+    "fill=2,tier=10": {
+      "model": "holeydigsite:block/pan_fill_2_mullock"
+    },
+    "fill=3,tier=10": {
+      "model": "holeydigsite:block/pan_fill_3_mullock"
+    },
+    "fill=4,tier=10": {
+      "model": "holeydigsite:block/pan_fill_4_mullock"
+    },
+    "fill=0,tier=11": {
+      "model": "holeydigsite:block/pan"
+    },
+    "fill=1,tier=11": {
+      "model": "holeydigsite:block/pan_fill_1_opal_clay"
+    },
+    "fill=2,tier=11": {
+      "model": "holeydigsite:block/pan_fill_2_opal_clay"
+    },
+    "fill=3,tier=11": {
+      "model": "holeydigsite:block/pan_fill_3_opal_clay"
+    },
+    "fill=4,tier=11": {
+      "model": "holeydigsite:block/pan_fill_4_opal_clay"
     }
   }
 }

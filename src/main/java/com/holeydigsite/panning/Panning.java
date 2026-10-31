@@ -231,12 +231,7 @@ public final class Panning {
     /** Very rare crate finds, from hand panning only (sluices and drills never call this). */
     static void panCrateFind(ServerLevel level, BlockPos pos, Player player) {
         crateFindRolls++;
-        ItemStack crate = com.holeydigsite.crate.CrateRolls.panFind(level.random);
-        if (!crate.isEmpty()) {
-            popOut(level, pos, crate, player);
-            player.displayClientMessage(Component.translatable("message.holeydigsite.crate.found"), true);
-            level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 0.8F, 1.2F);
-        }
+        com.holeydigsite.crate.CrateFinds.handFind(level, pos, player);
     }
 
     /** How many scoops of each tier were rolled since the server started. */
@@ -269,7 +264,7 @@ public final class Panning {
     /**
      * Spawns a loot stack just above the pan's rim with a small hop toward the player.
      */
-    private static void popOut(ServerLevel level, BlockPos pos, ItemStack stack, Player player) {
+    public static void popOut(ServerLevel level, BlockPos pos, ItemStack stack, Player player) {
         RandomSource random = level.random;
         double x = pos.getX() + 0.5;
         double y = pos.getY() + 0.35;

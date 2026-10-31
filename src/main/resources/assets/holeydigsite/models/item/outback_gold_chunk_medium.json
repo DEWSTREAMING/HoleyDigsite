@@ -1,0 +1,6 @@
+{
+  "parent": "holeydigsite:item/chunk_shape_medium",
+  "textures": {
+    "t": "holeydigsite:item/chunk/outback_gold"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "holeydigsite:item/ingot_size_2",
+  "textures": {
+    "bar": "holeydigsite:item/ingot/outback_gold"
+  }
+}

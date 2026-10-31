@@ -87,7 +87,10 @@ public class EconomySim {
         }
         System.out.println("Sell Pad prices (copper per gram): " + PRICE_PER_GRAM);
         System.out.print("Item values (copper):");
-        for (String item : RESOURCES.keySet()) System.out.printf(" %s=%d", item.replace("holeydigsite:", ""), price(item));
+        for (String item : RESOURCES.keySet()) {
+            int p = price(item);
+            if (p > 0) System.out.printf(" %s=%d", item.replace("holeydigsite:", ""), p);
+        }
         System.out.println();
         System.out.printf("Dirt costs %d copper (1 gold); Dirt Clumps 4 for 5 gold = 80 copper each%n", DIRT_PRICE);
 
@@ -186,6 +189,11 @@ public class EconomySim {
         ok &= phase23(res);
         ok &= phase23_6(res);
         ok &= phase24(res, ev, evGravel, evSand);
+        ok &= phase28a(res);
+        ok &= phase28b(res, ev, evGravel);
+        ok &= phase29(res, ev[1], evGravel, evSand);
+        ok &= phase30(res);
+        ok &= phase31(res);
         System.out.println();
         System.out.println(ok ? "RESULT: all targets met" : "RESULT: targets NOT met - adjust weights");
         System.exit(ok ? 0 : 1);
@@ -305,7 +313,11 @@ public class EconomySim {
         return v;
     }
 
+    /** The old crates left the shop in Phase 30; their last prices stay here for the older sections. */
+    static final Map<String, Long> OLD_CRATE_PRICES = Map.of("wooden_crate", 1536L, "iron_crate", 4096L, "gold_crate", 12288L);
+
     static long shopPrice(Path res, String item) throws Exception {
+        if (OLD_CRATE_PRICES.containsKey(item)) return OLD_CRATE_PRICES.get(item);
         Path f = res.resolve("data/holeydigsite/holeydigsite/shop_items/" + item + ".json");
         return ((Number) ((Map<String, Object>) new Json(Files.readString(f)).parse()).get("price")).longValue();
     }
@@ -1045,6 +1057,7 @@ public class EconomySim {
                 shop.put((String) e.get("item"), ((Number) e.get("price")).intValue());
             }
         }
+        for (var oc : OLD_CRATE_PRICES.entrySet()) shop.put("holeydigsite:" + oc.getKey(), oc.getValue().intValue());
         // refund (everything owned: scrap + filler) as a share of the price; gold is the late coin sink, so it refunds least
         Map<String, double[]> refund = Map.of("wooden_crate", new double[]{0.20, 0.40}, "iron_crate", new double[]{0.15, 0.35},
                 "gold_crate", new double[]{0.10, 0.30});
@@ -1119,14 +1132,9 @@ public class EconomySim {
         // hand panning: one scoop per brush cycle, about 60% of the time (the rest is filling the pan)
         double basePansPerHour = 3600.0 * 20 / 40 * 0.6, fastPansPerHour = 3600.0 * 20 / 20 * 0.6;
         double w = panOneIn.get("wooden_crate"), ir = panOneIn.get("iron_crate"), g = panOneIn.get("gold_crate");
-        boolean panOk = Math.abs(w - 1500) <= 300 && Math.abs(ir - 6000) <= 1200 && g == 0;
+        boolean panOk = w == 0 && ir == 0 && g == 0;
         ok &= panOk;
-        System.out.printf("  panning finds: Wooden 1 in %.0f pans, Iron 1 in %.0f, Gold never [%s]%n", w, ir, panOk ? "OK" : "OFF TARGET");
-        System.out.printf("    Brush (~%.0f pans/h): %.2f Wooden + %.2f Iron per hour; Goldchro Brush (~%.0f pans/h): %.2f + %.2f per hour%n",
-                basePansPerHour, basePansPerHour / w, basePansPerHour / ir, fastPansPerHour, fastPansPerHour / w, fastPansPerHour / ir);
-        System.out.printf("    worth %.0f / %.0f copper per hour of hand panning at shop prices%n",
-                basePansPerHour / w * shop.getOrDefault("holeydigsite:wooden_crate", 0) + basePansPerHour / ir * shop.getOrDefault("holeydigsite:iron_crate", 0),
-                fastPansPerHour / w * shop.getOrDefault("holeydigsite:wooden_crate", 0) + fastPansPerHour / ir * shop.getOrDefault("holeydigsite:iron_crate", 0));
+        System.out.printf("  the old Wooden, Iron and Gold Crates are no longer found by panning (Phase 30; the Prospector Crate has its own finds) [%s]%n", panOk ? "OK" : "OFF TARGET");
         return ok;
     }
 
@@ -1334,6 +1342,8 @@ public class EconomySim {
                 shopPrices.put((String) e.get("item"), ((Number) e.get("price")).intValue());
             }
         }
+        // an unlocked Prospector Crate is counted as one pair of Bolt Cutters (it is what a crate costs to open)
+        shopPrices.put("holeydigsite:prospector_crate", shopPrices.getOrDefault("holeydigsite:bolt_cutters", 1536));
         long total = 0;
         try (var files = Files.list(ledgerDir.resolve("levels"))) {
             for (Path f : files.sorted().toList()) {
@@ -1485,7 +1495,7 @@ public class EconomySim {
         Resource r = RESOURCES.get(item);
         if (r == null) throw new IllegalArgumentException("No weight for " + item + " - add it to resource_weights.json");
         Double perGram = PRICE_PER_GRAM.get(r.material);
-        if (perGram == null) throw new IllegalArgumentException("No sell value for " + r.material);
+        if (perGram == null) return 0;
         return (int) Math.floor(r.grams * perGram + 1e-9);
     }
 
@@ -1646,4 +1656,447 @@ public class EconomySim {
         return ok;
     }
 
+
+    @SuppressWarnings("unchecked")
+    /** Opal Chips per hour of one Tier 1 drill line on each event section (set by phase28a). */
+    static final double[] EVENT_LINE_CHIPS = new double[3];
+    /** What a skin or title counts for in the Outback Crate's worth, by rarity: the decor ladder (banner 60, windmill 120, stranger 240), doubling. */
+    static final double[] CRATE_LADDER_CHIPS = {60, 120, 240, 480};
+
+    /**
+     * Phase 28b: the event island. Hidden nodes (report.json from make_world.py: rock per section, fewer and smaller pockets in
+     * higher tiers, nothing on the surface, a first Tier 1 node within a few minutes of digging), the deed prices (Tier 1 is
+     * 400 gold; Tier 2 and 3 cost 1-2 h of the gold income at the Gravel Flats and Sand Dunes stages, a bit under those plots
+     * since the event plot pays no coins), the Outback Crate (first crate after about 1.5 h of a Tier 1 line, fair against the
+     * direct chip prices of what it holds) and the direct decor prices in hours of chips.
+     */
+    @SuppressWarnings("unchecked")
+    static boolean phase28b(Path res, double[] ev, double evGravel) throws Exception {
+        System.out.println();
+        System.out.println("=== Phase 28b: event island, deeds, Outback Crate ===");
+        boolean ok = true;
+        Path report = Path.of("tools/world_snbt/report.json");
+        if (!Files.exists(report)) {
+            System.out.println("  tools/world_snbt/report.json missing - run tools/make_world.py first");
+            return false;
+        }
+        Map<String, Object> event = (Map<String, Object>) ((Map<String, Object>) new Json(Files.readString(report)).parse()).get("event");
+        double lastRock = Double.MAX_VALUE, lastPockets = Double.MAX_VALUE;
+        for (int t = 1; t <= 3; t++) {
+            Map<String, Object> sec = (Map<String, Object>) event.get("t" + t);
+            double rock = num(sec.get("rock")), pockets = num(sec.get("pockets")), minutes = num(sec.get("first_node_minutes"));
+            double onSurface = num(sec.get("rock_on_surface")), cover = num(sec.get("min_cover")), spots = num(sec.get("drill_spots"));
+            boolean fewer = rock < lastRock && pockets <= lastPockets;
+            boolean hidden = onSurface == 0 && cover >= 2;
+            boolean firstOk = t != 1 || minutes <= 3.0;
+            ok &= fewer && hidden && firstOk;
+            System.out.printf("  Tier %d section: %3.0f rock in %2.0f pockets (%2.0f drill spots), first node after ~%.1f min of digging%s [%s]%n",
+                    t, rock, pockets, spots, minutes, t == 1 ? " (target <= 3)" : "",
+                    fewer && hidden && firstOk ? "OK" : (!hidden ? "ROCK SHOWS" : !fewer ? "NOT FEWER" : "TOO SLOW"));
+            lastRock = rock;
+            lastPockets = pockets;
+        }
+        Path shop = res.resolve("data/holeydigsite/holeydigsite/shop_items");
+        double t1Dirt = DRILL_CLUMPS_PER_MIN * 60 * ev[1] / GOLD;
+        double t2Abyssal = T2_DRILL_CLUMPS_PER_MIN * 60 * ev[3] / GOLD;
+        double t2Gravel = T2_DRILL_CLUMPS_PER_MIN * 60 * evGravel / GOLD;
+        String[][] deeds = {
+                {"land_deed_event_t1", "home island: 1 Tier 1 line on Dirtrock", String.valueOf(t1Dirt), "land_deed_deep_dig"},
+                {"land_deed_event_t2", "Gravel Flats stage: 1 Tier 2 line on Abyssal", String.valueOf(t2Abyssal), "land_deed_gravel_flats"},
+                {"land_deed_event_t3", "Sand Dunes stage: Tier 2 lines on Abyssal + Gravelrock", String.valueOf(t2Abyssal + t2Gravel), "land_deed_sand_dunes"}};
+        for (String[] d : deeds) {
+            double gold = num(((Map<String, Object>) new Json(Files.readString(shop.resolve(d[0] + ".json"))).parse()).get("price")) / GOLD;
+            double plot = num(((Map<String, Object>) new Json(Files.readString(shop.resolve(d[3] + ".json"))).parse()).get("price")) / GOLD;
+            double hours = gold / Double.parseDouble(d[2]);
+            boolean in = d[0].endsWith("t1") ? gold == 400 : hours >= 1.0 && hours <= 2.0 && gold <= plot;
+            ok &= in;
+            System.out.printf("  %-20s %5.0f gold (%s %5.0f gold): %.0f gold/h at %s -> %.1f h [%s]%n", d[0], gold, d[3], plot,
+                    Double.parseDouble(d[2]), d[1], hours, in ? "OK" : "OUT OF RANGE");
+        }
+        double t1 = EVENT_LINE_CHIPS[0];
+        System.out.printf("  Opal Chips per hour of one Tier 1 drill line: Tier 1 %.0f, Tier 2 %.0f, Tier 3 %.0f%n",
+                EVENT_LINE_CHIPS[0], EVENT_LINE_CHIPS[1], EVENT_LINE_CHIPS[2]);
+        Map<String, Double> chipPrice = new LinkedHashMap<>();
+        for (String it : new String[]{"outback_crate", "corrugated_iron_sheet", "southern_cross_banner", "little_windmill", "ute_ore_cart",
+                "welcome_stranger_stand"}) {
+            chipPrice.put("holeydigsite:" + it, num(((Map<String, Object>) new Json(Files.readString(shop.resolve(it + ".json"))).parse()).get("chips")));
+        }
+        Map<String, Object> crate = (Map<String, Object>) new Json(Files.readString(res.resolve("data/holeydigsite/crates/outback_crate.json"))).parse();
+        Map<String, Object> odds = (Map<String, Object>) crate.get("odds");
+        Map<String, Object> pools = (Map<String, Object>) crate.get("pools");
+        double total = 0, evChips = 0;
+        for (Object o : odds.values()) total += num(o);
+        for (String r : odds.keySet()) {
+            List<Object> pool = (List<Object>) pools.get(r);
+            if (pool == null || pool.isEmpty()) continue;
+            double avg = 0;
+            for (Object e : pool) {
+                Map<String, Object> m = (Map<String, Object>) e;
+                if (m.containsKey("item")) {
+                    avg += chipPrice.getOrDefault((String) m.get("item"), 0.0) * (m.containsKey("count") ? num(m.get("count")) : 1);
+                } else {
+                    avg += CRATE_LADDER_CHIPS[Math.max(0, java.util.Arrays.asList("common", "rare", "epic", "legendary").indexOf(r))];   // a skin or title
+                }
+            }
+            evChips += num(odds.get(r)) / total * avg / pool.size();
+        }
+        double cratePrice = chipPrice.get("holeydigsite:outback_crate");
+        double crateHours = cratePrice / t1;
+        boolean crateOk = Math.abs(crateHours - 1.5) <= 0.2 && evChips / cratePrice >= 0.8 && evChips / cratePrice <= 1.2;
+        ok &= crateOk;
+        System.out.printf("  Outback Crate: %.0f chips = %.2f h of a Tier 1 line (target ~1.5 h); worth %.0f chips at the direct prices (%.2fx) [%s]%n",
+                cratePrice, crateHours, evChips, evChips / cratePrice, crateOk ? "OK" : "OFF");
+        for (Map.Entry<String, Double> e : chipPrice.entrySet()) {
+            if (!e.getKey().endsWith("outback_crate")) {
+                System.out.printf("    %-36s %4.0f chips = %.1f h of Tier 1, %.1f h of Tier 3%n", e.getKey(), e.getValue(), e.getValue() / t1,
+                        e.getValue() / EVENT_LINE_CHIPS[2]);
+            }
+        }
+        return ok;
+    }
+
+    static boolean phase28a(Path res) throws Exception {
+        System.out.println();
+        System.out.println("=== Phase 28a: Opal Chips and Outback Event ===");
+        boolean ok = true;
+
+        Path outbackPath = res.resolve("data/holeydigsite/events/outback.json");
+        Map<String, Object> outback = (Map<String, Object>) new Json(Files.readString(outbackPath)).parse();
+        Map<String, Object> chipsMap = (Map<String, Object>) outback.get("chips");
+
+        double clumpsPerHour = DRILL_CLUMPS_PER_MIN * 60; // 240 clumps/hr
+        String[] tiers = {"red_dirt", "mullock", "opal_clay"};
+        String[] tierTitles = {"Tier 1 (Red Dirt)", "Tier 2 (Mullock)", "Tier 3 (Opal Clay)"};
+        double[] lineChips = new double[3];
+
+        record FindStat(String name, double val, double chipsHr, double expHrs) {}
+
+        for (int t = 0; t < 3; t++) {
+            String tierFile = tiers[t];
+            Path tablePath = res.resolve("data/holeydigsite/loot_table/panning/" + tierFile + ".json");
+            List<Pool> pools = parseTable(new Json(Files.readString(tablePath)).parse());
+
+            double totalChipsHr = 0;
+            List<FindStat> stats = new ArrayList<>();
+
+            for (Pool p : pools) {
+                int totW = p.totalWeight();
+                for (Entry e : p.entries) {
+                    double prob = p.chance * p.rolls * ((double) e.weight / totW);
+                    double val = 0;
+                    Resource r = RESOURCES.get(e.item);
+                    if (r != null) {
+                        Map<String, Object> cv = (Map<String, Object>) chipsMap.get(r.material);
+                        if (cv == null) cv = (Map<String, Object>) chipsMap.get(e.item);
+                        if (cv != null) {
+                            if (cv.containsKey("ingot_per_gram")) {
+                                val = r.grams * ((Number) cv.get("ingot_per_gram")).doubleValue();
+                            } else if (cv.containsKey("each")) {
+                                val = ((Number) cv.get("each")).doubleValue();
+                            }
+                        }
+                    }
+                    double chipsHr = prob * clumpsPerHour * val;
+                    totalChipsHr += chipsHr;
+                    double expHrs = prob > 0 ? 1.0 / (prob * clumpsPerHour) : 0;
+                    stats.add(new FindStat(e.item.replace("holeydigsite:", ""), val, chipsHr, expHrs));
+                }
+            }
+
+            lineChips[t] = totalChipsHr;
+            EVENT_LINE_CHIPS[t] = totalChipsHr;
+            System.out.printf("  %s: %.2f chips/h%n", tierTitles[t], totalChipsHr);
+            for (FindStat s : stats) {
+                double share = totalChipsHr > 0 ? (100.0 * s.chipsHr / totalChipsHr) : 0;
+                System.out.printf("    %-25s: val=%5.1f chips, share=%5.1f%%, 1 per %6.2f h%n",
+                        s.name, s.val, share, s.expHrs);
+            }
+        }
+
+        // Targets:
+        // Tier 1 line: ~60 chips/hr (+-10%)
+        boolean t1Ok = Math.abs(lineChips[0] - 60.0) <= 6.0;
+        // Tier 2 line: ~1.8x T1 (+-10%)
+        double t2Ratio = lineChips[1] / lineChips[0];
+        boolean t2Ok = Math.abs(t2Ratio - 1.8) <= 0.18;
+        // Tier 3 line: ~3x T1 (+-10%)
+        double t3Ratio = lineChips[2] / lineChips[0];
+        boolean t3Ok = Math.abs(t3Ratio - 3.0) <= 0.30;
+
+        // Hand pan on T1 clumps: ~1/3 of T1 line (~20 chips/hr, at 80 clumps/hr)
+        double handPanRate = 80.0;
+        double handPanChips = (lineChips[0] / clumpsPerHour) * handPanRate;
+        boolean handPanOk = Math.abs(handPanChips - 20.0) <= 4.0;
+
+        // Welcome Stranger: ~360 chips (~2 hours of T3 line), 1 per 30-50 hours
+        Map<String, Object> wsObj = (Map<String, Object>) chipsMap.get("holeydigsite:welcome_stranger");
+        int wsChips = wsObj != null ? ((Number) wsObj.get("each")).intValue() : 0;
+        double wsHoursOfT3 = wsChips / lineChips[2];
+        boolean wsValueOk = Math.abs(wsHoursOfT3 - 2.0) <= 0.25;
+
+        // Find Welcome Stranger chance in opal_clay.json
+        Path t3Table = res.resolve("data/holeydigsite/loot_table/panning/opal_clay.json");
+        List<Pool> t3Pools = parseTable(new Json(Files.readString(t3Table)).parse());
+        double wsProb = 0;
+        for (Pool p : t3Pools) {
+            for (Entry e : p.entries) {
+                if (e.item.contains("welcome_stranger")) {
+                    wsProb += p.chance * p.rolls * ((double) e.weight / p.totalWeight());
+                }
+            }
+        }
+        double wsExpHours = wsProb > 0 ? 1.0 / (wsProb * clumpsPerHour) : 0;
+        boolean wsRarityOk = wsExpHours >= 30.0 && wsExpHours <= 50.0;
+
+        ok &= t1Ok && t2Ok && t3Ok && handPanOk && wsValueOk && wsRarityOk;
+
+        System.out.printf("  Tier 1 line: %.2f chips/h (target ~60) [%s]%n", lineChips[0], t1Ok ? "OK" : "FAIL");
+        System.out.printf("  Tier 2 line: %.2fx T1 (target ~1.8x, %.2f chips/h) [%s]%n", t2Ratio, lineChips[1], t2Ok ? "OK" : "FAIL");
+        System.out.printf("  Tier 3 line: %.2fx T1 (target ~3.0x, %.2f chips/h) [%s]%n", t3Ratio, lineChips[2], t3Ok ? "OK" : "FAIL");
+        System.out.printf("  Hand pan on T1: %.2f chips/h (target ~20 chips/h, 1/3 of T1) [%s]%n", handPanChips, handPanOk ? "OK" : "FAIL");
+        System.out.printf("  Welcome Stranger: %d chips = %.2f h of T3 (target ~2.0 h) [%s], 1 per %.1f h (target 30-50 h) [%s]%n",
+                wsChips, wsHoursOfT3, wsValueOk ? "OK" : "FAIL", wsExpHours, wsRarityOk ? "OK" : "FAIL");
+
+        return ok;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Phase 29: long sluice (two insert slots, chute queue 16). Must match tiers/sluice_box.json and sluice/SluiceUpgrade.java.
+    // ------------------------------------------------------------------------------------------------
+    static final int OLD_T2_QUEUE = 8, LONG_QUEUE = 16;
+    /** The long sluice keeps the old Tier 2 wash time. */
+    static final int T2_CYCLE_TICKS = 50;
+    /** Two inserts may not make a line earn more coins than the best single insert did (the Riffle and the Mesh work on different clumps, the Seed Screen pays in seeds). */
+    static final double PAIR_COIN_TOLERANCE = 0.005;
+
+    /** Coin gain per clump of kind k (0 dirt, 1 gravel, 2 sand) from insert i (0 riffle, 1 mesh, 2 seed); the Seed Screen pays in seeds, not coins. */
+    static double insertGain(int insert, int kind, double base, double meshBonus) {
+        if (insert == 0 && kind == 1) return base * RIFFLE_EXTRA;
+        if (insert == 1 && kind == 2) return base * MESH_EXTRA + meshBonus;
+        return 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    static boolean phase29(Path res, double evDirt, double evGravel, double evSand) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE 29: LONG SLUICE (old Tier 2 sluice, 1 insert, queue " + OLD_T2_QUEUE + " vs long sluice, 2 inserts, queue " + LONG_QUEUE + ") ===");
+        boolean ok = true;
+        Map<String, Object> tiers = readJson(res.resolve("data/holeydigsite/tiers/sluice_box.json"));
+        Map<String, Object> t2 = null;
+        for (Object o : (List<Object>) tiers.get("tiers")) {
+            Map<String, Object> m = (Map<String, Object>) o;
+            if ("sluice_box_t2".equals(m.get("id"))) t2 = m;
+        }
+        Map<String, Object> stats = (Map<String, Object>) t2.get("stats");
+        int cycle = ((Number) stats.get("cycle_ticks")).intValue(), queue = ((Number) stats.get("max_queue")).intValue();
+        boolean speedOk = cycle == T2_CYCLE_TICKS && Math.abs(1200.0 / cycle - T2_SLUICE_CLUMPS_PER_MIN) < 1e-9;
+        ok &= speedOk;
+        System.out.printf("  wash time %d ticks = %.0f clumps/min, same as the old Tier 2 sluice [%s]%n", cycle, 1200.0 / cycle, speedOk ? "OK" : "FAIL");
+        boolean queueOk = queue == LONG_QUEUE;
+        ok &= queueOk;
+        System.out.printf("  chute queue %d (old %d): a burst of %d clumps buffers %.0f s of washing instead of %.0f s [%s]%n",
+                queue, OLD_T2_QUEUE, queue, queue * cycle / 20.0, OLD_T2_QUEUE * cycle / 20.0, queueOk ? "OK" : "FAIL");
+        double meshBonus = tableValue(res, MESH_BONUS_TABLE);
+        // per kind: base value, then per insert {applies to this kind, extra wash chance, bonus value, seed chance}
+        String[] names = {"dirt", "gravel", "sand"};
+        double[] base = {evDirt, evGravel, evSand};
+        double[] seed = {seedChance(res, "seeds_dirt_1"), seedChance(res, "seeds_gravel"), seedChance(res, "seeds_sand")};
+        String[] inserts = {"riffle", "mesh", "seed"};
+        for (int k = 0; k < 3; k++) {
+            double bestOne = 0, bestPair = 0;
+            String pairName = "";
+            for (int a = 0; a < 3; a++) {
+                bestOne = Math.max(bestOne, insertGain(a, k, base[k], meshBonus));
+                for (int b = a + 1; b < 3; b++) {
+                    double g = insertGain(a, k, base[k], meshBonus) + insertGain(b, k, base[k], meshBonus);
+                    if (g > bestPair) { bestPair = g; pairName = inserts[a] + " + " + inserts[b]; }
+                }
+            }
+            double clumpsH = T2_SLUICE_CLUMPS_PER_MIN * 60;
+            if (bestPair <= bestOne + 1e-9) pairName = (k == 1 ? "riffle" : k == 2 ? "mesh" : "no coin insert") + " + seed";
+            boolean in = bestPair <= bestOne * (1 + PAIR_COIN_TOLERANCE) + 1e-9;
+            ok &= in;
+            System.out.printf("  %-6s saturated line (%.0f clumps/h): old best insert %.0f gold/h, long best pair (%s) %.0f gold/h, plus %.0f seeds/h with a Seed Screen [%s]%n",
+                    names[k], clumpsH, clumpsH * (base[k] + bestOne) / GOLD, pairName.isEmpty() ? "none" : pairName,
+                    clumpsH * (base[k] + bestPair) / GOLD, clumpsH * seed[k], in ? "OK" : "FAIL");
+        }
+        double drillLine = T2_DRILL_CLUMPS_PER_MIN * 60;
+        System.out.printf("  one Tier 2 drill line: %.0f clumps/h either way (the drill is the limit, not the queue); upgrade payback numbers of phase 16 still hold per insert%n", drillLine);
+        return ok;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Phase 30: crate collections, Bolt Cutters, found crates, the crate switch
+    // ------------------------------------------------------------------------------------------------
+    /** Play rates the find chances are judged against (per hour). Hand pan = Brush at 60% of the time. */
+    static final double P30_PAN_PER_HOUR = 3600.0 * 20 / 40 * 0.6, P30_SHOVEL_PER_HOUR = 900;
+    static final double P30_STARTER_SLUICE_PER_HOUR = SLUICE_CLUMPS_PER_MIN * 60, P30_T2_DRILL_PER_HOUR = T2_DRILL_CLUMPS_PER_MIN * 60;
+    static final double P30_T2_SLUICE_PER_HOUR = T2_SLUICE_CLUMPS_PER_MIN * 60;
+
+    @SuppressWarnings("unchecked")
+    static boolean phase30(Path res) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE 30: CRATE COLLECTIONS, BOLT CUTTERS, FOUND CRATES ===");
+        boolean ok = true;
+        Map<String, Object> crate = readJson(res.resolve("data/holeydigsite/crates/prospector_crate.json"));
+        Map<String, Object> rules = readJson(res.resolve("data/holeydigsite/crate_rules.json"));
+        Map<String, Object> odds = (Map<String, Object>) crate.get("odds");
+        Map<String, Object> pools = (Map<String, Object>) crate.get("pools");
+        Map<String, Object> finds = (Map<String, Object>) crate.get("finds");
+        String[] rar = {"common", "rare", "epic", "legendary"};
+        double total = 0;
+        for (String r : rar) total += num(odds.get(r));
+        double[] p = new double[4];
+        for (int i = 0; i < 4; i++) p[i] = num(odds.get(rar[i])) / total;
+        boolean oddsOk = Math.abs(p[0] - 0.80) < 1e-9 && Math.abs(p[1] - 0.16) < 1e-9 && Math.abs(p[2] - 0.03) < 1e-9 && Math.abs(p[3] - 0.01) < 1e-9;
+        ok &= oddsOk;
+        System.out.printf("  Prospector Crate odds %.1f / %.1f / %.1f / %.1f %% [%s]%n", p[0] * 100, p[1] * 100, p[2] * 100, p[3] * 100, oddsOk ? "OK" : "OFF");
+
+        double pan = num(finds.get("pan")), sluice = num(finds.get("sluice")), drill = num(finds.get("drill")), shovel = num(finds.get("shovel"));
+        double panH = P30_PAN_PER_HOUR / pan, starterH = P30_STARTER_SLUICE_PER_HOUR / sluice, shovelH = P30_SHOVEL_PER_HOUR / shovel;
+        double t2LineH = P30_T2_DRILL_PER_HOUR / drill + Math.min(P30_T2_DRILL_PER_HOUR, P30_T2_SLUICE_PER_HOUR) / sluice;
+        double t1LineH = DRILL_CLUMPS_PER_MIN * 60 / drill + DRILL_CLUMPS_PER_MIN * 60 / sluice;
+        System.out.printf("  finds: pan 1 in %.0f, sluice tray 1 in %.0f clumps, drill 1 in %.0f clumps, shovel 1 in %.0f scoops%n", pan, sluice, drill, shovel);
+        System.out.printf("  per hour: hand pan %.2f crates (%.0f scoops), one Starter Sluice %.2f (%.0f clumps), shovel %.2f (%.0f scoops), Tier 1 line %.2f, Tier 2 line (drill + long sluice) %.2f = one per %.2f h%n",
+                panH, P30_PAN_PER_HOUR, starterH, P30_STARTER_SLUICE_PER_HOUR, shovelH, P30_SHOVEL_PER_HOUR, t1LineH, t2LineH, 1 / t2LineH);
+        boolean lineOk = 1 / t2LineH >= 1.0 && 1 / t2LineH <= 2.0;
+        boolean panOk = panH > starterH && panH < t2LineH;
+        ok &= lineOk && panOk;
+        System.out.printf("  Tier 2 line one crate per 1-2 h [%s]; hand pan better than a Starter Sluice and worse than a Tier 2 line [%s]%n", lineOk ? "OK" : "OFF", panOk ? "OK" : "OFF");
+        boolean rarer = Math.min(Math.min(pan, sluice), Math.min(drill, shovel)) >= 500;
+        ok &= rarer;
+        System.out.printf("  every source rarer than 1 in 500 (gems turn up far more often) [%s]%n", rarer ? "OK" : "OFF");
+
+        Path shop = res.resolve("data/holeydigsite/holeydigsite/shop_items");
+        double cutter = num(readJson(shop.resolve("bolt_cutters.json")).get("price"));
+        double wooden = OLD_CRATE_PRICES.get("wooden_crate");
+        double sell = num(rules.get("locked_sell_copper"));
+        boolean cutterOk = Math.abs(cutter - wooden) <= wooden * 0.1;
+        boolean sellOk = sell / cutter >= 0.02 && sell / cutter <= 0.05;
+        ok &= cutterOk && sellOk;
+        System.out.printf("  Bolt Cutters %.0f copper (%.0f gold), the old Wooden Crate cost %.0f [%s]; a locked crate sells for %.0f copper = %.1f%% of a cutter [%s]%n",
+                cutter, cutter / GOLD, wooden, cutterOk ? "OK" : "OFF", sell, 100 * sell / cutter, sellOk ? "OK" : "OFF");
+        System.out.printf("  a Tier 2 line earns about 1789 gold/h, so a cutter is %.1f%% of one hour there%n", 100 * cutter / GOLD / 1789.0);
+
+        double pEpicUp = p[2] + p[3];
+        double crEpic = 1 / p[2], crEpicUp = 1 / pEpicUp, crLeg = 1 / p[3];
+        double allH = t2LineH + panH;
+        System.out.printf("  average crates to a first epic: %.1f (epic or better %.1f), to the legendary: %.0f%n", crEpic, crEpicUp, crLeg);
+        System.out.printf("    hours, Tier 2 line alone: epic %.0f h, legendary %.0f h; hand pan alone: %.0f / %.0f h; Tier 2 line + hand pan: %.0f / %.0f h%n",
+                crEpic / t2LineH, crLeg / t2LineH, crEpic / panH, crLeg / panH, crEpic / allH, crLeg / allH);
+        double half = Math.log(0.5) / Math.log(1 - p[3]), ninety = Math.log(0.1) / Math.log(1 - p[3]);
+        System.out.printf("    half of all players have the legendary after %.0f crates (%.0f h on line + pan), 90%% after %.0f crates (%.0f h); the average %.0f crates cost %.0f gold in cutters%n",
+                half, half / allH, ninety, ninety / allH, crLeg, crLeg * cutter / GOLD);
+
+        double skinPerCrate = 0, valuePerCrate = 0;
+        int[] scrap = {1, 3, 8, 20};
+        for (int i = 0; i < 4; i++) {
+            List<Object> pool = (List<Object>) pools.get(rar[i]);
+            int skins = 0;
+            for (Object o : pool) if (((Map<String, Object>) o).containsKey("skin")) skins++;
+            skinPerCrate += p[i] * skins / Math.max(1, pool.size());
+            valuePerCrate += p[i] * scrap[i];
+        }
+        double oldSkinPerWooden = 0.7 * 2 / 8 + 0.25 * 2 / 4 + 0.05 * 1 / 3;
+        double oldPanPerHour = P30_PAN_PER_HOUR / 1500 * oldSkinPerWooden + P30_PAN_PER_HOUR / 6000 * 0.35;
+        double oldPerHour = oldPanPerHour + 1.0 * oldSkinPerWooden;
+        double newPerHour = (panH + t2LineH) * skinPerCrate;
+        double newPanOnly = panH * skinPerCrate;
+        boolean skinOk = newPerHour <= oldPerHour * 1.5 && newPanOnly >= oldPanPerHour * 0.5;
+        ok &= skinOk;
+        System.out.printf("  skins per crate %.2f; skins entering the world per hour: before %.2f (old hand pan finds %.2f + one bought Wooden Crate an hour), now %.2f for hand pan + Tier 2 line (%.2f hand pan alone) = %.2fx [%s]%n",
+                skinPerCrate, oldPerHour, oldPanPerHour, newPerHour, newPanOnly, newPerHour / oldPerHour, skinOk ? "OK" : "OFF");
+
+        double[][] oldOdds = {{70, 25, 5, 0}, {45, 38, 14, 3}, {20, 40, 30, 10}};
+        String[] names = {"Wooden (level 19)", "Iron (level 36)", "Gold (level 49)"};
+        int[] counts = {1, 2, 4};
+        for (int i = 0; i < 3; i++) {
+            double old = 0;
+            for (int r = 0; r < 4; r++) old += oldOdds[i][r] / 100 * scrap[r];
+            boolean in = counts[i] * valuePerCrate >= old * 0.9 && counts[i] * valuePerCrate <= old * 2.2;
+            ok &= in;
+            System.out.printf("  %-18s was worth %.2f rarity points, %d Prospector Crate(s) are %.2f (%.0f%%) [%s]%n", names[i], old, counts[i],
+                    counts[i] * valuePerCrate, 100 * counts[i] * valuePerCrate / old, in ? "OK" : "OFF");
+        }
+        Map<String, Object> off = (Map<String, Object>) rules.get("off_coins");
+        double crateCoins = num(off.get("crate"));
+        Map<String, Object> skinCoins = (Map<String, Object>) off.get("skin");
+        double scrapPrice = num(readJson(res.resolve("data/holeydigsite/holeydigsite/sell_values/skin_scrap.json")).get("copper_per_gram"));
+        boolean offOk = crateCoins == cutter;
+        for (int i = 0; i < 4; i++) offOk &= num(skinCoins.get(rar[i])) == scrap[i] * 2 * scrapPrice;
+        ok &= offOk;
+        System.out.printf("  switch off: a crate reward pays %.0f copper each (one cutter), a skin reward pays its Fresh scrap value: common %.0f, rare %.0f, epic %.0f [%s]%n",
+                crateCoins, num(skinCoins.get("common")), num(skinCoins.get("rare")), num(skinCoins.get("epic")), offOk ? "OK" : "OFF");
+        return ok;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Phase 31: the Outback collection and the Black Opal
+    // ------------------------------------------------------------------------------------------------
+    @SuppressWarnings("unchecked")
+    static boolean phase31(Path res) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE 31: OUTBACK COLLECTION, BLACK OPAL, CRATES ON THE EVENT ISLAND ===");
+        boolean ok = true;
+        Map<String, Object> crate = readJson(res.resolve("data/holeydigsite/crates/outback_crate.json"));
+        Map<String, Object> prospector = readJson(res.resolve("data/holeydigsite/crates/prospector_crate.json"));
+        Map<String, Object> odds = (Map<String, Object>) crate.get("odds");
+        Map<String, Object> pools = (Map<String, Object>) crate.get("pools");
+        Map<String, Object> finds = (Map<String, Object>) crate.get("finds");
+        Map<String, Object> pFinds = (Map<String, Object>) prospector.get("finds");
+        String[] rar = {"common", "rare", "epic", "legendary"};
+        double total = 0;
+        for (String r : rar) total += num(odds.get(r));
+        double[] p = new double[4];
+        for (int i = 0; i < 4; i++) p[i] = num(odds.get(rar[i])) / total;
+        boolean oddsOk = Math.abs(p[0] - 0.80) < 1e-9 && Math.abs(p[1] - 0.16) < 1e-9 && Math.abs(p[2] - 0.03) < 1e-9 && Math.abs(p[3] - 0.01) < 1e-9;
+        ok &= oddsOk;
+        System.out.printf("  Outback Crate odds %.1f / %.1f / %.1f / %.1f %%, the same as the Prospector Crate [%s]%n", p[0] * 100, p[1] * 100, p[2] * 100, p[3] * 100, oddsOk ? "OK" : "OFF");
+        List<Object> leg = (List<Object>) pools.get("legendary");
+        boolean blackOk = leg.size() == 1 && "black_opal".equals(((Map<String, Object>) leg.get(0)).get("skin"));
+        ok &= blackOk;
+        int skins = 0;
+        for (String r : rar) for (Object o : (List<Object>) pools.get(r)) if (((Map<String, Object>) o).containsKey("skin")) skins++;
+        System.out.printf("  Black Opal is the only legendary [%s]; the crate holds %d skins%n", blackOk ? "OK" : "OFF", skins);
+
+        Path shop = res.resolve("data/holeydigsite/holeydigsite/shop_items");
+        double price = num(readJson(shop.resolve("outback_crate.json")).get("chips"));
+        double t1 = EVENT_LINE_CHIPS[0], t2 = EVENT_LINE_CHIPS[1], t3 = EVENT_LINE_CHIPS[2];
+        System.out.printf("  Opal Chips per Outback Crate: %.0f = %.2f h of a Tier 1 section line (%.2f h Tier 2, %.2f h Tier 3); unchanged from Phase 28b%n",
+                price, price / t1, price / t2, price / t3);
+
+        double panS = P30_PAN_PER_HOUR, drillS = DRILL_CLUMPS_PER_MIN * 60, sluiceS = Math.min(DRILL_CLUMPS_PER_MIN * 60, SLUICE_CLUMPS_PER_MIN * 60);
+        double lineFind = drillS / num(finds.get("drill")) + sluiceS / num(finds.get("sluice"));
+        double panFind = panS / num(finds.get("pan")), shovelFind = P30_SHOVEL_PER_HOUR / num(finds.get("shovel"));
+        boolean sameAsProspector = finds.equals(pFinds);
+        ok &= sameAsProspector;
+        System.out.printf("  finds on the event island (locked Outback Crates, same chances as the Prospector Crate [%s]): drill 1 in %.0f clumps, sluice 1 in %.0f, pan 1 in %.0f, shovel 1 in %.0f%n",
+                sameAsProspector ? "OK" : "OFF", num(finds.get("drill")), num(finds.get("sluice")), num(finds.get("pan")), num(finds.get("shovel")));
+        System.out.printf("    per hour: Tier 1 drill + sluice line %.2f (one per %.1f h), hand pan %.2f, shovel %.2f; the Prospector Crate is found there as well at the same rates%n",
+                lineFind, 1 / lineFind, panFind, shovelFind);
+        double bought1 = t1 / price, bought3 = t3 / price;
+        System.out.printf("    crates per hour of event play, bought plus found: Tier 1 line %.2f + %.2f = %.2f, Tier 3 line %.2f + %.2f = %.2f%n",
+                bought1, lineFind, bought1 + lineFind, bought3, lineFind, bought3 + lineFind);
+
+        double perCrate = p[3];
+        double expCrates = 1 / perCrate, half = Math.log(0.5) / Math.log(1 - perCrate), ninety = Math.log(0.1) / Math.log(1 - perCrate);
+        System.out.printf("  Black Opal: %.1f%% per crate, 1 in %.0f; half of all players have it after %.0f crates, 90%% after %.0f%n", perCrate * 100, expCrates, half, ninety);
+        System.out.printf("    hours to see one (average %.0f crates): Tier 1 line, bought only %.0f h, bought + found %.0f h; Tier 3 line %.0f h bought + found; half of players %.0f h and 90%% %.0f h on a Tier 1 line%n",
+                expCrates, expCrates / bought1, expCrates / (bought1 + lineFind), expCrates / (bought3 + lineFind),
+                half / (bought1 + lineFind), ninety / (bought1 + lineFind));
+        double prospectorH = expCrates / (P30_T2_DRILL_PER_HOUR / num(pFinds.get("drill")) + Math.min(P30_T2_DRILL_PER_HOUR, P30_T2_SLUICE_PER_HOUR) / num(pFinds.get("sluice")));
+        boolean hoursOk = expCrates / (bought1 + lineFind) >= 60 && expCrates / (bought1 + lineFind) <= 200;
+        ok &= hoursOk;
+        System.out.printf("    for comparison the Prospector legendary takes %.0f h on a Tier 2 line [%s]%n", prospectorH, hoursOk ? "OK" : "OFF");
+
+        double skinPerCrate = 0;
+        for (int i = 0; i < 4; i++) {
+            int sk = 0;
+            List<Object> pool = (List<Object>) pools.get(rar[i]);
+            for (Object o : pool) if (((Map<String, Object>) o).containsKey("skin")) sk++;
+            skinPerCrate += p[i] * sk / pool.size();
+        }
+        System.out.printf("  skins per crate %.2f; a duplicate Black Opal scraps for 40 Skin Scrap Fresh, 30 Workshop Clean, 20 Field Worn, 15 Pit Scarred, 10 Cave Battered (crate_rules.json unchanged)%n", skinPerCrate);
+        return ok;
+    }
 }

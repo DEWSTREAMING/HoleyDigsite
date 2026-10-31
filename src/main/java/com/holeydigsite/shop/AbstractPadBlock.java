@@ -63,6 +63,10 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
     /** Translation key of the red refused message. */
     protected abstract String refusedKey();
 
+    public Component refusedMessage(ItemStack stack) {
+        return Component.translatable(refusedKey());
+    }
+
     /** Translation key of the yellow help message shown on an empty-hand click of an empty pad. */
     protected abstract String helpKey();
 
@@ -131,7 +135,10 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
             return 0;
         }
         if (!accepts(stack, level, pos)) {
-            player.displayClientMessage(Component.translatable(refusedKey()).withStyle(ChatFormatting.RED), true);
+            player.displayClientMessage(refusedMessage(stack).copy().withStyle(ChatFormatting.RED), true);
+
+
+
             return 0;
         }
         int n = pad.insert(stack);
@@ -163,6 +170,7 @@ public abstract class AbstractPadBlock extends BaseEntityBlock {
         inv.setChanged();
         if (!any) {
             player.displayClientMessage(Component.translatable(refusedKey()).withStyle(ChatFormatting.RED), true);
+
         } else if (moved == 0) {
             player.displayClientMessage(Component.translatable("message.holeydigsite.pad.full").withStyle(ChatFormatting.RED), true);
         } else {

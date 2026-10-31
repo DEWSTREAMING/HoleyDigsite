@@ -14,6 +14,7 @@ import com.holeydigsite.forge.LargeCrucibleBlock;
 import com.holeydigsite.forge.MoldBlock;
 import com.holeydigsite.item.BrushItem;
 import com.holeydigsite.item.PanBlockItem;
+import com.holeydigsite.sluice.LongSluiceBlock;
 import com.holeydigsite.sluice.SluiceBoxBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -34,7 +35,10 @@ final class TierKinds {
         BlockBehaviour.Properties p = d.blockProperties(lightWhen(d.family()));
         return switch (d.family()) {
             case "mining_drill" -> new MiningDrillBlock(p, d.stat("cycle_ticks"));
-            case "sluice_box" -> new SluiceBoxBlock(p, new SluiceBoxBlock.Stats(d.stat("cycle_ticks"), d.stat("max_queue"), d.stat("tray_slots")));
+            case "sluice_box" -> {
+                SluiceBoxBlock.Stats stats = new SluiceBoxBlock.Stats(d.stat("cycle_ticks"), d.stat("max_queue"), d.stat("tray_slots"));
+                yield "long".equals(d.kind()) ? new LongSluiceBlock(p, stats) : new SluiceBoxBlock(p, stats);
+            }
             case "pan" -> switch (d.kind()) {
                 case "large" -> new LargePanBlock(p);
                 default -> new PanBlock(p);

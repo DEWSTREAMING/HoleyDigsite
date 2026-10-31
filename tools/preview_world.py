@@ -10,6 +10,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import make_world as mw
 
 COL = [  # substring -> colour (first match wins)
+    ('pindan', (176, 74, 40)), ('hardpan', (185, 147, 107)), ('red_dirt_rock', (161, 71, 39)), ('mullock', (178, 178, 173)),
+    ('opal_clay', (111, 128, 138)), ('bedrock', (60, 60, 60)), ('red_terracotta', (140, 60, 45)), ('orange_terracotta', (160, 85, 40)),
+    ('terracotta', (150, 92, 66)), ('granite', (150, 105, 85)), ('copper', (160, 120, 90)), ('acacia', (170, 90, 50)),
+    ('red_sandstone', (185, 100, 40)), ('packed_mud', (140, 105, 80)), ('iron_block', (220, 220, 220)), ('concrete', (160, 160, 160)),
+    ('event_board', (250, 240, 200)), ('leaderboard', (250, 240, 200)), ('event_sell_pad', (200, 90, 200)),
     ('water', (52, 98, 214)), ('minecraft:light', None), ('site_marker', None),
     ('abyssal', (40, 20, 60)), ('deep_dirtrock', (90, 50, 30)), ('dirtrock', (120, 85, 55)), ('gravelrock', (95, 100, 110)),
     ('sandrock', (215, 170, 90)), ('grass_block', (95, 160, 60)), ('moss', (90, 130, 50)), ('short_grass', (110, 170, 70)),
@@ -28,6 +33,9 @@ COL = [  # substring -> colour (first match wins)
 ]
 WOOL = {'light_blue': (110, 170, 220), 'white': (235, 235, 235), 'orange': (235, 130, 40), 'brown': (110, 75, 45),
         'red': (170, 40, 40), 'yellow': (240, 210, 60)}
+
+
+OFF = [0, 0]      # x, z shift so the event island (north of the template) fits the picture
 
 
 def colour(st):
@@ -97,12 +105,11 @@ def top(blocks, s=8):
             best[(x, z)] = (y, c)
     for (x, z), (y, c) in best.items():
         d.rectangle([x * s, z * s, x * s + s - 1, z * s + s - 1], fill=shade(c, 0.6 + 0.04 * (y - mw.G + 5)))
-    for sid in mw.SITES:
-        b = mw.site_box(sid)
-        d.rectangle([b[0] * s, b[2] * s, (b[3] + 1) * s - 1, (b[5] + 1) * s - 1], outline=(255, 60, 60))
-    for pid in mw.PLOTS:
-        b = mw.kiosk_box(pid)
-        d.rectangle([b[0] * s, b[2] * s, (b[3] + 1) * s - 1, (b[5] + 1) * s - 1], outline=(255, 255, 0))
+    boxes = [(mw.site_box(sid), (255, 60, 60)) for sid in mw.SITES] + [(mw.kiosk_box(pid), (255, 255, 0)) for pid in mw.PLOTS]
+    boxes += [(mw.ev_box(t), (255, 60, 60)) for t in mw.EV_SECTIONS] + [(mw.ev_kiosk_box(), (255, 255, 0))]
+    for b, col in boxes:
+        b = (b[0] - OFF[0], 0, b[2] - OFF[1], b[3] - OFF[0], 0, b[5] - OFF[1])
+        d.rectangle([b[0] * s, b[2] * s, (b[3] + 1) * s - 1, (b[5] + 1) * s - 1], outline=col)
     return img
 
 
@@ -110,6 +117,13 @@ if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(mw.HERE, 'world_snbt', 'preview')
     os.makedirs(out, exist_ok=True)
     mw.build()
+    OFF[0] = min(0, min(k[0] for k in mw.W))
+    OFF[1] = min(0, min(k[2] for k in mw.W))
+    shifted = {(x - OFF[0], y, z - OFF[1]): v for (x, y, z), v in mw.W.items()}
+    mw.TW = max(k[0] for k in shifted) + 1
+    mw.TD = max(k[2] for k in shifted) + 1
+    mw.W.clear()
+    mw.W.update(shifted)
     top(mw.W).save(os.path.join(out, 'top.png'))
     for v in range(4):
         iso(mw.W, v).save(os.path.join(out, 'iso_%d.png' % v))

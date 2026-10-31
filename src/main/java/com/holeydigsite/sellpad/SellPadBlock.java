@@ -47,6 +47,15 @@ public class SellPadBlock extends AbstractPadBlock implements com.holeydigsite.t
     @Override
     protected String refusedKey() {
         return "message.holeydigsite.sell_pad.refused";
+
+    }
+
+    @Override
+    public Component refusedMessage(ItemStack stack) {
+        if (com.holeydigsite.event.EventDefs.isEventItem(stack)) {
+            return Component.translatable("message.holeydigsite.sell_pad.refused_event");
+        }
+        return super.refusedMessage(stack);
     }
 
     @Override

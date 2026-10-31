@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "holeydigsite:outback_gold_chunk_small",
+    "holeydigsite:outback_gold_chunk_medium",
+    "holeydigsite:outback_gold_chunk_large",
+    "holeydigsite:outback_gold_ingot"
+  ]
+}

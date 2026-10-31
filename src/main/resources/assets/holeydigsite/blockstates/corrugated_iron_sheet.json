@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/corrugated_iron_sheet"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/corrugated_iron_sheet",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/corrugated_iron_sheet",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/corrugated_iron_sheet",
+      "y": 270
+    }
+  }
+}

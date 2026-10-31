@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/sluice_insert_riffle",
+    "insert": "holeydigsite:block/sluice_insert_riffle"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        8.15,
+        8.5
+      ],
+      "to": [
+        14,
+        8.9,
+        11.5
+      ],
+      "faces": {
+        "up": {
+          "texture": "#insert"
+        },
+        "down": {
+          "texture": "#insert"
+        },
+        "north": {
+          "texture": "#insert"
+        },
+        "south": {
+          "texture": "#insert"
+        },
+        "east": {
+          "texture": "#insert"
+        },
+        "west": {
+          "texture": "#insert"
+        }
+      }
+    }
+  ]
+}

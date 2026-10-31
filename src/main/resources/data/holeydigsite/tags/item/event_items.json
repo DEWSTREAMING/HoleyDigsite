@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "#holeydigsite:event_finds",
+    "holeydigsite:red_dirt_rock",
+    "holeydigsite:mullock_rock",
+    "holeydigsite:opal_clay_rock",
+    "holeydigsite:hardpan",
+    "holeydigsite:red_dirt_clump",
+    "holeydigsite:mullock_clump",
+    "holeydigsite:opal_clay_clump",
+    "holeydigsite:pindan"
+  ]
+}

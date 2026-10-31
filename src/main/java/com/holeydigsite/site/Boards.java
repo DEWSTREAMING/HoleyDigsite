@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Contract Boards in a site's template. A new build gets them with the structure; an existing store (any older version) gets
+ * Contract Boards and the Leaderboard in a site's template. A new build gets them with the structure; an existing store (any older version) gets
  * the board placed into air at its template spot on load. Anything that is not air at the spot is left alone and reported.
  */
 public final class Boards {
@@ -38,14 +38,17 @@ public final class Boards {
         if (template.isEmpty()) {
             return spots;
         }
-        for (StructureTemplate.StructureBlockInfo info : template.get().filterBlocks(site.anchor(), new StructurePlaceSettings(),
-                ModBlocks.CONTRACT_BOARD.get())) {
+        List<StructureTemplate.StructureBlockInfo> boards = new ArrayList<>(template.get().filterBlocks(site.anchor(),
+                new StructurePlaceSettings(), ModBlocks.CONTRACT_BOARD.get()));
+        boards.addAll(template.get().filterBlocks(site.anchor(), new StructurePlaceSettings(), ModBlocks.LEADERBOARD.get()));
+        boards.addAll(template.get().filterBlocks(site.anchor(), new StructurePlaceSettings(), ModBlocks.CRATE_SWITCH.get()));
+        for (StructureTemplate.StructureBlockInfo info : boards) {
             BlockPos pos = info.pos();
             if (!site.zone().isInside(pos)) {
                 continue;
             }
             BlockState now = level.getBlockState(pos);
-            if (now.getBlock() instanceof ContractBoardBlock) {
+            if (now.getBlock() == info.state().getBlock()) {
                 spots.add(new Spot(pos, State.THERE));
             } else if (now.isAir()) {
                 level.setBlock(pos, info.state(), Block.UPDATE_ALL);

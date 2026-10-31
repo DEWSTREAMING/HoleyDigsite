@@ -56,8 +56,8 @@ public class ShopDisplayRenderer implements BlockEntityRenderer<ShopDisplayBlock
             } else if (display.clientLabel == null) {
                 display.clientLabel = ShopCatalogue.find(display.getLevel().registryAccess(), item)
                         .map(e -> e.count() > 1
-                                ? Component.translatable("tooltip.holeydigsite.display.price_count", e.count(), Selling.format(e.price()))
-                                : Component.translatable("tooltip.holeydigsite.display.price", Selling.format(e.price())))
+                                ? Component.translatable("tooltip.holeydigsite.display.price_count", e.count(), e.priceText())
+                                : Component.translatable("tooltip.holeydigsite.display.price", e.priceText()))
                         .orElse(Component.translatable("tooltip.holeydigsite.display.not_sold"));
             }
             float sc = FloatingText.labelScale(display.getBlockPos());

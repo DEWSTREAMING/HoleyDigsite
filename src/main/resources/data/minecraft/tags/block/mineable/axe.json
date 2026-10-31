@@ -13,6 +13,10 @@
     "holeydigsite:gold_crate",
     "holeydigsite:miners_helmet_stand",
     "holeydigsite:sluice_model",
-    "holeydigsite:contract_board"
+    "holeydigsite:contract_board",
+    "holeydigsite:event_sell_pad",
+    "holeydigsite:outback_crate",
+    "holeydigsite:welcome_stranger_stand",
+    "holeydigsite:southern_cross_banner"
   ]
 }

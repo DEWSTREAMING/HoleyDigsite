@@ -149,6 +149,16 @@ public class HoleyDigsiteJeiPlugin implements IModPlugin {
                 JeiText.t("info_drills_3")
         );
 
+        registration.addItemStackInfo(List.of(new ItemStack(ModBlocks.SLUICE_BOX.get())),
+                JeiText.t("info_sluice_starter_1"),
+                JeiText.t("info_sluice_starter_2")
+        );
+        registration.addItemStackInfo(List.of(new ItemStack(ModBlocks.SLUICE_BOX_T2.get())),
+                JeiText.t("info_sluice_long_1"),
+                JeiText.t("info_sluice_long_2"),
+                JeiText.t("info_sluice_long_3")
+        );
+
         // Belts & Chute
         List<ItemStack> belts = List.of(
                 new ItemStack(ModBlocks.CLUMP_BELT.get()),
@@ -203,6 +213,9 @@ public class HoleyDigsiteJeiPlugin implements IModPlugin {
         if (!kits.isEmpty()) {
             registration.addItemStackInfo(kits, JeiText.t("info_skin_kit_1"), JeiText.t("info_skin_kit_2"));
         }
+
+        // Hardpan
+        registration.addItemStackInfo(new ItemStack(ModBlocks.HARDPAN.get()), JeiText.t("info_hardpan"));
 
         // Prospector's & Assayer's Pick
         List<ItemStack> picks = List.of(

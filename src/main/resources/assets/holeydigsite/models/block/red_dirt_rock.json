@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "holeydigsite:block/red_dirt_rock"
+  }
+}

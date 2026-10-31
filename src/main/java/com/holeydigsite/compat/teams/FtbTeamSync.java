@@ -141,6 +141,10 @@ final class FtbTeamSync {
         if (target == null) {
             return;
         }
+        UUID from = SkyblockTeamAccess.teamIdOf(data, player);
+        if (TeamSyncRules.leavesOwnIsland(from, island, player, sides(server))) {
+            TeamMoves.get(server).rememberOldIsland(player, from);
+        }
         data.removePlayerFromTeam(player);
         if (!target.hasPlayer(player)) {
             data.addPlayerToTeam(target, player);
@@ -157,6 +161,13 @@ final class FtbTeamSync {
 
     private static void freshIsland(MinecraftServer server, UUID player) {
         SkyblockSavedData data = data(server);
+        TeamMoves moves = TeamMoves.get(server);
+        UUID old = TeamSyncRules.oldIsland(moves.oldIsland(player), player, sides(server));
+        moves.forgetOldIsland(player);
+        if (old != null && data.getTeam(old) != null) {
+            move(server, player, old, "message.holeydigsite.team.back_home");
+            return;
+        }
         String base = nameOf(server, player);
         String name = base;
         for (int i = 2; data.teamExists(name); i++) {

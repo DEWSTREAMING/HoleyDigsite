@@ -24,6 +24,10 @@
     "holeydigsite:drop_chute",
     "holeydigsite:down_incline_belt",
     "holeydigsite:fast_down_incline_belt",
-    "holeydigsite:skin_bench"
+    "holeydigsite:skin_bench",
+    "holeydigsite:hardpan",
+    "holeydigsite:corrugated_iron_sheet",
+    "holeydigsite:little_windmill",
+    "holeydigsite:ute_ore_cart"
   ]
 }

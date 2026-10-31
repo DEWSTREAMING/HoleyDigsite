@@ -64,6 +64,9 @@ public final class SiteCommands {
                                         .executes(c -> rebuildPlot(c, StringArgumentType.getString(c, "plot"))))))
                 .then(Commands.literal("site")
                         .then(Commands.literal("fixup").executes(SiteCommands::fixup))
+                        .then(Commands.literal("event")
+                                .then(Commands.literal("rebuild").executes(c -> rebuildEvent(c, false))
+                                        .then(Commands.literal("all").executes(c -> rebuildEvent(c, true)))))
                         .then(Commands.literal("place")
                                 .then(Commands.argument("site", ResourceLocationArgument.id())
                                         .suggests((c, b) -> SharedSuggestionProvider.suggestResource(SiteDefs.all().stream().map(SiteDef::id), b))
@@ -73,6 +76,37 @@ public final class SiteCommands {
                                         .suggests((c, b) -> SharedSuggestionProvider.suggestResource(SiteDefs.all().stream().map(SiteDef::id), b))
                                         .then(Commands.argument("name", StringArgumentType.word())
                                                 .executes(SiteCommands::export))))));
+    }
+
+    /** Rebuilds the event island the player stands on (or the nearest), or every one in the dimension, in full. */
+    private static int rebuildEvent(CommandContext<CommandSourceStack> c, boolean all) {
+        ServerLevel level = c.getSource().getLevel();
+        if (com.holeydigsite.event.EventDefs.getActiveEvent() == null) {
+            c.getSource().sendFailure(Component.translatable("command.holeydigsite.site.event.no_event"));
+            return 0;
+        }
+        List<com.holeydigsite.event.EventIslandData.Island> islands = new ArrayList<>();
+        if (all) {
+            islands.addAll(com.holeydigsite.event.EventIslandData.get(level).all());
+        } else {
+            var one = com.holeydigsite.event.EventIsland.islandAtOrNearest(level, BlockPos.containing(c.getSource().getPosition()));
+            if (one != null) {
+                islands.add(one);
+            }
+        }
+        if (islands.isEmpty()) {
+            c.getSource().sendFailure(Component.translatable("command.holeydigsite.site.event.none"));
+            return 0;
+        }
+        int blocks = 0, chests = 0;
+        for (var i : islands) {
+            var r = com.holeydigsite.event.EventIsland.rebuildWhole(level, i);
+            blocks += r.blocks();
+            chests += r.chests();
+        }
+        int n = islands.size(), b = blocks, ch = chests;
+        c.getSource().sendSuccess(() -> Component.translatable("command.holeydigsite.site.event.rebuilt", n, b, ch), true);
+        return n;
     }
 
     private static List<String> storeTargets() {

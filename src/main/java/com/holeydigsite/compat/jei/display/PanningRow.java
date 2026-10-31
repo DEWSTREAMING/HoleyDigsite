@@ -62,6 +62,9 @@ public record PanningRow(
             case DirtTier.COARSE_DIRT -> "panning/coarse_dirt";
             case DirtTier.ROOTED_DIRT -> "panning/rooted_dirt";
             case DirtTier.MOSS -> "panning/moss";
+            case DirtTier.RED_DIRT -> "panning/red_dirt";
+            case DirtTier.MULLOCK -> "panning/mullock";
+            case DirtTier.OPAL_CLAY -> "panning/opal_clay";
             default -> "panning/dirt_t1";
         };
 

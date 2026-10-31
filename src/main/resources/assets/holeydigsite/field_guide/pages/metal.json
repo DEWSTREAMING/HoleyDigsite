@@ -1,0 +1,15 @@
+{
+  "order": 6,
+  "title": "field_guide.holeydigsite.page.metal.title",
+  "text": [
+    "field_guide.holeydigsite.page.metal.line1",
+    "field_guide.holeydigsite.page.metal.line2",
+    "field_guide.holeydigsite.page.metal.line3"
+  ],
+  "clip": "metal",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

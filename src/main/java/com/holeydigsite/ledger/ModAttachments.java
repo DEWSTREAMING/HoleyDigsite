@@ -21,4 +21,11 @@ public final class ModAttachments {
                             .copyOnDeath()
                             .build()
             );
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.holeydigsite.event.OpalChips>> OPAL_CHIPS =
+            ATTACHMENT_TYPES.register("opal_chips", () ->
+                    AttachmentType.serializable(com.holeydigsite.event.OpalChips::new)
+                            .copyOnDeath()
+                            .build()
+            );
 }

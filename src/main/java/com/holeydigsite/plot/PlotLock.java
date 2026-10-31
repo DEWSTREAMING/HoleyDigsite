@@ -116,6 +116,7 @@ public final class PlotLock {
         if (e instanceof Player p) {
             if (!canUse(p, event.getLevel(), event.getPos())) {
                 event.setCanceled(true);
+                com.holeydigsite.site.SiteProtection.resync(p);
             }
         } else if (e != null && isLocked(event.getLevel(), event.getPos())) {
             event.setCanceled(true);

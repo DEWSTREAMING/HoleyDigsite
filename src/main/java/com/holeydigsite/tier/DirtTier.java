@@ -23,20 +23,26 @@ import net.minecraft.world.level.storage.loot.LootTable;
  *   kind 3 = Abyssal dirt (Abyssal Dirtrock)     -> Dirt Clump, clump_tier 3        -> panning/dirt_t3
  *   kind 4 = Gravel (Gravelrock, vanilla gravel) -> Gravel Clump (own item)          -> panning/gravel
  *   kind 5 = Sand (Sandrock, vanilla sand)       -> Sand Clump (own item)            -> panning/sand
+ *   kind 9 = Red Dirt (Red Dirt Rock)            -> Red Dirt Clump (own item)        -> panning/red_dirt
+ *   kind 10 = Mullock (Mullock Rock)             -> Mullock Clump (own item)         -> panning/mullock
+ *   kind 11 = Opal Clay (Opal Clay Rock)         -> Opal Clay Clump (own item)       -> panning/opal_clay
  * </pre>
- * Rock to kind is tag based ({@code rock_tier_2/3}, {@code rock_gravel}, {@code rock_sand}); deep gravel or sand variants later
- * mean new kinds, new tags, and rows in {@link #KINDS}. Same kind means same item plus components equals stacks.
+ * Rock to kind is tag based; event clumps require the {@code holeydigsite:event_dug} mark to pan as event kinds.
  */
 public final class DirtTier {
     private DirtTier() {}
 
-    public static final int MIN = 1, MAX = 8;
+    public static final int MIN = 1, MAX = 11;
     public static final int DIRT = 1, GRAVEL = 4, SAND = 5, COARSE_DIRT = 6, ROOTED_DIRT = 7, MOSS = 8;
+    public static final int RED_DIRT = 9, MULLOCK = 10, OPAL_CLAY = 11;
 
     public static final TagKey<Block> ROCK_TIER_2 = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_tier_2"));
     public static final TagKey<Block> ROCK_TIER_3 = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_tier_3"));
     public static final TagKey<Block> ROCK_GRAVEL = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_gravel"));
     public static final TagKey<Block> ROCK_SAND = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_sand"));
+    public static final TagKey<Block> ROCK_RED_DIRT = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_red_dirt"));
+    public static final TagKey<Block> ROCK_MULLOCK = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_mullock"));
+    public static final TagKey<Block> ROCK_OPAL_CLAY = TagKey.create(Registries.BLOCK, HoleyDigsite.id("rock_opal_clay"));
 
     /** One row per kind, with the name used in language keys and loot table paths. */
     private record Kind(String loot, String key) {}
@@ -51,6 +57,9 @@ public final class DirtTier {
             new Kind("panning/coarse_dirt", "dirt_6"),
             new Kind("panning/rooted_dirt", "dirt_7"),
             new Kind("panning/moss", "dirt_8"),
+            new Kind("panning/red_dirt", "dirt_9"),
+            new Kind("panning/mullock", "dirt_10"),
+            new Kind("panning/opal_clay", "dirt_11"),
     };
 
     @SuppressWarnings("unchecked")
@@ -66,14 +75,23 @@ public final class DirtTier {
         return Math.clamp(kind, MIN, MAX);
     }
 
-    /** True for the dirt kinds (1-3), which share the Dirt Clump item. */
+    /** True for the dirt kinds (1-3 and 6-8), which share the Dirt Clump item. */
     public static boolean isDirt(int kind) {
         int k = clamp(kind);
-        return k <= 3 || k >= 6;
+        return k <= 3 || (k >= 6 && k <= 8);
+    }
+
+    /** True for the event kinds (9-11). */
+    public static boolean isEventKind(int kind) {
+        int k = clamp(kind);
+        return k >= RED_DIRT && k <= OPAL_CLAY;
     }
 
     /** Kind of the rock a drill stands on. */
     public static int ofRock(BlockState rock) {
+        if (rock.is(ROCK_RED_DIRT)) return RED_DIRT;
+        if (rock.is(ROCK_MULLOCK)) return MULLOCK;
+        if (rock.is(ROCK_OPAL_CLAY)) return OPAL_CLAY;
         if (rock.is(ROCK_SAND)) return SAND;
         if (rock.is(ROCK_GRAVEL)) return GRAVEL;
         if (rock.is(ROCK_TIER_3)) return 3;
@@ -91,16 +109,43 @@ public final class DirtTier {
         return DIRT;
     }
 
-    /** True if the stack is any clump (Dirt / Gravel / Sand Clump). */
+    /** True if the stack is any clump. */
     public static boolean isClump(ItemStack stack) {
-        return stack.is(ModItems.DIRT_CLUMP.get()) || stack.is(ModItems.GRAVEL_CLUMP.get()) || stack.is(ModItems.SAND_CLUMP.get());
+        return stack.is(ModItems.DIRT_CLUMP.get())
+                || stack.is(ModItems.GRAVEL_CLUMP.get())
+                || stack.is(ModItems.SAND_CLUMP.get())
+                || stack.is(ModItems.RED_DIRT_CLUMP.get())
+                || stack.is(ModItems.MULLOCK_CLUMP.get())
+                || stack.is(ModItems.OPAL_CLAY_CLUMP.get());
     }
 
     /** Kind of a clump stack (Dirt Clump uses its tier component, or 1 if none). */
     public static int ofClump(ItemStack stack) {
         if (stack.is(ModItems.GRAVEL_CLUMP.get())) return GRAVEL;
         if (stack.is(ModItems.SAND_CLUMP.get())) return SAND;
+        if (stack.is(ModItems.RED_DIRT_CLUMP.get())) return RED_DIRT;
+        if (stack.is(ModItems.MULLOCK_CLUMP.get())) return MULLOCK;
+        if (stack.is(ModItems.OPAL_CLAY_CLUMP.get())) return OPAL_CLAY;
         return clamp(stack.getOrDefault(ModDataComponents.CLUMP_TIER.get(), 1));
+    }
+
+    /**
+     * Kind of a clump stack for panning and sluicing.
+     * Event clumps require the event_dug mark to pan as their event kind;
+     * unmarked event clumps pan as plain tier 1 dirt.
+     */
+    public static int panKind(ItemStack stack) {
+        if (!isClump(stack)) {
+            return 1;
+        }
+        int kind = ofClump(stack);
+        if (isEventKind(kind)) {
+            String mark = stack.get(ModDataComponents.EVENT_DUG.get());
+            if (mark == null || mark.isEmpty()) {
+                return DIRT;
+            }
+        }
+        return kind;
     }
 
     /** Sets the dirt tier on a Dirt Clump stack (tier 1 removes the component so it stacks with plain clumps). */
@@ -119,11 +164,14 @@ public final class DirtTier {
         return switch (clamp(kind)) {
             case GRAVEL -> ModItems.GRAVEL_CLUMP.get();
             case SAND -> ModItems.SAND_CLUMP.get();
+            case RED_DIRT -> ModItems.RED_DIRT_CLUMP.get();
+            case MULLOCK -> ModItems.MULLOCK_CLUMP.get();
+            case OPAL_CLAY -> ModItems.OPAL_CLAY_CLUMP.get();
             default -> ModItems.DIRT_CLUMP.get();
         };
     }
 
-    /** {@code count} clumps of {@code kind}. */
+    /** {@code count} clumps of {@code kind}. Unmarked by default. */
     public static ItemStack clumps(int kind, int count) {
         ItemStack stack = new ItemStack(clumpItem(kind), count);
         return isDirt(kind) ? setClumpTier(stack, kind) : stack;
@@ -134,7 +182,7 @@ public final class DirtTier {
         return LOOT[clamp(kind)];
     }
 
-    /** Translation key for the dirt, deep dirt, abyssal dirt, gravel, or sand used in pan tooltips and hints. */
+    /** Translation key for the dirt kind used in pan tooltips and hints. */
     public static String dirtKey(int kind) {
         return "tier.holeydigsite." + KINDS[clamp(kind)].key();
     }

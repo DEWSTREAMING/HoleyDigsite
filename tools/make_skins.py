@@ -12,6 +12,8 @@ and generates recoloured versions in src/main/resources/assets/holeydigsite/text
 import os
 import sys
 import hashlib
+import json
+import math
 from PIL import Image, ImageEnhance
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -21,28 +23,20 @@ from make_skin_wear_d import apply_wear  # noqa: E402
 WEARS = [("workshop_clean", 1), ("field_worn", 2), ("pit_scarred", 3), ("cave_battered", 4)]
 
 
-# Skin definitions with palette functions
+# Skin definitions: id -> display name and rarity (the data files and lang lines are written by make_phase31_assets.py).
 SKINS = {
-    "rustic": {
-        "name": "Rustic",
-        "rarity": "common"
-    },
-    "rustic_weathered": {
-        "name": "Rustic Weathered",
-        "rarity": "common"
-    },
-    "brass": {
-        "name": "Brass",
-        "rarity": "rare"
-    },
-    "obsidian": {
-        "name": "Obsidian",
-        "rarity": "epic"
-    },
-    "frosted": {
-        "name": "Frosted",
-        "rarity": "rare"
-    }
+    "rustic": {"name": "Rustic", "rarity": "common"},
+    "rustic_weathered": {"name": "Rustic Weathered", "rarity": "common"},
+    "brass": {"name": "Brass", "rarity": "rare"},
+    "obsidian": {"name": "Obsidian", "rarity": "epic"},
+    "frosted": {"name": "Frosted", "rarity": "rare"},
+    "outback": {"name": "Outback", "rarity": "common"},
+    "outback_dusty": {"name": "Dusty Outback", "rarity": "common"},
+    "outback_ochre": {"name": "Ochre", "rarity": "rare"},
+    "opal_calm": {"name": "Calm Opal", "rarity": "rare"},
+    "opal": {"name": "Opal", "rarity": "epic"},
+    "opal_boulder": {"name": "Boulder Opal", "rarity": "epic"},
+    "black_opal": {"name": "Black Opal", "rarity": "legendary", "animated": True},
 }
 
 # Input/output paths
@@ -412,61 +406,424 @@ def apply_frosted_palette(r, g, b, x, y, filename):
     return int(r), int(g), int(b)
 
 
-def process_skin(skin_id, palette_func):
+def apply_opal_boulder_palette(r, g, b, x, y, filename):
+    """Apply opal boulder skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> multiply r, g, b by (0.55, 0.40, 0.30)
+        r = r * 0.55
+        g = g * 0.40
+        b = b * 0.30
+        
+    elif is_metal:
+        # Metal -> lerp luminance from (55, 32, 20) to (140, 90, 60)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the flecks (10% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_fleck = (hash_val % 100) < 10
+        
+        if is_fleck:
+            # Pick fleck colour by hash_val // 100 % 3
+            fleck_index = (hash_val // 100) % 3
+            flecks = [(60, 205, 140), (70, 150, 245), (40, 110, 220)]
+            r, g, b = flecks[fleck_index]
+        else:
+            # Lerp from (55, 32, 20) to (140, 90, 60)
+            ironstone_low = (55, 32, 20)
+            ironstone_high = (140, 90, 60)
+            
+            r = ironstone_low[0] + (ironstone_high[0] - ironstone_low[0]) * luminance
+            g = ironstone_low[1] + (ironstone_high[1] - ironstone_low[1]) * luminance
+            b = ironstone_low[2] + (ironstone_high[2] - ironstone_low[2]) * luminance
+    
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_outback_dusty_palette(r, g, b, x, y, filename):
+    """Apply outback dusty skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> lerp luminance from (110, 70, 50) to (200, 150, 115)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        wood_low = (110, 70, 50)
+        wood_high = (200, 150, 115)
+        
+        r = wood_low[0] + (wood_high[0] - wood_low[0]) * luminance
+        g = wood_low[1] + (wood_high[1] - wood_low[1]) * luminance
+        b = wood_low[2] + (wood_high[2] - wood_low[2]) * luminance
+        
+    elif is_metal:
+        # Metal -> lerp luminance from (120, 60, 38) to (215, 140, 100)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the red-dust pixels (22% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_red_dust = (hash_val % 100) < 22
+        
+        if is_red_dust:
+            # Use red dust colour
+            r, g, b = 165, 72, 40
+        else:
+            # Lerp from (120, 60, 38) to (215, 140, 100)
+            steel_low = (120, 60, 38)
+            steel_high = (215, 140, 100)
+            
+            r = steel_low[0] + (steel_high[0] - steel_low[0]) * luminance
+            g = steel_low[1] + (steel_high[1] - steel_low[1]) * luminance
+            b = steel_low[2] + (steel_high[2] - steel_low[2]) * luminance
+        
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_outback_palette(r, g, b, x, y, filename):
+    """Apply outback skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> sun-bleached grey wood: lerp from (95, 88, 78) at L=0 to (205, 196, 180) at L=1
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        wood_low = (95, 88, 78)
+        wood_high = (205, 196, 180)
+        
+        r = wood_low[0] + (wood_high[0] - wood_low[0]) * luminance
+        g = wood_low[1] + (wood_high[1] - wood_low[1]) * luminance
+        b = wood_low[2] + (wood_high[2] - wood_low[2]) * luminance
+        
+    elif is_metal:
+        # Metal -> red-dust steel: map luminance L to steel colour
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the red-dust pixels (10% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_red_dust = (hash_val % 100) < 10
+        
+        if is_red_dust:
+            # Use red dust colour
+            r, g, b = 175, 80, 45
+        else:
+            # Lerp from (110, 55, 35) at L=0 to (225, 165, 125) at L=1
+            steel_low = (110, 55, 35)
+            steel_high = (225, 165, 125)
+            
+            r = steel_low[0] + (steel_high[0] - steel_low[0]) * luminance
+            g = steel_low[1] + (steel_high[1] - steel_low[1]) * luminance
+            b = steel_low[2] + (steel_high[2] - steel_low[2]) * luminance
+        
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_outback_ochre_palette(r, g, b, x, y, filename):
+    """Apply outback ochre skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> ochre pigment, mustard yellow in the lights to a deep golden brown
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        wood_low = (92, 58, 14)
+        wood_high = (240, 190, 66)
+        
+        r = wood_low[0] + (wood_high[0] - wood_low[0]) * luminance
+        g = wood_low[1] + (wood_high[1] - wood_low[1]) * luminance
+        b = wood_low[2] + (wood_high[2] - wood_low[2]) * luminance
+        
+    elif is_metal:
+        # Metal -> burnt orange, with darker red-dirt pixels
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the yellow ochre pixels (8% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_ochre = (hash_val % 100) < 12
+        
+        if is_ochre:
+            # red-dirt accent
+            r, g, b = 112, 40, 20
+        else:
+            # burnt orange
+            ochre_low = (120, 52, 18)
+            ochre_high = (222, 118, 36)
+            
+            r = ochre_low[0] + (ochre_high[0] - ochre_low[0]) * luminance
+            g = ochre_low[1] + (ochre_high[1] - ochre_low[1]) * luminance
+            b = ochre_low[2] + (ochre_high[2] - ochre_low[2]) * luminance
+    
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_opal_calm_palette(r, g, b, x, y, filename):
+    """Apply opal calm skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> dark charcoal: multiply r, g, b by (0.42, 0.42, 0.48)
+        r = r * 0.42
+        g = g * 0.42
+        b = b * 0.48
+        
+    elif is_metal:
+        # Metal -> black opal: map luminance L to opal colour
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the play-of-colour flecks (6% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_fleck = (hash_val % 100) < 6
+        
+        if is_fleck and luminance > 0.55:
+            # Pick fleck colour by hash_val // 100 % 3
+            fleck_index = (hash_val // 100) % 3
+            flecks = [(60, 205, 120), (70, 140, 245), (235, 70, 95)]
+            r, g, b = flecks[fleck_index]
+        else:
+            # Lerp from (18, 22, 40) at L=0 to (70, 80, 125) at L=1
+            opal_low = (18, 22, 40)
+            opal_high = (70, 80, 125)
+            
+            r = opal_low[0] + (opal_high[0] - opal_low[0]) * luminance
+            g = opal_low[1] + (opal_high[1] - opal_low[1]) * luminance
+            b = opal_low[2] + (opal_high[2] - opal_low[2]) * luminance
+    
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_opal_palette(r, g, b, x, y, filename):
+    """Apply opal skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> dark charcoal: multiply r, g, b by (0.42, 0.42, 0.48)
+        r = r * 0.42
+        g = g * 0.42
+        b = b * 0.48
+        
+    elif is_metal:
+        # Metal -> black opal: map luminance L to opal colour
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the play-of-colour flecks (12% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_fleck = (hash_val % 100) < 12
+        
+        if is_fleck:
+            # Pick fleck colour by hash_val // 100 % 4
+            fleck_index = (hash_val // 100) % 4
+            flecks = [(60, 205, 120), (70, 140, 245), (235, 70, 95), (245, 205, 70)]
+            r, g, b = flecks[fleck_index]
+        else:
+            # Lerp from (18, 22, 40) at L=0 to (70, 80, 125) at L=1
+            opal_low = (18, 22, 40)
+            opal_high = (70, 80, 125)
+            
+            r = opal_low[0] + (opal_high[0] - opal_low[0]) * luminance
+            g = opal_low[1] + (opal_high[1] - opal_low[1]) * luminance
+            b = opal_low[2] + (opal_high[2] - opal_low[2]) * luminance
+    
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+# Black Opal animates itself: static textures get OPAL_PHASES frames that blend into each other, drill textures that already
+# animate (the working strips) get OPAL_WORKING_PHASES looks of their own frames, one look after the other.
+OPAL_PHASES = 8
+OPAL_FRAMETIME = 8
+OPAL_WORKING_PHASES = 16
+
+FLECK_COLOURS = {"green": (60, 205, 120), "blue": (70, 140, 245), "violet": (160, 95, 240), "orange": (245, 150, 50)}
+
+
+def smooth(f):
+    return f * f * (3 - 2 * f)
+
+
+def black_opal_fleck(hash_val, phase):
+    """Colour of one fleck at a point of the loop: it walks through green, blue and violet (a quarter of the flecks add
+    orange) and swells and fades on its own beat, so only a few are bright at a time."""
+    keys = ["green", "blue", "violet"] + (["orange"] if (hash_val // 10000) % 4 == 0 else [])
+    start = ((hash_val // 100) % 64) / 64.0
+    beat = ((hash_val // 6400) % 64) / 64.0
+    u = ((phase + start) % 1.0) * len(keys)
+    i = int(u)
+    f = smooth(u - i)
+    a, b = FLECK_COLOURS[keys[i % len(keys)]], FLECK_COLOURS[keys[(i + 1) % len(keys)]]
+    colour = [a[c] + (b[c] - a[c]) * f for c in range(3)]
+    swell = ((1 + math.cos(2 * math.pi * (phase + beat))) / 2) ** 2
+    return colour, 0.22 + 0.78 * swell
+
+
+def apply_black_opal_palette(r, g, b, x, y, filename, phase=0.0):
+    """Black Opal: a near-black blue-grey body, a dull gold trim and opal flecks that shimmer over the loop."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    is_metal = s < 0.2 or is_near_white
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    luminance = get_luminance(r, g, b) / 255.0
+
+    if is_wood or is_metal:
+        lo, hi = ((17, 19, 28), (70, 77, 98)) if is_wood else ((13, 16, 25), (60, 68, 90))
+        body = [lo[c] + (hi[c] - lo[c]) * luminance for c in range(3)]
+        hash_val = int(hashlib.md5(f"{x},{y},{filename}".encode()).hexdigest(), 16)
+        if (hash_val % 100) < (9 if is_wood else 16) and luminance > 0.25:
+            colour, strength = black_opal_fleck(hash_val, phase)
+            body = [body[c] + (colour[c] - body[c]) * strength for c in range(3)]
+        return tuple(int(v) for v in body)
+    if is_gold_trim:
+        lo, hi = (72, 56, 22), (176, 142, 64)
+        return tuple(int(lo[c] + (hi[c] - lo[c]) * luminance) for c in range(3))
+    return r, g, b
+
+
+def source_frames(input_path):
+    """(image, frame count, frametime) of a source texture; frametime is 1 when it has no animation."""
+    img = Image.open(input_path).convert('RGBA')
+    frames = max(1, img.height // img.width)
+    frametime = 1
+    meta = input_path + '.mcmeta'
+    if os.path.exists(meta):
+        with open(meta, encoding='utf-8') as f:
+            frametime = int(json.load(f).get('animation', {}).get('frametime', 1))
+    return img, frames, frametime
+
+
+def recolour(img, palette_func, filename, tile=0, phase=None):
+    """One 16x16 frame of img (frame number tile) through the palette. Animated skins pass their phase as an extra argument."""
+    out = Image.new('RGBA', (img.width, img.width))
+    src, dst = img.load(), out.load()
+    for y in range(img.width):
+        for x in range(img.width):
+            r, g, b, a = src[x, y + tile * img.width]
+            if phase is None:
+                dst[x, y] = palette_func(r, g, b, x, y, filename) + (a,)
+            else:
+                dst[x, y] = palette_func(r, g, b, x, y, filename, phase) + (a,)
+    return out
+
+
+def write_texture(skin_id, filename, palette_func, animated):
+    """Writes skin/<skin>/<filename> (and its .mcmeta). A skin that animates itself gets, per frame of an animated source,
+    OPAL_PHASES looks: static textures a strip of OPAL_PHASES frames that blends, animated ones (a drill at work) the source frames
+    once per phase so the working cycle keeps its speed."""
+    input_path = os.path.join(INPUT_DIR, filename)
+    output_path = os.path.join(OUTPUT_DIR, skin_id, filename)
+    img, frames, frametime = source_frames(input_path)
+    if not animated:
+        tiles = [recolour(img, palette_func, filename, t) for t in range(frames)]
+        meta = None
+        if frames > 1:
+            meta = {"animation": {"frametime": frametime}}
+    elif frames == 1:
+        tiles = [recolour(img, palette_func, filename, 0, p / OPAL_PHASES) for p in range(OPAL_PHASES)]
+        meta = {"animation": {"frametime": OPAL_FRAMETIME, "interpolate": True}}
+    else:
+        tiles = [recolour(img, palette_func, filename, t, p / OPAL_WORKING_PHASES)
+                 for p in range(OPAL_WORKING_PHASES) for t in range(frames)]
+        meta = {"animation": {"frametime": frametime}}
+    out = Image.new('RGBA', (img.width, img.width * len(tiles)))
+    for i, tile in enumerate(tiles):
+        out.paste(tile, (0, i * img.width))
+    out.save(output_path)
+    mcmeta = output_path + '.mcmeta'
+    if meta:
+        with open(mcmeta, 'w', newline='\n') as f:
+            json.dump(meta, f, indent=2)
+            f.write('\n')
+    elif os.path.exists(mcmeta):
+        os.remove(mcmeta)
+
+
+def process_skin(skin_id, palette_func, animated=False):
     """Process all textures for a skin."""
     output_skin_dir = os.path.join(OUTPUT_DIR, skin_id)
     os.makedirs(output_skin_dir, exist_ok=True)
-    
-    # Get list of input files
+
     input_files = []
     if os.path.exists(INPUT_DIR):
         for filename in os.listdir(INPUT_DIR):
-            if (filename.endswith('.png') and 
+            if (filename.endswith('.png') and
                 (filename.startswith('mining_drill') or filename.startswith('sluice')) and
+                not filename.endswith(('_s.png', '_n.png')) and
                 not is_skip_file(filename)):
                 input_files.append(filename)
-    
     input_files.sort()
-    
-    written_count = 0
-    
+
     for filename in input_files:
-        input_path = os.path.join(INPUT_DIR, filename)
-        output_path = os.path.join(output_skin_dir, filename)
-        
-        with Image.open(input_path) as img:
-            img = img.convert('RGBA')
-            pixels = img.load()
-            
-            new_pixels = []
-            for y in range(img.height):
-                row = []
-                for x in range(img.width):
-                    r, g, b, a = pixels[x, y]
-                    new_r, new_g, new_b = palette_func(r, g, b, x, y, filename)
-                    row.append((new_r, new_g, new_b, a))
-                new_pixels.append(row)
-            
-            # Create new image
-            new_img = Image.new('RGBA', img.size)
-            new_pixels_flat = []
-            for row in new_pixels:
-                new_pixels_flat.extend(row)
-            new_img.putdata(new_pixels_flat)
-            
-            # Save
-            new_img.save(output_path)
-            written_count += 1
-        
-        # Copy .mcmeta if exists
-        mcmeta_path = input_path + '.mcmeta'
-        if os.path.exists(mcmeta_path):
-            with open(mcmeta_path, 'rb') as f:
-                content = f.read()
-            with open(output_path + '.mcmeta', 'wb') as f:
-                f.write(content)
-    
-    return written_count, input_files
+        write_texture(skin_id, filename, palette_func, animated)
+    return len(input_files), input_files
 
 
 def write_wears(skin_id, input_files):
@@ -553,30 +910,29 @@ def create_preview(skin_id, input_files):
     preview_img.save(preview_path)
 
 
+PALETTES = {
+    "rustic": apply_rustic_palette,
+    "rustic_weathered": apply_rustic_weathered_palette,
+    "brass": apply_brass_palette,
+    "obsidian": apply_obsidian_palette,
+    "frosted": apply_frosted_palette,
+    "outback": apply_outback_palette,
+    "outback_dusty": apply_outback_dusty_palette,
+    "outback_ochre": apply_outback_ochre_palette,
+    "opal_calm": apply_opal_calm_palette,
+    "opal": apply_opal_palette,
+    "opal_boulder": apply_opal_boulder_palette,
+    "black_opal": apply_black_opal_palette,
+}
+
+
 def main():
-    """Main entry point."""
-    # Process all skins
-    for skin_id in SKINS.keys():
-        # Process the skin
-        if skin_id == "rustic":
-            palette_func = apply_rustic_palette
-        elif skin_id == "rustic_weathered":
-            palette_func = apply_rustic_weathered_palette
-        elif skin_id == "brass":
-            palette_func = apply_brass_palette
-        elif skin_id == "obsidian":
-            palette_func = apply_obsidian_palette
-        elif skin_id == "frosted":
-            palette_func = apply_frosted_palette
-        else:
-            palette_func = apply_rustic_palette
-        
-        written_count, input_files = process_skin(skin_id, palette_func)
+    """Main entry point: python tools/make_skins.py [skin ...]"""
+    wanted = sys.argv[1:] or list(SKINS)
+    for skin_id in wanted:
+        written_count, input_files = process_skin(skin_id, PALETTES[skin_id], SKINS[skin_id].get("animated", False))
         written_count += write_wears(skin_id, input_files)
-        
-        # Create preview sheet
         create_preview(skin_id, input_files)
-        
         print(f"Written {written_count} textures for skin '{skin_id}'")
 
 

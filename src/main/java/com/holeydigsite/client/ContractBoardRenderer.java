@@ -20,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -27,11 +28,12 @@ import java.util.List;
 
 /**
  * The three cards of the Contract Board, as floating text in front of it. The card under the crosshair is highlighted (the same
- * maths the server uses for the click). When the cards are from an earlier day the client asks the server for new ones.
+ * maths the server uses for the click; a click on text over a neighbouring block is sent by {@link ClientEvents}). When the cards are from an earlier day the client asks the server for new ones.
  */
 public class ContractBoardRenderer implements BlockEntityRenderer<ContractBoardBlockEntity> {
     private static final double RANGE = 12.0;
     private static final int ASK_EVERY_TICKS = 100;
+    private static final double TEXT_HEIGHT = 9.0;
     private static long lastAsk = Long.MIN_VALUE / 2;
 
     public ContractBoardRenderer(BlockEntityRendererProvider.Context context) {}
@@ -56,10 +58,7 @@ public class ContractBoardRenderer implements BlockEntityRenderer<ContractBoardB
                 PacketDistributor.sendToServer(new ContractNetwork.RefreshPayload(pos));
             }
         }
-        int highlight = -1;
-        if (mc.hitResult instanceof BlockHitResult bh && bh.getType() == HitResult.Type.BLOCK && bh.getBlockPos().equals(pos)) {
-            highlight = ContractBoardBlock.cardAt(pos, facing, mc.player.getEyePosition(partialTick), mc.player.getViewVector(partialTick));
-        }
+        int highlight = cardUnderCrosshair(pos, facing, partialTick);
         float scale = FloatingText.labelScale(pos) * 0.85F;
         double gap = FloatingText.LINE * scale / FloatingText.SMALL;
         double x = 0.5 + facing.getStepX() * ContractBoardBlock.CARD_OFFSET;
@@ -68,9 +67,30 @@ public class ContractBoardRenderer implements BlockEntityRenderer<ContractBoardB
         for (int k = 0; k < ContractDefs.rules().slots(); k++) {
             List<Component> lines = styled(data.get(k), day, days, k == highlight);
             int n = LabelWrap.wrap(lines, mc.font::width, FloatingText.MAX_WIDTH).size();
-            double bottom = ContractBoardBlock.cardCentreY(k) - gap * (n - 1) / 2.0;
+            // lines hang down from their anchor, so a card's middle is half a text line below the plain stack maths
+            double bottom = ContractBoardBlock.cardCentreY(k) - gap * (n - 1) / 2.0 + TEXT_HEIGHT * scale / 2.0;
             FloatingText.drawLines(pose, buffers, lines, x, bottom, z, scale, light);
         }
+    }
+
+    /**
+     * The card under the crosshair, or -1, also when the crosshair is on a block next to the board (the text hangs over
+     * it), but not when something stands between the player and the cards.
+     */
+    public static int cardUnderCrosshair(BlockPos pos, Direction facing, float partialTick) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.hitResult == null) {
+            return -1;
+        }
+        Vec3 eye = mc.player.getEyePosition(partialTick);
+        Vec3 look = mc.player.getViewVector(partialTick);
+        HitResult hit = mc.hitResult;
+        boolean onBoard = hit instanceof BlockHitResult bh && hit.getType() == HitResult.Type.BLOCK && bh.getBlockPos().equals(pos);
+        if (!onBoard && hit.getType() != HitResult.Type.MISS
+                && hit.getLocation().distanceTo(eye) < ContractBoardBlock.cardDepth(pos, facing, eye, look) - 0.5) {
+            return -1;
+        }
+        return ContractBoardBlock.cardUnderCrosshair(pos, facing, eye, look);
     }
 
     private static List<Component> styled(Contract c, long day, int days, boolean highlighted) {

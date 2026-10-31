@@ -66,6 +66,12 @@ public final class ClientSetup {
                             (stack, level, entity, seed) -> com.holeydigsite.item.IngotItem.sizeStep(com.holeydigsite.item.IngotItem.grams(stack)));
                 }
             }
+            // A padlocked crate shows its padlock.
+            for (var crate : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.PROSPECTOR_CRATE, ModItems.OUTBACK_CRATE,
+                    ModItems.WOODEN_CRATE, ModItems.IRON_CRATE, ModItems.GOLD_CRATE}) {
+                ItemProperties.register(crate.get(), HoleyDigsite.id("locked"),
+                        (stack, level, entity, seed) -> com.holeydigsite.crate.CrateBlock.isLocked(stack) ? 1.0F : 0.0F);
+            }
             // Rings with a gem show the gem dot.
             ItemProperties.register(ModItems.SMITH_RING.get(), HoleyDigsite.id("gem"),
                     (stack, level, entity, seed) -> {
@@ -78,6 +84,7 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.CLUMP_BELT.get(), ClumpBeltRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.MINING_DRILL.get(), MiningDrillRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SLUICE_BOX.get(), SluiceBoxRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SHOP_PAD.get(), PadRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MONEY_PAN.get(), MoneyPanRenderer::new);
@@ -89,11 +96,18 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(ModBlockEntities.PLOT_BOARD.get(), PlotBoardRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_BENCH.get(), SkinBenchRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.CONTRACT_BOARD.get(), ContractBoardRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.SCORE_BOARD.get(), ScoreBoardRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.TROPHY_STAND.get(), TrophyStandRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerItemDecorations(net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent event) {
         event.register(ModItems.SKIN_KIT.get(), SkinKitModel.DECORATOR);
+    }
+
+    @SubscribeEvent
+    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+        event.register(MiningDrillRenderer.AUGER);
     }
 
     @SubscribeEvent

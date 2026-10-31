@@ -53,11 +53,11 @@ public final class CrateRolls {
     public record Outcome(Roll roll, Result result, int scrap, ItemStack icon, Component line) {}
 
     public static String rollRarity(CrateDefs.CrateTier tier, RandomSource random) {
-        int total = tier.totalOdds();
+        double total = tier.totalOdds();
         if (total <= 0) return CrateDefs.RARITIES.get(0);
-        int r = random.nextInt(total);
+        double r = random.nextDouble() * total;
         for (String rarity : CrateDefs.RARITIES) {
-            r -= Math.max(0, tier.odds().getOrDefault(rarity, 0));
+            r -= Math.max(0, tier.odds().getOrDefault(rarity, 0.0));
             if (r < 0) return rarity;
         }
         return CrateDefs.RARITIES.get(0);
@@ -109,6 +109,7 @@ public final class CrateRolls {
     public static Outcome grant(ServerPlayer sp, Roll roll) {
         LedgerData data = LedgerData.get(sp);
         CrateDefs.Entry e = roll.entry();
+        CrateCollections.record(sp, roll.tier(), e);
         Outcome out;
         switch (e.kind()) {
             case SKIN -> {
@@ -178,7 +179,7 @@ public final class CrateRolls {
     public static List<String> givenRarities(CrateDefs.CrateTier tier) {
         List<String> out = new ArrayList<>();
         for (String r : CrateDefs.RARITIES) {
-            if (tier.odds().getOrDefault(r, 0) <= 0) continue;
+            if (tier.odds().getOrDefault(r, 0.0) <= 0) continue;
             String used = poolRarity(tier, r);
             if (used != null && !out.contains(used)) out.add(used);
         }
@@ -267,21 +268,5 @@ public final class CrateRolls {
             case COINS -> new ItemStack(ModItems.GOLD_COIN.get());
             default -> new ItemStack(item(e.id()));
         };
-    }
-
-    /**
-     * Hand panning only: a very rare crate find per finished scoop. Rarer tiers are tried first; tiers with
-     * {@code pan_find_one_in} 0 are never found.
-     */
-    public static ItemStack panFind(RandomSource random) {
-        List<CrateDefs.CrateTier> tiers = new ArrayList<>(CrateDefs.tiers().values());
-        tiers.sort((a, b) -> Integer.compare(b.panFindOneIn(), a.panFindOneIn()));
-        for (CrateDefs.CrateTier t : tiers) {
-            if (t.panFindOneIn() > 0 && random.nextInt(t.panFindOneIn()) == 0) {
-                Item item = BuiltInRegistries.ITEM.get(com.holeydigsite.HoleyDigsite.id(t.id()));
-                if (item != Items.AIR) return new ItemStack(item);
-            }
-        }
-        return ItemStack.EMPTY;
     }
 }

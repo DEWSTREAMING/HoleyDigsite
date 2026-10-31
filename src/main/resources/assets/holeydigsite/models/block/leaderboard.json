@@ -1,0 +1,7 @@
+{
+  "parent": "holeydigsite:block/contract_board",
+  "textures": {
+    "0": "holeydigsite:block/leaderboard",
+    "particle": "holeydigsite:block/leaderboard"
+  }
+}

@@ -54,6 +54,10 @@ public final class Selling {
         if (stack.has(com.holeydigsite.registry.ModDataComponents.SMITH.get())) {
             return com.holeydigsite.smith.SmithPieces.value(stack, registries);
         }
+        if (stack.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof com.holeydigsite.crate.CrateBlock
+                && com.holeydigsite.crate.CrateBlock.isLocked(stack)) {
+            return com.holeydigsite.crate.CrateDefs.rules().lockedSellCopper();
+        }
         ResourceInfo info = resource(stack);
         if (info == null || stack.getItem() instanceof com.holeydigsite.item.CoinItem) {
             return 0;

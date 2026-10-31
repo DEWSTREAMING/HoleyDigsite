@@ -48,6 +48,7 @@ public class HoleyDigsite {
 
     public HoleyDigsite(IEventBus modEventBus, net.neoforged.fml.ModContainer container) {
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER, com.holeydigsite.team.TeamConfig.SPEC);
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER, com.holeydigsite.crate.CrateConfig.SPEC, "holeydigsite-crates.toml");
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         com.holeydigsite.effect.ModEffects.EFFECTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);

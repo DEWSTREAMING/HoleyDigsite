@@ -107,7 +107,11 @@ public class ShopButtonBlock extends Block {
     }
 
     /** Result of a button press for tests. */
-    public record Result(long sold, int itemsSold, long spent, int boughtStacks) {}
+    public record Result(long sold, int itemsSold, long spent, int boughtStacks, long chipsEarned, long chipsSpent) {
+        public Result(long sold, int itemsSold, long spent, int boughtStacks) {
+            this(sold, itemsSold, spent, boughtStacks, 0, 0);
+        }
+    }
 
     /** Presses the button, running the animation, selling, and buying. Public for tests. */
     public static Result press(Level level, BlockPos pos, Player player) {
@@ -118,13 +122,15 @@ public class ShopButtonBlock extends Block {
             level.playSound(null, pos, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.6F, 0.9F);
         }
 
-        List<BlockPos> sellPads = new ArrayList<>(), buyPads = new ArrayList<>();
+        List<BlockPos> sellPads = new ArrayList<>(), buyPads = new ArrayList<>(), eventPads = new ArrayList<>();
         MoneyPanBlockEntity pan = null;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos p = pos.relative(d);
             Block b = level.getBlockState(p).getBlock();
             if (b instanceof SellPadBlock) {
                 sellPads.add(p);
+            } else if (b instanceof com.holeydigsite.sellpad.EventSellPadBlock) {
+                eventPads.add(p);
             } else if (b instanceof BuyPadBlock) {
                 buyPads.add(p);
             } else if (b instanceof MoneyPanBlock && pan == null) {
@@ -132,7 +138,11 @@ public class ShopButtonBlock extends Block {
             }
         }
 
-        List<PadBlockEntity> sells = new ArrayList<>(), buys = new ArrayList<>();
+        List<PadBlockEntity> sells = new ArrayList<>(), buys = new ArrayList<>(), eventSells = new ArrayList<>();
+        for (BlockPos p : eventPads) {
+            PadBlockEntity pad = AbstractPadBlock.pad(level, p);
+            if (pad != null && !pad.isEmpty()) eventSells.add(pad);
+        }
         for (BlockPos p : sellPads) {
             PadBlockEntity pad = AbstractPadBlock.pad(level, p);
             if (pad != null && !pad.isEmpty()) sells.add(pad);
@@ -141,13 +151,34 @@ public class ShopButtonBlock extends Block {
             PadBlockEntity pad = AbstractPadBlock.pad(level, p);
             if (pad != null && !pad.isEmpty()) buys.add(pad);
         }
-        if (sells.isEmpty() && buys.isEmpty()) {
+        if (sells.isEmpty() && buys.isEmpty() && eventSells.isEmpty()) {
             error(player, "message.holeydigsite.button.nothing", ChatFormatting.YELLOW);
             return new Result(0, 0, 0, 0);
         }
-        if (pan == null) {
+        if (pan == null && !sells.isEmpty()) {
             error(player, "message.holeydigsite.button.no_pan", ChatFormatting.RED);
             return new Result(0, 0, 0, 0);
+        }
+
+        // Event finds pay Opal Chips to whoever pressed.
+        long chipsEarned = 0;
+        if (!eventSells.isEmpty() && player instanceof net.minecraft.server.level.ServerPlayer sp
+                && com.holeydigsite.event.EventDefs.getActiveEvent() != null) {
+            long chips = 0;
+            int finds = 0;
+            for (PadBlockEntity pad : eventSells) {
+                chips += com.holeydigsite.sellpad.EventSellPadBlock.value(pad.contents());
+                for (ItemStack s : pad.contents()) finds += s.getCount();
+            }
+            if (chips > 0) {
+                for (PadBlockEntity pad : eventSells) {
+                    pad.takeAll();
+                }
+                chipsEarned = com.holeydigsite.event.EventChips.earn(sp, chips);
+                cashSound(level, pos);
+                player.displayClientMessage(Component.translatable("message.holeydigsite.button.sold_chips", finds, chips)
+                        .withStyle(ChatFormatting.LIGHT_PURPLE), true);
+            }
         }
 
         // Sell items.
@@ -178,7 +209,7 @@ public class ShopButtonBlock extends Block {
         }
 
         // Buy all adjacent buy pads at once.
-        long cost = 0;
+        long cost = 0, chipCost = 0;
         List<ItemStack> delivery = new ArrayList<>();
         int stacks = 0;
         for (PadBlockEntity pad : buys) {
@@ -197,19 +228,52 @@ public class ShopButtonBlock extends Block {
                 }
                 var entry = ShopCatalogue.forBlueprint(level.registryAccess(), bp);
                 if (entry.isPresent()) {
-                    cost += entry.get().price() * bp.getCount();
+                    if (entry.get().item() == com.holeydigsite.registry.ModItems.BOLT_CUTTERS.get()
+                            && !com.holeydigsite.ledger.LedgerData.get(player).cratesOn()) {
+                        error(player, "message.holeydigsite.button.crates_off", ChatFormatting.RED);
+                        level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 0.6F, 1.0F);
+                        return new Result(sold, itemsSold, 0, 0, chipsEarned, 0);
+                    }
+                    if (entry.get().paidInChips()) {
+                        chipCost += (long) entry.get().chips() * bp.getCount();
+                    } else {
+                        cost += entry.get().price() * bp.getCount();
+                    }
                     delivery.add(entry.get().item().getDefaultInstance().copyWithCount(entry.get().count() * bp.getCount()));
                     stacks += bp.getCount();
                 }
             }
         }
         long spent = 0;
-        if (cost > 0) {
-            if (!pan.withdraw(cost)) {
+        if (cost > 0 || chipCost > 0) {
+            if (chipCost > 0) {
+                String refusal = null;
+                if (!(player instanceof net.minecraft.server.level.ServerPlayer) || com.holeydigsite.event.EventDefs.getActiveEvent() == null) {
+                    refusal = "message.holeydigsite.button.no_event";
+                } else if (com.holeydigsite.event.EventChips.balance(player) < chipCost) {
+                    player.displayClientMessage(Component.translatable("message.holeydigsite.button.not_enough_chips",
+                            chipCost - com.holeydigsite.event.EventChips.balance(player)).withStyle(ChatFormatting.RED), true);
+                    level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 0.6F, 1.0F);
+                    return new Result(sold, itemsSold, 0, 0, chipsEarned, 0);
+                }
+                if (refusal != null) {
+                    error(player, refusal, ChatFormatting.RED);
+                    level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 0.6F, 1.0F);
+                    return new Result(sold, itemsSold, 0, 0, chipsEarned, 0);
+                }
+            }
+            if (cost > 0 && pan == null) {
+                error(player, "message.holeydigsite.button.no_pan", ChatFormatting.RED);
+                return new Result(sold, itemsSold, 0, 0, chipsEarned, 0);
+            }
+            if (cost > 0 && !pan.withdraw(cost)) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.button.not_enough",
                         Selling.format(cost - pan.balance(), 26)).withStyle(ChatFormatting.RED), true);
                 level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 0.6F, 1.0F);
-                return new Result(sold, itemsSold, 0, 0);
+                return new Result(sold, itemsSold, 0, 0, chipsEarned, 0);
+            }
+            if (chipCost > 0) {
+                com.holeydigsite.event.EventChips.spend((net.minecraft.server.level.ServerPlayer) player, chipCost);
             }
             spent = cost;
             for (PadBlockEntity pad : buys) {
@@ -227,10 +291,11 @@ public class ShopButtonBlock extends Block {
             player.getInventory().setChanged();
             level.playSound(null, pos, SoundEvents.PLAYER_LEVELUP, SoundSource.BLOCKS, 0.5F, 1.4F);
             cashSound(level, pos);
-            player.displayClientMessage(Component.translatable("message.holeydigsite.button.bought", stacks,
-                    Selling.format(cost, 32)).withStyle(ChatFormatting.GREEN), true);
+            player.displayClientMessage((chipCost > 0 && cost == 0
+                    ? Component.translatable("message.holeydigsite.button.bought_chips", stacks, chipCost)
+                    : Component.translatable("message.holeydigsite.button.bought", stacks, Selling.format(cost, 32))).withStyle(ChatFormatting.GREEN), true);
         }
-        return new Result(sold, itemsSold, spent, stacks);
+        return new Result(sold, itemsSold, spent, stacks, chipsEarned, chipCost);
     }
 
     private static void error(Player player, String key, ChatFormatting color) {

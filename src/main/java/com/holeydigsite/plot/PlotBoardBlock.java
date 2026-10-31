@@ -152,6 +152,7 @@ public class PlotBoardBlock extends BaseEntityBlock {
         java.util.UUID team = teams.islandTeamAt(level, board);
         return (int) PlotData.get(level).all().stream()
                 .filter(PlotData.Plot::owned)
+                .filter(p -> !com.holeydigsite.event.EventIsland.isEventPlot(p.id()))
                 .filter(p -> java.util.Objects.equals(team, teams.islandTeamAt(level, p.board())))
                 .map(PlotData.Plot::id).distinct().count();
     }
@@ -176,10 +177,20 @@ public class PlotBoardBlock extends BaseEntityBlock {
                     LandDeedItem.plotName(item.plotId())).withStyle(ChatFormatting.RED), true);
             return false;
         }
+        int tier = com.holeydigsite.event.EventIsland.tierOf(b.plotId());
+        if (tier > 1 && !com.holeydigsite.event.EventIsland.sectionOwned(sl, pos, tier - 1)) {
+            player.displayClientMessage(Component.translatable("message.holeydigsite.plot.event_tier_first", tier - 1)
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
         b.register();
         PlotData.get(sl).setOwned(b.plotId(), pos, true, player.getGameProfile().getName(), player.getUUID());
         if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
-            com.holeydigsite.ledger.ModTriggers.PLOT_BOUGHT.get().trigger(sp, b.plotId(), teamPlotCount(sl, pos));
+            if (tier > 0) {
+                com.holeydigsite.ledger.LedgerManager.grantMilestone(sp, com.holeydigsite.HoleyDigsite.id("first_event_plot"));
+            } else {
+                com.holeydigsite.ledger.ModTriggers.PLOT_BOUGHT.get().trigger(sp, b.plotId(), teamPlotCount(sl, pos));
+            }
         }
         level.setBlock(pos, level.getBlockState(pos).setValue(OWNED, true), Block.UPDATE_CLIENTS);
         deed.consume(1, player);

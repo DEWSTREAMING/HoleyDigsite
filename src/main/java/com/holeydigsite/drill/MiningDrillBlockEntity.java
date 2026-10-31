@@ -29,6 +29,11 @@ public class MiningDrillBlockEntity extends BlockEntity {
     private String skin = "";
     /** Wear of the applied skin, empty for Fresh. */
     private String wear = "";
+    /** Who placed it: the clumps it digs count for them on the boards. Null for drills from before the boards. */
+    @org.jetbrains.annotations.Nullable
+    private java.util.UUID owner;
+    /** A crate find waiting to go out in place of the next clump (saved; dropped with the drill). */
+    private net.minecraft.world.item.ItemStack heldCrate = net.minecraft.world.item.ItemStack.EMPTY;
 
     public MiningDrillBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MINING_DRILL.get(), pos, state);
@@ -56,6 +61,11 @@ public class MiningDrillBlockEntity extends BlockEntity {
         Direction from = facing.getOpposite();
         boolean ready = drill.progress >= cycle;
         int tier = MiningDrillBlock.clumpTier(level, pos);
+        // between clumps a belt's entry is free, so a waiting crate gets its chance on every look; a refusal costs nothing
+        if (!ready && !drill.heldCrate.isEmpty()
+                && com.holeydigsite.transport.ItemOutputs.tryOutput(level, front, from, drill.heldCrate)) {
+            drill.setHeldCrate(net.minecraft.world.item.ItemStack.EMPTY);
+        }
         boolean ok = ready ? ClumpOutputs.tryOutput(level, front, from, tier) : ClumpOutputs.canOutput(level, front, from, tier);
         level.blockEntityChanged(pos); // mark the chunk for saving (cheaper than setChanged's comparator update)
 
@@ -63,6 +73,17 @@ public class MiningDrillBlockEntity extends BlockEntity {
             drill.blockedSince = -1;
             if (ready) {
                 drill.progress = 0;
+                if (drill.owner != null && level instanceof net.minecraft.server.level.ServerLevel sl) {
+                    com.holeydigsite.board.BoardStats.get(sl.getServer()).addClump(sl.getServer(), drill.owner, tier, ClumpOutputs.markedEvent(tier));
+                }
+                // a crate waits beside the clumps and never blocks them; a drill holds at most one, so no new roll while it does
+                if (!drill.heldCrate.isEmpty()) {
+                    if (com.holeydigsite.transport.ItemOutputs.tryOutput(level, front, from, drill.heldCrate)) {
+                        drill.setHeldCrate(net.minecraft.world.item.ItemStack.EMPTY);
+                    }
+                } else if (drill.owner != null && level instanceof net.minecraft.server.level.ServerLevel sl) {
+                    drill.setHeldCrate(com.holeydigsite.crate.CrateFinds.drillFind(sl, pos, drill.owner));
+                }
             }
         } else if (drill.blockedSince < 0) {
             drill.blockedSince = now;
@@ -94,6 +115,33 @@ public class MiningDrillBlockEntity extends BlockEntity {
 
     void clearBlocked() {
         blockedSince = -1;
+    }
+
+    /** Test hook: how far into the cycle the drill is. */
+    public void setProgressForTest(int ticks) {
+        this.progress = ticks;
+    }
+
+    public net.minecraft.world.item.ItemStack heldCrate() {
+        return heldCrate;
+    }
+
+    /** Test hook and find hook: the crate that goes out before the next clump. */
+    public void setHeldCrate(net.minecraft.world.item.ItemStack crate) {
+        this.heldCrate = crate.copyWithCount(Math.min(1, crate.getCount()));
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    public java.util.UUID owner() {
+        return owner;
+    }
+
+    public void setOwner(@org.jetbrains.annotations.Nullable java.util.UUID owner) {
+        this.owner = owner;
+        setChanged();
     }
 
     public String getSkin() {
@@ -157,6 +205,12 @@ public class MiningDrillBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        if (owner != null) {
+            tag.putUUID("Owner", owner);
+        }
+        if (!heldCrate.isEmpty()) {
+            tag.put("HeldCrate", heldCrate.save(registries));
+        }
         tag.putBoolean("WaterPowered", waterPowered);
         tag.putInt("Progress", progress);
         if (!skin.isEmpty()) {
@@ -170,6 +224,10 @@ public class MiningDrillBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+        heldCrate = tag.contains("HeldCrate")
+                ? net.minecraft.world.item.ItemStack.parse(registries, tag.getCompound("HeldCrate")).orElse(net.minecraft.world.item.ItemStack.EMPTY)
+                : net.minecraft.world.item.ItemStack.EMPTY;
         waterPowered = tag.getBoolean("WaterPowered");
         progress = Math.clamp(tag.getInt("Progress"), 0, MiningDrillBlock.cycleTicks(getBlockState()));
         skin = tag.getString("Skin");
@@ -179,6 +237,9 @@ public class MiningDrillBlockEntity extends BlockEntity {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
+        if (!heldCrate.isEmpty()) {
+            tag.put("HeldCrate", heldCrate.save(registries));
+        }
         if (!skin.isEmpty()) {
             tag.putString("Skin", skin);
             if (!wear.isEmpty()) {

@@ -60,17 +60,43 @@ public final class LedgerManager {
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+        handlePlayerLogin(sp);
+    }
+
+    public static void handlePlayerLogin(ServerPlayer sp) {
         LedgerData data = LedgerData.get(sp);
         if (!data.starterGiven()) {
             data.setStarterGiven(true);
             data.setStarterBedGiven(true);
+            data.setStarterFieldGuideGiven(true);
             giveOrDrop(sp, new ItemStack(ModItems.PROSPECTORS_LEDGER.get()));
-        } else if (!data.starterBedGiven()) {
-            checkStarterBed(sp, data);
+            giveOrDrop(sp, new ItemStack(ModItems.FIELD_GUIDE.get()));
+            com.holeydigsite.guide.FieldGuideManager.checkFirstJoinOpen(sp);
+        } else {
+            if (!data.starterBedGiven()) {
+                checkStarterBed(sp, data);
+            }
+            if (!data.starterFieldGuideGiven()) {
+                data.setFieldGuideOpened(true);
+                checkStarterFieldGuide(sp, data);
+            }
         }
         com.holeydigsite.skin.SkinKitMigration.run(sp);
+        com.holeydigsite.crate.CrateCollections.scanOnce(sp);
         sp.refreshDisplayName();
         LedgerNetwork.syncToClient(sp);
+    }
+
+    public static boolean checkStarterFieldGuide(ServerPlayer sp, LedgerData data) {
+        if (data.starterFieldGuideGiven()) {
+            return false;
+        }
+        data.setStarterFieldGuideGiven(true);
+        if (com.holeydigsite.guide.FieldGuideManager.hasFieldGuide(sp)) {
+            return false;
+        }
+        giveOrDrop(sp, new ItemStack(ModItems.FIELD_GUIDE.get()));
+        return true;
     }
 
     public static boolean hasBed(ServerPlayer player) {
@@ -284,6 +310,7 @@ public final class LedgerManager {
         LedgerData data = LedgerData.get(sp);
         int oldLevel = data.level();
         data.addLifetimeCopper(totalCopperSold);
+        com.holeydigsite.board.BoardStats.get(sp.server).addCoins(sp, totalCopperSold);
         ModTriggers.SOLD.get().trigger(sp, maxSingleItemValue);
         ModTriggers.EARNED_TOTAL.get().trigger(sp, data.lifetimeCopper());
         int gain = data.addSellProgress(totalCopperSold, LedgerDefs.curve().sell());
@@ -331,6 +358,11 @@ public final class LedgerManager {
         for (LedgerDefs.RewardEntry r : def.rewards()) {
             if (r.item().isPresent()) {
                 Item item = BuiltInRegistries.ITEM.get(r.item().get());
+                if (!data.cratesOn() && item instanceof net.minecraft.world.item.BlockItem bi
+                        && bi.getBlock() instanceof com.holeydigsite.crate.CrateBlock) {
+                    payCoins(sp, (long) r.count() * com.holeydigsite.crate.CrateDefs.rules().offCrateCopper());
+                    continue;
+                }
                 ItemStack template = new ItemStack(item);
                 r.clumpTier().ifPresent(t -> template.set(ModDataComponents.CLUMP_TIER.get(), t));
                 if (item instanceof IngotItem) {
@@ -340,7 +372,11 @@ public final class LedgerManager {
             } else if (r.blueprint().isPresent()) {
                 ItemStack bp = BlueprintItem.of(BuiltInRegistries.ITEM.get(r.blueprint().get()));
                 giveCountOrDrop(sp, bp, r.count());
+            } else if (r.skin().isPresent() && !data.cratesOn()) {
+                String rarity = com.holeydigsite.skin.SkinKitItem.rarity(r.skin().get());
+                payCoins(sp, (long) Math.max(1, r.count()) * com.holeydigsite.crate.CrateDefs.rules().offSkinCopper().getOrDefault(rarity, 0));
             } else if (r.skin().isPresent()) {
+                com.holeydigsite.crate.CrateCollections.recordSkin(sp, r.skin().get());
                 // Ledger skins are the drill kit, Fresh from the Forge
                 ItemStack kit = com.holeydigsite.skin.SkinKitItem.of(r.skin().get(), com.holeydigsite.skin.SkinDefs.DRILL,
                         com.holeydigsite.skin.SkinWear.FRESH, Math.max(1, r.count()));
@@ -367,6 +403,16 @@ public final class LedgerManager {
         sp.level().playSound(null, sp.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.6F, 1.1F);
         LedgerNetwork.syncToClient(sp);
         return true;
+    }
+
+    /** What a crate or skin reward pays while the player's crate switch is off. */
+    private static void payCoins(ServerPlayer sp, long copper) {
+        if (copper <= 0) return;
+        for (ItemStack coinStack : Selling.coins(copper)) {
+            giveOrDrop(sp, coinStack);
+        }
+        sp.displayClientMessage(Component.translatable("message.holeydigsite.crate_switch.paid", Selling.format(copper))
+                .withStyle(ChatFormatting.GOLD), true);
     }
 
     // Titles

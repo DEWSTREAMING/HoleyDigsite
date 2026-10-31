@@ -42,6 +42,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     private final Set<String> smithedPieces = new LinkedHashSet<>();
     private boolean starterGiven;
     private boolean starterBedGiven;
+    private boolean starterFieldGuideGiven;
+    private boolean fieldGuideOpened;
     private boolean oldWorldChecked;
     private String chosenTitle = "";
     private final Set<String> unlockedTitles = new LinkedHashSet<>();
@@ -49,6 +51,11 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     /** Wear of each old unlocked skin that is not Fresh from the Forge (missing = Fresh). */
     private final Map<String, String> skinWears = new LinkedHashMap<>();
     private boolean skinsMigrated;
+    /** The crate switch: null until the player first uses it (then the server config default decides). */
+    private Boolean cratesOn;
+    /** Collection items the player has had, as {@code crate_id/kind:id} (see {@link com.holeydigsite.crate.Collections}). */
+    private final Set<String> collected = new LinkedHashSet<>();
+    private boolean collectionsScanned;
 
     public static LedgerData get(Player player) {
         return player.getData(ModAttachments.LEDGER_DATA.get());
@@ -182,6 +189,10 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     public void setStarterGiven(boolean starterGiven) { this.starterGiven = starterGiven; }
     public boolean starterBedGiven() { return starterBedGiven; }
     public void setStarterBedGiven(boolean starterBedGiven) { this.starterBedGiven = starterBedGiven; }
+    public boolean starterFieldGuideGiven() { return starterFieldGuideGiven; }
+    public void setStarterFieldGuideGiven(boolean starterFieldGuideGiven) { this.starterFieldGuideGiven = starterFieldGuideGiven; }
+    public boolean fieldGuideOpened() { return fieldGuideOpened; }
+    public void setFieldGuideOpened(boolean fieldGuideOpened) { this.fieldGuideOpened = fieldGuideOpened; }
 
     public boolean oldWorldChecked() { return oldWorldChecked; }
     public void setOldWorldChecked(boolean oldWorldChecked) { this.oldWorldChecked = oldWorldChecked; }
@@ -222,6 +233,15 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     public boolean skinsMigrated() { return skinsMigrated; }
     public void setSkinsMigrated(boolean skinsMigrated) { this.skinsMigrated = skinsMigrated; }
 
+    /** True if crates and skins are on for this player (the crate switch), falling back to the server config. */
+    public boolean cratesOn() { return cratesOn != null ? cratesOn : com.holeydigsite.crate.CrateConfig.defaultOn(); }
+    public void setCratesOn(boolean on) { this.cratesOn = on; }
+
+    public Set<String> collected() { return collected; }
+    public boolean markCollected(String key) { return collected.add(key); }
+    public boolean collectionsScanned() { return collectionsScanned; }
+    public void setCollectionsScanned(boolean scanned) { this.collectionsScanned = scanned; }
+
     /** Chosen title if it is still unlocked, else empty string (no title). */
     public String activeTitle() { return unlockedTitles.contains(chosenTitle) ? chosenTitle : ""; }
 
@@ -251,12 +271,16 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.smithedPieces.clear();
         this.starterGiven = true;
         this.starterBedGiven = true;
+        this.starterFieldGuideGiven = true;
+        this.fieldGuideOpened = true;
         this.oldWorldChecked = true;
         this.chosenTitle = "";
         this.unlockedTitles.clear();
         this.unlockedSkins.clear();
         this.skinWears.clear();
         this.skinsMigrated = true;
+        this.collected.clear();
+        this.collectionsScanned = true;
         this.contracts.clear();
     }
 
@@ -285,6 +309,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.smithedPieces.addAll(other.smithedPieces);
         this.starterGiven = other.starterGiven;
         this.starterBedGiven = other.starterBedGiven;
+        this.starterFieldGuideGiven = other.starterFieldGuideGiven;
+        this.fieldGuideOpened = other.fieldGuideOpened;
         this.oldWorldChecked = other.oldWorldChecked;
         this.chosenTitle = other.chosenTitle;
         this.unlockedTitles.clear();
@@ -294,6 +320,10 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.skinWears.clear();
         this.skinWears.putAll(other.skinWears);
         this.skinsMigrated = other.skinsMigrated;
+        this.cratesOn = other.cratesOn;
+        this.collected.clear();
+        this.collected.addAll(other.collected);
+        this.collectionsScanned = other.collectionsScanned;
     }
 
     @Override
@@ -333,6 +363,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         tag.put("SmithedPieces", pieces);
         tag.putBoolean("StarterGiven", starterGiven);
         tag.putBoolean("StarterBedGiven", starterBedGiven);
+        tag.putBoolean("StarterFieldGuideGiven", starterFieldGuideGiven);
+        tag.putBoolean("FieldGuideOpened", fieldGuideOpened);
         tag.putBoolean("OldWorldChecked", oldWorldChecked);
         tag.putString("ChosenTitle", chosenTitle);
         ListTag titles = new ListTag();
@@ -349,6 +381,13 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         skinWears.forEach(wears::putString);
         tag.put("SkinWears", wears);
         tag.putBoolean("SkinsMigrated", skinsMigrated);
+        if (cratesOn != null) tag.putBoolean("CratesOn", cratesOn);
+        ListTag coll = new ListTag();
+        for (String key : collected) {
+            coll.add(StringTag.valueOf(key));
+        }
+        tag.put("Collected", coll);
+        tag.putBoolean("CollectionsScanned", collectionsScanned);
         return tag;
     }
 
@@ -391,6 +430,8 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         }
         this.starterGiven = tag.getBoolean("StarterGiven");
         this.starterBedGiven = tag.getBoolean("StarterBedGiven");
+        this.starterFieldGuideGiven = tag.getBoolean("StarterFieldGuideGiven");
+        this.fieldGuideOpened = tag.getBoolean("FieldGuideOpened");
         this.oldWorldChecked = tag.getBoolean("OldWorldChecked");
         this.chosenTitle = tag.getString("ChosenTitle");
         this.unlockedTitles.clear();
@@ -409,5 +450,12 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
             this.skinWears.put(key, wears.getString(key));
         }
         this.skinsMigrated = tag.getBoolean("SkinsMigrated");
+        this.cratesOn = tag.contains("CratesOn") ? tag.getBoolean("CratesOn") : null;
+        this.collected.clear();
+        ListTag coll = tag.getList("Collected", Tag.TAG_STRING);
+        for (int i = 0; i < coll.size(); i++) {
+            this.collected.add(coll.getString(i));
+        }
+        this.collectionsScanned = tag.getBoolean("CollectionsScanned");
     }
 }

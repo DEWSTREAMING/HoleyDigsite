@@ -1,0 +1,66 @@
+{
+  "id": "outback",
+  "name": "event.holeydigsite.outback",
+  "seed": 2801,
+  "tiers": [
+    {
+      "tier": 1,
+      "rock": "holeydigsite:red_dirt_rock",
+      "clump": "holeydigsite:red_dirt_clump",
+      "table": "holeydigsite:panning/red_dirt",
+      "section": "holeydigsite:event/outback_t1_v1"
+    },
+    {
+      "tier": 2,
+      "rock": "holeydigsite:mullock_rock",
+      "clump": "holeydigsite:mullock_clump",
+      "table": "holeydigsite:panning/mullock",
+      "section": "holeydigsite:event/outback_t2_v1"
+    },
+    {
+      "tier": 3,
+      "rock": "holeydigsite:opal_clay_rock",
+      "clump": "holeydigsite:opal_clay_clump",
+      "table": "holeydigsite:panning/opal_clay",
+      "section": "holeydigsite:event/outback_t3_v1"
+    }
+  ],
+  "chips": {
+    "holeydigsite:outback_gold": {
+      "per_gram": 1.0,
+      "ingot_per_gram": 1.2
+    },
+    "holeydigsite:ironstone_pebble": {
+      "each": 1,
+      "uncut_each": 1
+    },
+    "holeydigsite:potch": {
+      "each": 2,
+      "uncut_each": 1
+    },
+    "holeydigsite:boulder_opal": {
+      "each": 6,
+      "uncut_each": 3
+    },
+    "holeydigsite:sapphire_parti": {
+      "each": 12,
+      "uncut_each": 6
+    },
+    "holeydigsite:black_opal": {
+      "each": 16,
+      "uncut_each": 8
+    },
+    "holeydigsite:fire_opal": {
+      "each": 16,
+      "uncut_each": 8
+    },
+    "holeydigsite:pink_diamond": {
+      "each": 40,
+      "uncut_each": 20
+    },
+    "holeydigsite:welcome_stranger": {
+      "each": 360,
+      "uncut_each": 360
+    }
+  }
+}

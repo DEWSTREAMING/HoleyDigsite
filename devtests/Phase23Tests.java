@@ -138,7 +138,7 @@ public class Phase23Tests {
         CrateDefs.Entry epic = new CrateDefs.Entry(CrateDefs.Kind.TITLE, "high_roller", 1, 1);
         CrateDefs.Entry common = new CrateDefs.Entry(CrateDefs.Kind.COINS, "", 64, 1);
         CrateDefs.CrateTier t = new CrateDefs.CrateTier("test_crate",
-                Map.of("common", 0, "rare", 0, "epic", 0, "legendary", 100), 0,
+                Map.of("common", 0.0, "rare", 0.0, "epic", 0.0, "legendary", 100.0), 0,
                 Map.of("common", List.of(common), "rare", List.of(), "epic", List.of(epic), "legendary", List.of()));
         check(h, "epic".equals(CrateRolls.poolRarity(t, "legendary")), "legendary falls back to epic");
         check(h, "common".equals(CrateRolls.poolRarity(t, "rare")), "rare falls back to common");
@@ -303,9 +303,9 @@ public class Phase23Tests {
         // worn texture files exist for every skin and wear
         java.io.File base = new java.io.File("src/main/resources/assets/holeydigsite/textures/block/skin");
         if (!base.exists()) base = new java.io.File("../src/main/resources/assets/holeydigsite/textures/block/skin");
-        for (String skin : new String[]{"rustic", "rustic_weathered", "brass", "frosted", "obsidian"}) {
+        for (String skin : new String[]{"rustic", "rustic_weathered", "brass", "frosted", "obsidian", "outback", "outback_dusty", "outback_ochre", "opal_calm", "opal", "opal_boulder", "black_opal"}) {
             for (String wear : new String[]{"workshop_clean", "field_worn", "pit_scarred", "cave_battered"}) {
-                java.io.File[] files = new java.io.File(base, skin + "/" + wear).listFiles((dir, name) -> name.endsWith(".png"));
+                java.io.File[] files = new java.io.File(base, skin + "/" + wear).listFiles((dir, name) -> name.endsWith(".png") && !name.endsWith("_s.png") && !name.endsWith("_n.png"));
                 check(h, files != null && files.length == 54, skin + "/" + wear + " has 54 textures");
             }
         }
@@ -413,30 +413,34 @@ public class Phase23Tests {
     @GameTest(template = "empty")
     public static void panningFindsFromHandPansOnly(GameTestHelper h) {
         clear(h);
-        // the rate over many rolls
-        RandomSource random = RandomSource.create(99L);
-        int n = 600000, wooden = 0, iron = 0, gold = 0;
+        // the rate over many rolls: Prospector Crates only, always locked
+        ServerPlayer finder = fresh(h);
+        int n = 600000, prospector = 0, other = 0;
         for (int i = 0; i < n; i++) {
-            ItemStack s = CrateRolls.panFind(random);
-            if (s.is(ModItems.WOODEN_CRATE.get())) wooden++;
-            if (s.is(ModItems.IRON_CRATE.get())) iron++;
-            if (s.is(ModItems.GOLD_CRATE.get())) gold++;
+            ItemStack s = com.holeydigsite.crate.CrateFinds.roll(h.getLevel(), h.absolutePos(BlockPos.ZERO), "pan", finder);
+            if (s.is(ModItems.PROSPECTOR_CRATE.get()) && CrateBlock.isLocked(s)) prospector++;
+            else if (!s.isEmpty()) other++;
         }
-        check(h, Math.abs(wooden - n / 1500.0) < n / 1500.0 * 0.15, "wooden 1 in 1500: " + wooden);
-        check(h, Math.abs(iron - n / 6000.0) < n / 6000.0 * 0.25, "iron 1 in 6000: " + iron);
-        check(h, gold == 0, "never gold");
+        check(h, Math.abs(prospector - n / 2000.0) < n / 2000.0 * 0.2, "prospector 1 in 2000: " + prospector);
+        check(h, other == 0, "nothing but locked Prospector Crates");
 
-        // sluices never roll for a crate
+        // the old crates have no finds at all
+        for (String old : List.of("wooden_crate", "iron_crate", "gold_crate")) {
+            check(h, CrateDefs.tier(old).old() && !CrateDefs.tier(old).found(), old + " is old and never found");
+        }
+        // a sluice without an owner rolls nothing
         BlockPos sp = new BlockPos(3, 1, 3);
         h.setBlock(sp, ModBlocks.SLUICE_BOX.get().defaultBlockState().setValue(SluiceBoxBlock.FACING, Direction.NORTH));
         SluiceBoxBlockEntity sluice = (SluiceBoxBlockEntity) h.getBlockEntity(sp);
         long rolls = Panning.crateFindRolls();
+        long findRolls = com.holeydigsite.crate.CrateFinds.rolls();
         for (int i = 0; i < 200; i++) {
             sluice.addClumps(1);
             sluice.washOneClump(h.getLevel(), h.absolutePos(sp));
             sluice.takeTray();
         }
-        check(h, Panning.crateFindRolls() == rolls, "sluice washes never roll a crate find");
+        check(h, Panning.crateFindRolls() == rolls, "sluice washes are not hand scoops");
+        check(h, com.holeydigsite.crate.CrateFinds.rolls() == findRolls, "an ownerless sluice rolls no crate find");
 
         // a real hand pan does
         BlockPos pan = new BlockPos(1, 1, 1);
@@ -458,18 +462,21 @@ public class Phase23Tests {
     public static void tradingPostAndLedgerSources(GameTestHelper h) {
         HolderLookup.Provider reg = h.getLevel().registryAccess();
         Map<Integer, ResourceLocation> layout = SiteDefs.layout(HoleyDigsite.id("home"));
-        check(h, "wooden_crate".equals(layout.get(37).getPath()) && "iron_crate".equals(layout.get(38).getPath())
-                && "gold_crate".equals(layout.get(39).getPath()), "slots 37-39 sell the crates");
-        check(h, ShopCatalogue.find(reg, ModItems.WOODEN_CRATE.get()).get().price() == 1536, "wooden price");
-        check(h, ShopCatalogue.find(reg, ModItems.IRON_CRATE.get()).get().price() == 4096, "iron price");
-        check(h, ShopCatalogue.find(reg, ModItems.GOLD_CRATE.get()).get().price() == 12288, "gold price");
-        check(h, LedgerDefs.level(19).rewards().get(0).item().get().getPath().equals("wooden_crate"), "L19 wooden");
-        check(h, LedgerDefs.level(36).rewards().get(0).item().get().getPath().equals("iron_crate"), "L36 iron");
-        check(h, LedgerDefs.level(49).rewards().get(0).item().get().getPath().equals("gold_crate"), "L49 gold");
+        check(h, "bolt_cutters".equals(layout.get(37).getPath()) && !layout.containsKey(38) && !layout.containsKey(39),
+                "slot 37 sells Bolt Cutters and the crates are gone");
+        check(h, ShopCatalogue.find(reg, ModItems.BOLT_CUTTERS.get()).get().price() == 1536, "cutter price");
+        check(h, ShopCatalogue.find(reg, ModItems.WOODEN_CRATE.get()).isEmpty() && ShopCatalogue.find(reg, ModItems.IRON_CRATE.get()).isEmpty()
+                && ShopCatalogue.find(reg, ModItems.GOLD_CRATE.get()).isEmpty(), "the old crates are not sold");
+        check(h, LedgerDefs.level(19).rewards().get(0).item().get().getPath().equals("prospector_crate")
+                && LedgerDefs.level(19).rewards().get(0).count() == 1, "L19 one Prospector Crate");
+        check(h, LedgerDefs.level(36).rewards().get(0).item().get().getPath().equals("prospector_crate")
+                && LedgerDefs.level(36).rewards().get(0).count() == 2, "L36 two");
+        check(h, LedgerDefs.level(49).rewards().get(0).item().get().getPath().equals("prospector_crate")
+                && LedgerDefs.level(49).rewards().get(0).count() == 4, "L49 four");
         ServerPlayer p = fresh(h);
         LedgerData.get(p).setRenown(LedgerDefs.curve().cumulativeForLevel(19));
         check(h, LedgerManager.claim(p, 19), "claim L19");
-        check(h, count(p, ModItems.WOODEN_CRATE.get()) == 1, "wooden crate from the Ledger");
+        check(h, count(p, ModItems.PROSPECTOR_CRATE.get()) == 1, "Prospector Crate from the Ledger");
         h.succeed();
     }
 

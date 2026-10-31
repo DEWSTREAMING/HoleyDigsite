@@ -14,8 +14,8 @@ import java.util.UUID;
  * <ul>
  *   <li>Joined a party: move to the owner's island (unless already there).</li>
  *   <li>Made a party on an island another party already holds: the new party gets a fresh island.</li>
- *   <li>Not in a party (left, kicked, disbanded) but on an island a party holds: a fresh island of their own.
- *       The last one on an island keeps it.</li>
+ *   <li>Not in a party (left, kicked, disbanded) but on an island a party holds: back to the island they left for
+ *       the party if it still stands empty ({@link #oldIsland}), otherwise a fresh one. The last one on an island keeps it.</li>
  *   <li>First time on the server and the spawn island already has someone: an island of their own.</li>
  *   <li>Made an island by command while not in a party: a matching party.</li>
  * </ul>
@@ -117,6 +117,25 @@ public final class TeamSyncRules {
             }
         }
         return out;
+    }
+
+    /** True if the move leaves {@code from} empty, which makes it the island to come back to. */
+    public static boolean leavesOwnIsland(@Nullable UUID from, UUID to, UUID player, Islands islands) {
+        if (from == null || from.equals(to)) {
+            return false;
+        }
+        for (UUID m : islands.members(from)) {
+            if (!m.equals(player)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** The island to return to instead of a fresh one: {@code saved} if nobody has moved onto it since. */
+    @Nullable
+    public static UUID oldIsland(@Nullable UUID saved, UUID player, Islands islands) {
+        return saved != null && !saved.equals(islands.islandOf(player)) && islands.members(saved).isEmpty() ? saved : null;
     }
 
     /** True if someone else on {@code island} is in a party (other than {@code ownParty}) whose owner lives there. */

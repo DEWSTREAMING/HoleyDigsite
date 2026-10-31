@@ -151,7 +151,7 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     // Loading
     // ------------------------------------------------------------------------------------------------
 
-    public enum Refusal { NONE, CASTING, OUTPUT, CHUNK, NOT_ACCEPTED, DIRTY, FULL }
+    public enum Refusal { NONE, CASTING, OUTPUT, CHUNK, NOT_ACCEPTED, DIRTY, FULL, EVENT_ITEM }
 
     @Nullable
     public static ResourceLocation ingotMetal(ItemStack stack) {
@@ -165,6 +165,9 @@ public class CraftingForgeBlockEntity extends BlockEntity {
     public Refusal check(ItemStack stack) {
         if (stack.isEmpty()) {
             return Refusal.NOT_ACCEPTED;
+        }
+        if (com.holeydigsite.event.EventDefs.isEventMetal(stack) || com.holeydigsite.event.EventDefs.isEventItem(stack)) {
+            return Refusal.EVENT_ITEM;
         }
         if (isCasting()) {
             return Refusal.CASTING;

@@ -151,18 +151,48 @@ public class ContractBoardBlock extends BaseEntityBlock {
         return 0.5 + (1 - k) * CARD_STEP;
     }
 
-    /** Which card (0 top, 1 middle, 2 bottom) the look ray meets on the card plane; the middle one when looking away. */
+    /** Half the width of a card's text (165 font px at the label scale, a bit to spare). */
+    public static final double CARD_HALF_WIDTH = 0.9;
+
+    /** Which card (0 top, 1 middle, 2 bottom) is under the crosshair; the middle one when it is on none. */
     public static int cardAt(BlockPos pos, Direction facing, Vec3 eye, Vec3 look) {
-        Vec3 n = new Vec3(facing.getStepX(), 0, facing.getStepZ());
-        double denom = look.dot(n);
-        if (denom >= -1.0E-6) {
-            return 1;
+        int k = cardUnderCrosshair(pos, facing, eye, look);
+        return k < 0 ? 1 : k;
+    }
+
+    /**
+     * The card whose text is under the crosshair, or -1. The text is drawn facing the camera, so this measures in the
+     * camera's own right/up directions at each card's depth, which keeps it on the text even when the text hangs over
+     * the blocks above and below the board or the player looks at it from the side.
+     */
+    public static int cardUnderCrosshair(BlockPos pos, Direction facing, Vec3 eye, Vec3 look) {
+        look = look.normalize();
+        Vec3 right = look.cross(new Vec3(0, 1, 0));
+        if (right.lengthSqr() < 1.0E-6) {
+            return -1;
         }
-        double t = planePoint(pos, facing).subtract(eye).dot(n) / denom;
-        double rel = eye.y + t * look.y - (pos.getY() + 0.5);
-        if (rel > CARD_STEP / 2) return 0;
-        if (rel < -CARD_STEP / 2) return 2;
-        return 1;
+        right = right.normalize();
+        Vec3 up = right.cross(look);
+        Vec3 plane = planePoint(pos, facing);
+        int best = -1;
+        double bestOff = CARD_STEP * 0.6;
+        for (int k = 0; k < 3; k++) {
+            Vec3 d = new Vec3(plane.x, pos.getY() + cardCentreY(k), plane.z).subtract(eye);
+            if (d.dot(look) <= 0 || Math.abs(d.dot(right)) > CARD_HALF_WIDTH) {
+                continue;
+            }
+            double off = Math.abs(d.dot(up));
+            if (off < bestOff) {
+                bestOff = off;
+                best = k;
+            }
+        }
+        return best;
+    }
+
+    /** Depth along the look ray of the card plane's centre, to tell whether something else is in front of the cards. */
+    public static double cardDepth(BlockPos pos, Direction facing, Vec3 eye, Vec3 look) {
+        return planePoint(pos, facing).subtract(eye).dot(look.normalize());
     }
 
     // ------------------------------------------------------------------------------------------------ use
@@ -176,9 +206,14 @@ public class ContractBoardBlock extends BaseEntityBlock {
         if (!(player instanceof ServerPlayer sp)) {
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
+        return deliver(sp, pos, cardAt(pos, state.getValue(FACING), sp.getEyePosition(), sp.getViewVector(1.0F)), held);
+    }
+
+    /** Hands the held stack to card {@code slot}, or to the first card that wants it. */
+    public static ItemInteractionResult deliver(ServerPlayer sp, BlockPos pos, int slot, ItemStack held) {
+        Level level = sp.level();
         ContractManager.refresh(sp);
         ContractData data = ContractManager.data(sp);
-        int slot = cardAt(pos, state.getValue(FACING), sp.getEyePosition(), sp.getViewVector(1.0F));
         var reg = sp.registryAccess();
         Contract at = data.get(slot);
         if (at == null || ContractManager.unitValue(at, held, reg) <= 0) {
@@ -202,9 +237,13 @@ public class ContractBoardBlock extends BaseEntityBlock {
         if (!(player instanceof ServerPlayer sp)) {
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
+        return showCard(sp, cardAt(pos, state.getValue(FACING), sp.getEyePosition(), sp.getViewVector(1.0F)));
+    }
+
+    /** Empty hand: sneaking lists card {@code slot}'s details in chat, otherwise a hint. */
+    public static InteractionResult showCard(ServerPlayer sp, int slot) {
         ContractManager.refresh(sp);
-        if (player.isShiftKeyDown()) {
-            int slot = cardAt(pos, state.getValue(FACING), sp.getEyePosition(), sp.getViewVector(1.0F));
+        if (sp.isShiftKeyDown()) {
             Contract c = ContractManager.data(sp).get(slot);
             if (c == null) {
                 sp.displayClientMessage(Component.translatable("contract.holeydigsite.empty"), true);

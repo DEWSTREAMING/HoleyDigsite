@@ -23,7 +23,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import net.neoforged.neoforge.client.model.IQuadTransformer;
+import net.neoforged.neoforge.client.model.QuadTransformers;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,9 +40,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Fallback to default texture is automatic when a skin does not override a specific texture.
  */
 public class SkinnedBakedModel extends BakedModelWrapper<BakedModel> {
+    private static final IQuadTransformer FULLBRIGHT = QuadTransformers.settingMaxEmissivity();
+
     private final @Nullable String fixedSkin;
     private final Map<String, SkinnedBakedModel> itemModelCache = new ConcurrentHashMap<>();
     private final Map<QuadCacheKey, List<BakedQuad>> quadCache = new ConcurrentHashMap<>();
+    private final Map<QuadCacheKey, List<BakedQuad>> glowCache = new ConcurrentHashMap<>();
+    private final Map<QuadCacheKey, Boolean> glowingStates = new ConcurrentHashMap<>();
     private final ItemOverrides itemOverrides;
 
     private record QuadCacheKey(
@@ -85,6 +92,15 @@ public class SkinnedBakedModel extends BakedModelWrapper<BakedModel> {
                 }
             }
         }
+        if (state.getBlock() instanceof com.holeydigsite.sluice.SluiceBoxBlock sluice) {
+            BlockPos entity = sluice.entityPos(pos, state);
+            if (!entity.equals(pos) && level.getBlockEntity(entity) instanceof com.holeydigsite.sluice.SluiceBoxBlockEntity be) {
+                String skin = be.getSkinKey();
+                if (skin != null && !skin.isEmpty()) {
+                    return data.derive().with(SkinModelProperties.SKIN, skin).build();
+                }
+            }
+        }
         return data;
     }
 
@@ -100,6 +116,10 @@ public class SkinnedBakedModel extends BakedModelWrapper<BakedModel> {
             return originalModel.getQuads(state, side, rand, extraData, renderType);
         }
 
+        // block models here have no render type of their own, so the see-through glow layer sits alone in cutout
+        if (renderType == RenderType.cutout() && glows(state, skin)) {
+            return glowQuads(state, side, rand, extraData, skin);
+        }
         QuadCacheKey key = new QuadCacheKey(state, side, renderType, skin);
         return quadCache.computeIfAbsent(key, k -> {
             List<BakedQuad> originalQuads = originalModel.getQuads(state, side, rand, extraData, renderType);
@@ -110,8 +130,63 @@ public class SkinnedBakedModel extends BakedModelWrapper<BakedModel> {
             for (BakedQuad quad : originalQuads) {
                 remapped.add(remapQuad(quad, skin));
             }
+            if (renderType == null) {
+                remapped.addAll(glowQuads(state, side, rand, extraData, skin)); // items and the auger draw it all at once
+            }
             return List.copyOf(remapped);
         });
+    }
+
+    @Override
+    public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) {
+        ChunkRenderTypeSet types = originalModel.getRenderTypes(state, rand, data);
+        String skin = data.get(SkinModelProperties.SKIN);
+        if (skin != null && !skin.isEmpty() && !skin.equals(SkinDefs.DEFAULT_ID) && glows(state, skin)) {
+            return ChunkRenderTypeSet.union(types, ChunkRenderTypeSet.of(RenderType.cutout()));
+        }
+        return types;
+    }
+
+    private boolean glows(@Nullable BlockState state, String skin) {
+        return glowingStates.computeIfAbsent(new QuadCacheKey(state, null, null, skin), k -> {
+            RandomSource rand = RandomSource.create();
+            if (!glowQuads(state, null, rand, ModelData.EMPTY, skin).isEmpty()) {
+                return true;
+            }
+            for (Direction side : Direction.values()) {
+                if (!glowQuads(state, side, rand, ModelData.EMPTY, skin).isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    /** Fullbright copies of the quads that have a glow overlay (block/skin/<skin>/glow/...), so they light up with or without shaders. */
+    private List<BakedQuad> glowQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData data, String skin) {
+        return glowCache.computeIfAbsent(new QuadCacheKey(state, side, null, skin), k -> {
+            List<BakedQuad> glowing = new ArrayList<>();
+            int slash = skin.indexOf('/');
+            String root = slash < 0 ? skin : skin.substring(0, slash);
+            for (BakedQuad quad : originalModel.getQuads(state, side, rand, data, null)) {
+                if (hasGlow(quad, root)) {
+                    BakedQuad glow = remapQuad(quad, root + "/glow");
+                    glowing.add(FULLBRIGHT.process(new BakedQuad(glow.getVertices(), glow.getTintIndex(), glow.getDirection(), glow.getSprite(), false, false)));
+                }
+            }
+            return List.copyOf(glowing);
+        });
+    }
+
+    /** Exact lookup: skinSprite falls back to the plain skin, which must not turn fullbright. */
+    private static boolean hasGlow(BakedQuad quad, String root) {
+        ResourceLocation name = quad.getSprite().contents().name();
+        if (!"holeydigsite".equals(name.getNamespace()) || !name.getPath().startsWith("block/")) {
+            return false;
+        }
+        TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS);
+        ResourceLocation glow = ResourceLocation.fromNamespaceAndPath("holeydigsite", "block/skin/" + root + "/glow/" + name.getPath().substring("block/".length()));
+        return !atlas.getSprite(glow).contents().name().equals(MissingTextureAtlasSprite.getLocation());
     }
 
     private static BakedQuad remapQuad(BakedQuad quad, String skin) {

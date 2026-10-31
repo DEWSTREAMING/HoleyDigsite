@@ -41,7 +41,19 @@ public class PadRenderer implements BlockEntityRenderer<PadBlockEntity> {
     @Override
     public void render(PadBlockEntity pad, float partialTick, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         List<ItemStack> items = pad.contents();
-        if (items.isEmpty() || pad.getLevel() == null || !FloatingText.near(pad.getBlockPos(), FloatingText.ITEM_RANGE)) {
+        if (pad.getLevel() == null || !FloatingText.near(pad.getBlockPos(), FloatingText.ITEM_RANGE)) {
+            return;
+        }
+        if (pad.getBlockState().getBlock() instanceof com.holeydigsite.sellpad.EventSellPadBlock && FloatingText.focused(pad.getBlockPos(), 0.3)
+                && net.minecraft.client.Minecraft.getInstance().player != null) {
+            // the event store's label: the looking player's own chips
+            var chips = com.holeydigsite.event.OpalChips.get(net.minecraft.client.Minecraft.getInstance().player);
+            Component label = chips.active().isEmpty()
+                    ? Component.translatable("text.holeydigsite.chips.no_event")
+                    : Component.translatable("text.holeydigsite.chips.balance", chips.balance(chips.active()));
+            FloatingText.draw(pose, buffers, label, 0.5, items.isEmpty() ? 0.7 : 0.95, 0.5, FloatingText.labelScale(pad.getBlockPos()), light);
+        }
+        if (items.isEmpty()) {
             return;
         }
         for (int i = 0; i < items.size(); i++) {
@@ -94,6 +106,9 @@ public class PadRenderer implements BlockEntityRenderer<PadBlockEntity> {
         var registries = pad.getLevel().registryAccess();
         if (pad.getBlockState().getBlock() instanceof SellPadBlock) {
             return Selling.format(SellPadBlock.value(items, registries));
+        }
+        if (pad.getBlockState().getBlock() instanceof com.holeydigsite.sellpad.EventSellPadBlock) {
+            return Component.translatable("text.holeydigsite.chips.on_pad");
         }
         return Component.translatable("tooltip.holeydigsite.pad.total", Selling.format(ShopCatalogue.totalCost(registries, items)));
     }

@@ -592,8 +592,8 @@ public class PhaseFourteenTests {
             }
             n++;
         }
-        check(h, n == 7, "7 sites (home, 3 plots, 3 kiosks): " + n);
-        check(h, SiteDefs.layout(HOME_LAYOUT).size() == 39, "home shows the 39 home catalogue items");
+        check(h, n == 8, "8 sites (home, 3 plots, 3 kiosks, the event store): " + n);
+        check(h, SiteDefs.layout(HOME_LAYOUT).size() == 37, "home shows the 37 home catalogue items");
         h.succeed();
     }
 }

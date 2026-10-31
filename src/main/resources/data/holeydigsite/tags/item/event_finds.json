@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#holeydigsite:event_gems",
+    "#holeydigsite:event_metals",
+    "holeydigsite:ironstone_pebble",
+    "holeydigsite:welcome_stranger"
+  ]
+}

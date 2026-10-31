@@ -90,6 +90,10 @@ public class Phase232Tests {
         List<String> out = new ArrayList<>();
         for (String c : CLUMPS) out.add("item/" + c);
         for (String m : METALS) for (String s : SIZES) out.add("item/" + m + "_chunk_" + s);
+        out.add("item/red_dirt_clump");
+        out.add("item/mullock_clump");
+        out.add("item/opal_clay_clump");
+        for (String s : SIZES) out.add("item/outback_gold_chunk_" + s);
         return out;
     }
 

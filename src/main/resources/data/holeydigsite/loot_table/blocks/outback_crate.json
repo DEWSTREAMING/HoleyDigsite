@@ -1,0 +1,53 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:outback_crate",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "holeydigsite:outback_crate",
+              "properties": {
+                "open": "false",
+                "locked": "true"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "holeydigsite:locked": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:outback_crate",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "holeydigsite:outback_crate",
+              "properties": {
+                "open": "false",
+                "locked": "false"
+              }
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ]
+    }
+  ],
+  "random_sequence": "holeydigsite:blocks/outback_crate"
+}

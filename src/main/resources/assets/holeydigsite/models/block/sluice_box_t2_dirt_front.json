@@ -1,0 +1,73 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/sluice_dirt",
+    "dirt": "holeydigsite:block/sluice_dirt"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4.8999999999999995,
+        8.5
+      ],
+      "to": [
+        12,
+        6.3,
+        11.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dirt"
+        },
+        "south": {
+          "texture": "#dirt"
+        },
+        "east": {
+          "texture": "#dirt"
+        },
+        "west": {
+          "texture": "#dirt"
+        },
+        "up": {
+          "texture": "#dirt"
+        },
+        "down": {
+          "texture": "#dirt"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        6.5,
+        16.5
+      ],
+      "to": [
+        11,
+        8.200000000000001,
+        19.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dirt"
+        },
+        "south": {
+          "texture": "#dirt"
+        },
+        "east": {
+          "texture": "#dirt"
+        },
+        "west": {
+          "texture": "#dirt"
+        },
+        "up": {
+          "texture": "#dirt"
+        },
+        "down": {
+          "texture": "#dirt"
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 package com.holeydigsite.economy;
 
 import com.holeydigsite.HoleyDigsite;
+import com.holeydigsite.event.EventDefs;
 import com.holeydigsite.item.IngotItem;
 import com.holeydigsite.ledger.LedgerManager;
 import com.holeydigsite.registry.ModDataComponents;
@@ -46,6 +47,30 @@ public final class EconomyCommands {
     public static final List<String> CLUMPS = List.of("dirt", "deep", "abyssal", "gravel", "sand", "coarse", "rooted", "moss");
     public static final List<String> PIECES = List.of("ring", "necklace", "dagger", "axe", "sword");
     public static final List<String> PIECE_GEMS = List.of("none", "ruby", "sapphire", "topaz");
+
+    /** True if {@code metal} names an event metal (or an event) instead of a normal one. */
+    public static boolean isEventMetal(String metal) {
+        String m = metal.toLowerCase(Locale.ROOT);
+        return EventDefs.getEvent(m) != null || EventDefs.isEventMaterial(HoleyDigsite.id(m))
+                || isEventItemId(m + "_ingot") || isEventItemId(m + "_chunk_small");
+    }
+
+    /** True if {@code gem} names an event gem. */
+    public static boolean isEventGem(String gem) {
+        String g = gem.toLowerCase(Locale.ROOT);
+        return isEventItemId(g) || isEventItemId("uncut_" + g);
+    }
+
+    /** True if {@code clump} names an event clump. */
+    public static boolean isEventClump(String clump) {
+        return isEventItemId(clump.toLowerCase(Locale.ROOT) + "_clump");
+    }
+
+    private static boolean isEventItemId(String path) {
+        ResourceLocation id = ResourceLocation.tryBuild(HoleyDigsite.MODID, path);
+        Item item = id == null ? Items.AIR : BuiltInRegistries.ITEM.get(id);
+        return item != Items.AIR && EventDefs.isEventItem(new ItemStack(item));
+    }
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
         d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
@@ -125,6 +150,10 @@ public final class EconomyCommands {
     private static int giveIngot(CommandContext<CommandSourceStack> c, int count) throws CommandSyntaxException {
         Collection<ServerPlayer> players = EntityArgument.getPlayers(c, "player");
         String metal = StringArgumentType.getString(c, "metal").toLowerCase(Locale.ROOT);
+        if (isEventMetal(metal)) {
+            c.getSource().sendFailure(Component.translatable("command.holeydigsite.give.refused_event"));
+            return 0;
+        }
         int grams = IntegerArgumentType.getInteger(c, "grams");
 
         ResourceLocation id = HoleyDigsite.id(metal + "_ingot");
@@ -152,6 +181,10 @@ public final class EconomyCommands {
     private static int giveGem(CommandContext<CommandSourceStack> c, boolean uncut, int count) throws CommandSyntaxException {
         Collection<ServerPlayer> players = EntityArgument.getPlayers(c, "player");
         String gem = StringArgumentType.getString(c, "gem").toLowerCase(Locale.ROOT);
+        if (isEventGem(gem)) {
+            c.getSource().sendFailure(Component.translatable("command.holeydigsite.give.refused_event"));
+            return 0;
+        }
         String size = StringArgumentType.getString(c, "size").toLowerCase(Locale.ROOT);
 
         String path = (uncut ? "uncut_" : "") + gem + "_" + size;
@@ -180,6 +213,10 @@ public final class EconomyCommands {
     private static int giveClump(CommandContext<CommandSourceStack> c, int count) throws CommandSyntaxException {
         Collection<ServerPlayer> players = EntityArgument.getPlayers(c, "player");
         String tierStr = StringArgumentType.getString(c, "tier").toLowerCase(Locale.ROOT);
+        if (isEventClump(tierStr)) {
+            c.getSource().sendFailure(Component.translatable("command.holeydigsite.give.refused_event"));
+            return 0;
+        }
         int kind = switch (tierStr) {
             case "dirt" -> 1;
             case "deep" -> 2;
@@ -214,6 +251,10 @@ public final class EconomyCommands {
         Collection<ServerPlayer> players = EntityArgument.getPlayers(c, "player");
         String piece = StringArgumentType.getString(c, "piece").toLowerCase(Locale.ROOT);
         String metal = StringArgumentType.getString(c, "metal").toLowerCase(Locale.ROOT);
+        if (isEventMetal(metal) || (gem != null && isEventGem(gem))) {
+            c.getSource().sendFailure(Component.translatable("command.holeydigsite.give.refused_event"));
+            return 0;
+        }
         int grams = IntegerArgumentType.getInteger(c, "grams");
 
         Item pieceItem = switch (piece) {

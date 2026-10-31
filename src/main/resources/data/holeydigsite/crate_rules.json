@@ -1,10 +1,45 @@
 {
   "wears": [
-    {"id": "fresh_from_the_forge", "odds": 10, "scrap_multiplier": 2.0},
-    {"id": "workshop_clean", "odds": 20, "scrap_multiplier": 1.5},
-    {"id": "field_worn", "odds": 35, "scrap_multiplier": 1.0},
-    {"id": "pit_scarred", "odds": 25, "scrap_multiplier": 0.75},
-    {"id": "cave_battered", "odds": 10, "scrap_multiplier": 0.5}
+    {
+      "id": "fresh_from_the_forge",
+      "odds": 10,
+      "scrap_multiplier": 2.0
+    },
+    {
+      "id": "workshop_clean",
+      "odds": 20,
+      "scrap_multiplier": 1.5
+    },
+    {
+      "id": "field_worn",
+      "odds": 35,
+      "scrap_multiplier": 1.0
+    },
+    {
+      "id": "pit_scarred",
+      "odds": 25,
+      "scrap_multiplier": 0.75
+    },
+    {
+      "id": "cave_battered",
+      "odds": 10,
+      "scrap_multiplier": 0.5
+    }
   ],
-  "scrap": {"common": 1, "rare": 3, "epic": 8, "legendary": 20}
+  "scrap": {
+    "common": 1,
+    "rare": 3,
+    "epic": 8,
+    "legendary": 20
+  },
+  "locked_sell_copper": 48,
+  "off_coins": {
+    "crate": 1536,
+    "skin": {
+      "common": 768,
+      "rare": 2304,
+      "epic": 6144,
+      "legendary": 15360
+    }
+  }
 }

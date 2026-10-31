@@ -75,7 +75,7 @@ public class BlueprintItem extends Item {
             return;
         }
         ShopItem e = entry.get();
-        tooltip.add(Component.translatable("tooltip.holeydigsite.blueprint.price", Selling.format(e.price()))
+        tooltip.add(Component.translatable("tooltip.holeydigsite.blueprint.price", e.priceText())
                 .withStyle(ChatFormatting.GOLD));
         tooltip.add(Component.translatable("tooltip.holeydigsite.blueprint.gives", e.count(), target.getDescription())
                 .withStyle(ChatFormatting.GRAY));

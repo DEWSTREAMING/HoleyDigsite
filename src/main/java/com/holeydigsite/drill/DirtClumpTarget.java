@@ -15,12 +15,12 @@ public interface DirtClumpTarget extends com.holeydigsite.transport.ItemTarget {
     @Override
     default boolean canAcceptItem(Level level, BlockPos pos, BlockState state, Direction from, net.minecraft.world.item.ItemStack one) {
         return com.holeydigsite.tier.DirtTier.isClump(one)
-                && canAcceptClump(level, pos, state, from, com.holeydigsite.tier.DirtTier.ofClump(one));
+                && canAcceptClump(level, pos, state, from, com.holeydigsite.tier.DirtTier.panKind(one));
     }
 
     @Override
     default void acceptItem(Level level, BlockPos pos, BlockState state, Direction from, net.minecraft.world.item.ItemStack one) {
-        acceptClump(level, pos, state, from, com.holeydigsite.tier.DirtTier.ofClump(one));
+        acceptClump(level, pos, state, from, com.holeydigsite.tier.DirtTier.panKind(one));
     }
 
     /**

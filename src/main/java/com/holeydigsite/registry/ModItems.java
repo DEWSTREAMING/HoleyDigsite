@@ -314,6 +314,11 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> IRON_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.IRON_CRATE, new Item.Properties().stacksTo(16));
     public static final DeferredItem<BlockItem> GOLD_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.GOLD_CRATE,
             new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<BlockItem> PROSPECTOR_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.PROSPECTOR_CRATE,
+            new Item.Properties().stacksTo(16));
+    /** {@code holeydigsite:bolt_cutters}, used up to open one locked crate. Bought at the Trading Post, never found or crafted. */
+    public static final DeferredItem<Item> BOLT_CUTTERS = ITEMS.registerSimpleItem("bolt_cutters", new Item.Properties().stacksTo(16));
+    public static final DeferredItem<BlockItem> CRATE_SWITCH = ITEMS.registerSimpleBlockItem(ModBlocks.CRATE_SWITCH);
     /** {@code holeydigsite:skin_scrap}, what a scrapped Skin Kit or a duplicate crate title turns into. Only sells at the Sell Pad. */
     public static final DeferredItem<Item> SKIN_SCRAP = ITEMS.registerSimpleItem("skin_scrap");
     /** {@code holeydigsite:skin_kit}, one machine skin as a tradeable item (skin, family and wear components). */
@@ -323,4 +328,61 @@ public final class ModItems {
     // Prospector's Ledger.
     public static final DeferredItem<com.holeydigsite.ledger.ProspectorsLedgerItem> PROSPECTORS_LEDGER = ITEMS.register("prospectors_ledger",
             () -> new com.holeydigsite.ledger.ProspectorsLedgerItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON)));
+
+    // Phase 28a: Outback event blocks and items
+    public static final DeferredItem<BlockItem> RED_DIRT_ROCK = ITEMS.registerSimpleBlockItem(ModBlocks.RED_DIRT_ROCK);
+    public static final DeferredItem<BlockItem> MULLOCK_ROCK = ITEMS.registerSimpleBlockItem(ModBlocks.MULLOCK_ROCK);
+    public static final DeferredItem<BlockItem> OPAL_CLAY_ROCK = ITEMS.registerSimpleBlockItem(ModBlocks.OPAL_CLAY_ROCK);
+    public static final DeferredItem<BlockItem> HARDPAN = ITEMS.registerSimpleBlockItem(ModBlocks.HARDPAN);
+    public static final DeferredItem<BlockItem> PINDAN = ITEMS.registerSimpleBlockItem(ModBlocks.PINDAN);
+    public static final DeferredItem<ShopBlockItem> EVENT_SELL_PAD = ITEMS.register("event_sell_pad",
+            () -> new ShopBlockItem(ModBlocks.EVENT_SELL_PAD.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> OUTBACK_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.OUTBACK_CRATE,
+            new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<BlockItem> CORRUGATED_IRON_SHEET = ITEMS.registerSimpleBlockItem(ModBlocks.CORRUGATED_IRON_SHEET);
+    public static final DeferredItem<BlockItem> LITTLE_WINDMILL = ITEMS.registerSimpleBlockItem(ModBlocks.LITTLE_WINDMILL);
+    public static final DeferredItem<BlockItem> UTE_ORE_CART = ITEMS.registerSimpleBlockItem(ModBlocks.UTE_ORE_CART);
+    public static final DeferredItem<BlockItem> SOUTHERN_CROSS_BANNER = ITEMS.registerSimpleBlockItem(ModBlocks.SOUTHERN_CROSS_BANNER);
+    public static final DeferredItem<BlockItem> WELCOME_STRANGER_STAND = ITEMS.registerSimpleBlockItem(ModBlocks.WELCOME_STRANGER_STAND,
+            new Item.Properties().rarity(Rarity.RARE));
+    public static final DeferredItem<BlockItem> EVENT_BOARD = ITEMS.registerSimpleBlockItem(ModBlocks.EVENT_BOARD);
+    public static final DeferredItem<BlockItem> LEADERBOARD = ITEMS.registerSimpleBlockItem(ModBlocks.LEADERBOARD);
+    public static final DeferredItem<com.holeydigsite.plot.LandDeedItem> LAND_DEED_EVENT_T1 = ITEMS.register("land_deed_event_t1",
+            () -> new com.holeydigsite.plot.LandDeedItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON), "event_t1"));
+    public static final DeferredItem<com.holeydigsite.plot.LandDeedItem> LAND_DEED_EVENT_T2 = ITEMS.register("land_deed_event_t2",
+            () -> new com.holeydigsite.plot.LandDeedItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON), "event_t2"));
+    public static final DeferredItem<com.holeydigsite.plot.LandDeedItem> LAND_DEED_EVENT_T3 = ITEMS.register("land_deed_event_t3",
+            () -> new com.holeydigsite.plot.LandDeedItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), "event_t3"));
+
+    public static final DeferredItem<Item> RED_DIRT_CLUMP = ITEMS.registerSimpleItem("red_dirt_clump");
+    public static final DeferredItem<Item> MULLOCK_CLUMP = ITEMS.registerSimpleItem("mullock_clump");
+    public static final DeferredItem<Item> OPAL_CLAY_CLUMP = ITEMS.registerSimpleItem("opal_clay_clump");
+
+    public static final DeferredItem<Item> OUTBACK_GOLD_CHUNK_SMALL = ITEMS.registerSimpleItem("outback_gold_chunk_small");
+    public static final DeferredItem<Item> OUTBACK_GOLD_CHUNK_MEDIUM = ITEMS.registerSimpleItem("outback_gold_chunk_medium");
+    public static final DeferredItem<Item> OUTBACK_GOLD_CHUNK_LARGE = ITEMS.registerSimpleItem("outback_gold_chunk_large",
+            new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<com.holeydigsite.item.IngotItem> OUTBACK_GOLD_INGOT = ITEMS.register("outback_gold_ingot",
+            () -> new com.holeydigsite.item.IngotItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> IRONSTONE_PEBBLE = ITEMS.registerSimpleItem("ironstone_pebble");
+
+    public static final DeferredItem<Item> POTCH = ITEMS.registerSimpleItem("potch", new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<Item> UNCUT_POTCH = ITEMS.registerSimpleItem("uncut_potch", new Item.Properties().rarity(Rarity.COMMON));
+    public static final DeferredItem<Item> BOULDER_OPAL = ITEMS.registerSimpleItem("boulder_opal", new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<Item> UNCUT_BOULDER_OPAL = ITEMS.registerSimpleItem("uncut_boulder_opal", new Item.Properties().rarity(Rarity.COMMON));
+    public static final DeferredItem<Item> SAPPHIRE_PARTI = ITEMS.registerSimpleItem("sapphire_parti", new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<Item> UNCUT_SAPPHIRE_PARTI = ITEMS.registerSimpleItem("uncut_sapphire_parti", new Item.Properties().rarity(Rarity.COMMON));
+    public static final DeferredItem<Item> BLACK_OPAL = ITEMS.registerSimpleItem("black_opal", new Item.Properties().rarity(Rarity.RARE));
+    public static final DeferredItem<Item> UNCUT_BLACK_OPAL = ITEMS.registerSimpleItem("uncut_black_opal", new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<Item> FIRE_OPAL = ITEMS.registerSimpleItem("fire_opal", new Item.Properties().rarity(Rarity.RARE));
+    public static final DeferredItem<Item> UNCUT_FIRE_OPAL = ITEMS.registerSimpleItem("uncut_fire_opal", new Item.Properties().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<Item> PINK_DIAMOND = ITEMS.registerSimpleItem("pink_diamond", new Item.Properties().rarity(Rarity.EPIC));
+    public static final DeferredItem<Item> UNCUT_PINK_DIAMOND = ITEMS.registerSimpleItem("uncut_pink_diamond", new Item.Properties().rarity(Rarity.RARE));
+
+    public static final DeferredItem<Item> WELCOME_STRANGER = ITEMS.registerSimpleItem("welcome_stranger",
+            new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+
+    public static final DeferredItem<com.holeydigsite.guide.FieldGuideItem> FIELD_GUIDE = ITEMS.register("field_guide",
+            () -> new com.holeydigsite.guide.FieldGuideItem(new Item.Properties().stacksTo(1)));
 }

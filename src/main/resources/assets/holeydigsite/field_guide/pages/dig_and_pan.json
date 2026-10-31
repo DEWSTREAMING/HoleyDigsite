@@ -1,0 +1,15 @@
+{
+  "order": 1,
+  "title": "field_guide.holeydigsite.page.dig_and_pan.title",
+  "text": [
+    "field_guide.holeydigsite.page.dig_and_pan.line1",
+    "field_guide.holeydigsite.page.dig_and_pan.line2",
+    "field_guide.holeydigsite.page.dig_and_pan.line3"
+  ],
+  "clip": "dig_and_pan",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

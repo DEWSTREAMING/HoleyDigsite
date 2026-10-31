@@ -215,6 +215,87 @@
     },
     "fill=8,tier=8": {
       "model": "holeydigsite:block/large_pan_fill_8_moss"
+    },
+    "fill=0,tier=9": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=1,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_1_red_dirt"
+    },
+    "fill=2,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_2_red_dirt"
+    },
+    "fill=3,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_3_red_dirt"
+    },
+    "fill=4,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_4_red_dirt"
+    },
+    "fill=5,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_5_red_dirt"
+    },
+    "fill=6,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_6_red_dirt"
+    },
+    "fill=7,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_7_red_dirt"
+    },
+    "fill=8,tier=9": {
+      "model": "holeydigsite:block/large_pan_fill_8_red_dirt"
+    },
+    "fill=0,tier=10": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=1,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_1_mullock"
+    },
+    "fill=2,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_2_mullock"
+    },
+    "fill=3,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_3_mullock"
+    },
+    "fill=4,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_4_mullock"
+    },
+    "fill=5,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_5_mullock"
+    },
+    "fill=6,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_6_mullock"
+    },
+    "fill=7,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_7_mullock"
+    },
+    "fill=8,tier=10": {
+      "model": "holeydigsite:block/large_pan_fill_8_mullock"
+    },
+    "fill=0,tier=11": {
+      "model": "holeydigsite:block/large_pan"
+    },
+    "fill=1,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_1_opal_clay"
+    },
+    "fill=2,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_2_opal_clay"
+    },
+    "fill=3,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_3_opal_clay"
+    },
+    "fill=4,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_4_opal_clay"
+    },
+    "fill=5,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_5_opal_clay"
+    },
+    "fill=6,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_6_opal_clay"
+    },
+    "fill=7,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_7_opal_clay"
+    },
+    "fill=8,tier=11": {
+      "model": "holeydigsite:block/large_pan_fill_8_opal_clay"
     }
   }
 }

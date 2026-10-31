@@ -58,7 +58,7 @@ def main():
                 err('%s column %d,%d: y%d is %s, not unbreakable rock' % (name, x, z, mw.B, st))
     all_cols = set().union(*mw.MASKS.values())
     for (x, y, z), (st, _) in Wd.items():
-        if y < mw.G - 1 and (x, z) not in all_cols and b(st) != 'holeydigsite:site_marker':
+        if y < mw.G - 1 and (x, z) not in all_cols and (x, z) not in mw.BRIDGE_COLS and b(st) != 'holeydigsite:site_marker':
             err('terrain outside any island mask at %d,%d,%d: %s' % (x, y, z, st))
             break
     for pid in mw.PLOTS:
@@ -112,7 +112,7 @@ def main():
         elif bb.endswith('_fence') and all('%s:false' % d in st for d in ('east', 'north', 'south', 'west')):
             if not mw.structural(below):        # a lone post must stand on something (it may touch a wall, but not hover beside it)
                 err('fence post at %d,%d,%d hovers over %s' % (x, y, z, below))
-        elif bb == 'minecraft:dead_bush' and (not below or not any(s in b(below) for s in ('sand', 'dirt', 'podzol', 'terracotta'))):
+        elif bb == 'minecraft:dead_bush' and (not below or not any(s in b(below) for s in ('sand', 'dirt', 'podzol', 'terracotta', 'pindan', 'hardpan'))):
             err('dead bush at %d,%d,%d not on sand' % (x, y, z))
         elif bb == 'minecraft:sugar_cane':
             if b(below) == 'minecraft:sugar_cane':
@@ -141,6 +141,8 @@ def main():
             if below is None or not mw.full_block(below):
                 err('%s at %d,%d,%d stands on %s' % (bb, x, y, z, below))
     # ---- 5. light
+    X0 = min(0, min(k[0] for k in Wd))
+    Z0 = min(0, min(k[2] for k in Wd))
     light = {}
     q = deque()
     for k, (st, _) in Wd.items():
@@ -155,7 +157,7 @@ def main():
         lv = light[c]
         for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)):
             n = (c[0] + d[0], c[1] + d[1], c[2] + d[2])
-            if not (0 <= n[0] < mw.TW + 4 and -2 <= n[1] < mw.TH + 4 and 0 <= n[2] < mw.TD + 4):
+            if not (X0 - 4 <= n[0] < mw.TW + 4 and -2 <= n[1] < mw.TH + 4 and Z0 - 4 <= n[2] < mw.TD + 4):
                 continue
             st = g(*n)
             if st is not None and mw.full_block(st) and 'glass' not in st and 'leaves' not in st:

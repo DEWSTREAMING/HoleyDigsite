@@ -605,6 +605,31 @@ public class PhaseThirteenTests {
                 .thenSucceed();
     }
 
+    /** Placed the other way round, it pushes out of its back; a crucible there never gets the ingot back. */
+    @GameTest(template = "empty_long", timeoutTicks = 300)
+    public static void castingMoldEjectsBackwardsButNotIntoACrucible(GameTestHelper h) {
+        clear(h);
+        Kit k = kit(h, 4, false, false, true);
+        h.setBlock(k.mold(), h.getBlockState(k.mold()).setValue(CastingMoldBlock.FACING, Direction.EAST)); // front: the forge
+        h.setBlock(k.out(), ModBlocks.CRUCIBLE.get().defaultBlockState().setValue(CrucibleBlock.FACING, Direction.WEST));
+        ServerPlayer p = player(h);
+        cru(h, k).setContents(FOLKIRON, 0, 50);
+        CrucibleBlock.pour(h.getLevel(), h.absolutePos(k.cruc()), h.getBlockState(k.cruc()), p);
+        h.startSequence()
+                .thenExecuteAfter(40, () -> {
+                    check(h, mold(h, k).grams() == 50 && h.getBlockState(k.mold()).getValue(MoldBlock.SOLID), "crucible behind: the ingot stays");
+                    check(h, ((CrucibleBlockEntity) h.getBlockEntity(k.out())).total() == 0, "the crucible behind got nothing");
+                    h.setBlock(k.out(), Blocks.AIR);
+                    belt(h, k.out(), Direction.WEST);
+                })
+                .thenExecuteAfter(25, () -> {
+                    check(h, mold(h, k).isEmpty(), "belt behind: ejected backwards");
+                    check(h, be(h, k.out()).clumpCount() == 1 && be(h, k.out()).items().get(0).is(ModItems.FOLKIRON_INGOT.get()),
+                            "the ingot is on the belt behind: " + be(h, k.out()).items());
+                })
+                .thenSucceed();
+    }
+
     /** Ejects into a Sell Pad too, and keeps the ingot when nothing is in front; clicking still takes it by hand. */
     @GameTest(template = "empty_long", timeoutTicks = 300)
     public static void castingMoldEjectsIntoASellPadOrWaitsForHand(GameTestHelper h) {

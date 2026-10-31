@@ -64,7 +64,7 @@ public class Phase21aTests {
     /** 1. Milestones grant Renown once only, and level-up thresholds follow curve.json. */
     @GameTest(template = "empty")
     public static void milestonesGrantOnceAndCurveMatches(GameTestHelper h) {
-        check(h, LedgerDefs.milestones().size() == 41, "expected 41 milestones, got " + LedgerDefs.milestones().size());
+        check(h, LedgerDefs.milestones().size() == 44, "expected 44 milestones, got " + LedgerDefs.milestones().size());
         check(h, LedgerDefs.levels().size() == 50, "expected 50 levels, got " + LedgerDefs.levels().size());
 
         LedgerDefs.Curve c = LedgerDefs.curve();

@@ -240,6 +240,18 @@ public final class ModBlocks {
     /** {@code holeydigsite:sandrock} acting as unbreakable rock for sand clumps. */
     public static final DeferredBlock<Block> SANDROCK = BLOCKS.registerSimpleBlock("sandrock", rock(MapColor.SAND));
 
+    /** Event rocks (drill base) and filler. */
+    public static final DeferredBlock<Block> RED_DIRT_ROCK = BLOCKS.registerSimpleBlock("red_dirt_rock", rock(MapColor.COLOR_ORANGE));
+    public static final DeferredBlock<Block> MULLOCK_ROCK = BLOCKS.registerSimpleBlock("mullock_rock", rock(MapColor.COLOR_LIGHT_GRAY));
+    public static final DeferredBlock<Block> OPAL_CLAY_ROCK = BLOCKS.registerSimpleBlock("opal_clay_rock", rock(MapColor.COLOR_CYAN));
+    public static final DeferredBlock<Block> HARDPAN = BLOCKS.registerSimpleBlock("hardpan",
+            BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_YELLOW)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .strength(1.5F, 3.0F)
+                    .sound(SoundType.ROOTED_DIRT)
+                    .noLootTable());
+
     private static BlockBehaviour.Properties lamp(MapColor color, SoundType sound) {
         return BlockBehaviour.Properties.of().mapColor(color).strength(0.8F, 3.0F).sound(sound).lightLevel(s -> 15);
     }
@@ -300,6 +312,40 @@ public final class ModBlocks {
             () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.METAL, SoundType.WOOD, 1.5F), "iron_crate"));
     public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> GOLD_CRATE = BLOCKS.register("gold_crate",
             () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.GOLD, SoundType.WOOD, 1.5F), "gold_crate"));
+
+    public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> PROSPECTOR_CRATE = BLOCKS.register("prospector_crate",
+            () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.WOOD, SoundType.WOOD, 1.0F), "prospector_crate"));
+    /** {@code holeydigsite:crate_switch}, the plaque at spawn that turns crates and skins on or off for the player who uses it. */
+    public static final DeferredBlock<com.holeydigsite.crate.CrateSwitchBlock> CRATE_SWITCH = BLOCKS.register("crate_switch",
+            () -> new com.holeydigsite.crate.CrateSwitchBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD)
+                    .strength(2.0F, 5.0F).sound(SoundType.WOOD).noOcclusion()));
+
+    // Event island: red soil, the event store's blocks, its decor and the boards
+    /** {@code holeydigsite:pindan}, the event island's red topsoil. Digs with a shovel, drops nothing. */
+    public static final DeferredBlock<Block> PINDAN = BLOCKS.registerSimpleBlock("pindan",
+            BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_RED).instrument(NoteBlockInstrument.BASEDRUM)
+                    .strength(0.6F, 3.0F).sound(SoundType.ROOTED_DIRT).noLootTable());
+    public static final DeferredBlock<com.holeydigsite.sellpad.EventSellPadBlock> EVENT_SELL_PAD = BLOCKS.register("event_sell_pad",
+            () -> new com.holeydigsite.sellpad.EventSellPadBlock(shopBlock(MapColor.COLOR_ORANGE, SoundType.WOOD)));
+    public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> OUTBACK_CRATE = BLOCKS.register("outback_crate",
+            () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.COLOR_ORANGE, SoundType.WOOD, 1.0F), "outback_crate"));
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> CORRUGATED_IRON_SHEET = BLOCKS.register("corrugated_iron_sheet",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.METAL, SoundType.METAL), com.holeydigsite.block.DecorBlock.Kind.CORRUGATED_IRON_SHEET));
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> LITTLE_WINDMILL = BLOCKS.register("little_windmill",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.METAL, SoundType.METAL), com.holeydigsite.block.DecorBlock.Kind.LITTLE_WINDMILL));
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> UTE_ORE_CART = BLOCKS.register("ute_ore_cart",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.COLOR_RED, SoundType.METAL), com.holeydigsite.block.DecorBlock.Kind.UTE_ORE_CART));
+    public static final DeferredBlock<com.holeydigsite.block.DecorBlock> SOUTHERN_CROSS_BANNER = BLOCKS.register("southern_cross_banner",
+            () -> new com.holeydigsite.block.DecorBlock(decor(MapColor.COLOR_BLUE, SoundType.WOOL), com.holeydigsite.block.DecorBlock.Kind.SOUTHERN_CROSS_BANNER));
+    public static final DeferredBlock<com.holeydigsite.block.TrophyStandBlock> WELCOME_STRANGER_STAND = BLOCKS.register("welcome_stranger_stand",
+            () -> new com.holeydigsite.block.TrophyStandBlock(decor(MapColor.WOOD, SoundType.WOOD)));
+    /** {@code holeydigsite:event_board} (event store) and {@code holeydigsite:leaderboard} (Trading Post), unbreakable. */
+    public static final DeferredBlock<com.holeydigsite.board.ScoreBoardBlock> EVENT_BOARD = BLOCKS.register("event_board",
+            () -> new com.holeydigsite.board.ScoreBoardBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD)
+                    .strength(-1.0F, 3600000.0F).sound(SoundType.WOOD).noOcclusion(), com.holeydigsite.board.ScoreBoardBlock.Kind.EVENT));
+    public static final DeferredBlock<com.holeydigsite.board.ScoreBoardBlock> LEADERBOARD = BLOCKS.register("leaderboard",
+            () -> new com.holeydigsite.board.ScoreBoardBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD)
+                    .strength(-1.0F, 3600000.0F).sound(SoundType.WOOD).noOcclusion(), com.holeydigsite.board.ScoreBoardBlock.Kind.WORLD));
 
     /** {@code holeydigsite:plot_board} for land plot status. */
     public static final DeferredBlock<com.holeydigsite.plot.PlotBoardBlock> PLOT_BOARD = BLOCKS.register("plot_board",

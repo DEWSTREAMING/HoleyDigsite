@@ -96,6 +96,75 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     public Stats stats() {
         return stats;
     }
+
+    // ------------------------------------------------------------------------------------------------
+    // Layout hooks: the Starter sluice is one block, the long sluice (LongSluiceBlock) overrides these
+    // ------------------------------------------------------------------------------------------------
+
+    /** The block that holds the block entity: this one, or the back part of a long sluice. */
+    public BlockPos entityPos(BlockPos pos, BlockState state) {
+        return pos;
+    }
+
+    /** Every block of the sluice, from the entity part's position. */
+    public List<BlockPos> allParts(BlockPos entityPos, BlockState state) {
+        return List.of(entityPos);
+    }
+
+    /** True for the part that holds the block entity, the inserts and the contents. */
+    protected boolean isEntityPart(BlockState state) {
+        return true;
+    }
+
+    /** The block entity of the sluice that owns the block at {@code pos}, whichever part it is. */
+    @Nullable
+    public static SluiceBoxBlockEntity entityAt(BlockGetter level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof SluiceBoxBlock block) {
+            return level.getBlockEntity(block.entityPos(pos, state)) instanceof SluiceBoxBlockEntity e ? e : null;
+        }
+        return null;
+    }
+
+    /** The block the tray empties into, seen from the block entity's position. */
+    public BlockPos trayOutputPos(BlockPos pos, BlockState state) {
+        return pos.relative(state.getValue(FACING));
+    }
+
+    /** True if a belt right after this block takes the tray's items (and so connects to it). */
+    public boolean feedsForward(BlockState state) {
+        return true;
+    }
+
+    /** Insert slots: one for the Starter sluice. */
+    public int insertSlots() {
+        return 1;
+    }
+
+    /** The inserts in the sluice, in the order they went in. */
+    public List<SluiceUpgrade> inserts(BlockState state) {
+        SluiceUpgrade u = state.getValue(UPGRADE);
+        return u == SluiceUpgrade.NONE ? List.of() : List.of(u);
+    }
+
+    /** {@code state} with exactly these inserts. */
+    protected BlockState withInserts(BlockState state, List<SluiceUpgrade> list) {
+        return state.setValue(UPGRADE, list.isEmpty() ? SluiceUpgrade.NONE : list.get(0));
+    }
+
+    /** Sets the state of the sluice (all its parts, for a long one) from the entity part's new state. */
+    protected void placeState(Level level, BlockPos entityPos, BlockState newState, int flags) {
+        level.setBlock(entityPos, newState, flags);
+    }
+
+    /** True if a player may put clumps in by hand at this part. */
+    protected boolean takesHandClumps(BlockState state) {
+        return true;
+    }
+
+    protected String portsTooltipKey() {
+        return "tooltip.holeydigsite.sluice_box.ports";
+    }
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<SluiceStatus> STATUS = EnumProperty.create("status", SluiceStatus.class);
     /** Indicates if clumps are queued and the dirt layer on the ramp is visible. */
@@ -188,6 +257,11 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
      * Updates status and dirt layer from power, tray, and queue states.
      */
     public void refreshStatus(Level level, BlockPos pos, BlockState state) {
+        BlockPos entity = entityPos(pos, state);
+        if (!entity.equals(pos)) {
+            pos = entity;
+            state = level.getBlockState(pos);
+        }
         if (level.isClientSide || !(level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice) || !state.is(this)) {
             return;
         }
@@ -209,7 +283,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         }
         BlockState updated = state.setValue(STATUS, next).setValue(DIRT, sluice.queued() > 0);
         if (updated != state) {
-            level.setBlock(pos, updated, Block.UPDATE_CLIENTS);
+            placeState(level, pos, updated, Block.UPDATE_CLIENTS);
         }
     }
 
@@ -292,15 +366,16 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
-            if (!level.isClientSide && level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice) {
+            if (!level.isClientSide && isEntityPart(state) && level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice
+                    && !sluice.refunded()) {
                 for (ItemStack s : sluice.queuedAsItems()) {
                     Block.popResource(level, pos, s);
                 }
                 for (ItemStack s : sluice.takeTray()) {
                     Block.popResource(level, pos, s);
                 }
-                if (state.getValue(UPGRADE) != SluiceUpgrade.NONE) {
-                    Block.popResource(level, pos, new ItemStack(state.getValue(UPGRADE).item()));
+                for (SluiceUpgrade u : inserts(state)) {
+                    Block.popResource(level, pos, new ItemStack(u.item()));
                 }
             }
             WaterNetworks.markDirty(level, pos);
@@ -315,14 +390,34 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
     @Override
     public boolean canAcceptClump(Level level, BlockPos pos, BlockState state, Direction from, int tier) {
         return (from == state.getValue(FACING).getOpposite() || from == Direction.UP)
-                && level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice && sluice.hasQueueRoom();
+                && entityAt(level, pos) instanceof SluiceBoxBlockEntity sluice && sluice.hasQueueRoom();
     }
 
     @Override
     public void acceptClump(Level level, BlockPos pos, BlockState state, Direction from, int tier) {
-        if (level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice && sluice.addClumps(1, tier) > 0) {
+        if (entityAt(level, pos) instanceof SluiceBoxBlockEntity sluice && sluice.addClumps(1, tier) > 0) {
             refreshStatus(level, pos, level.getBlockState(pos));
         }
+    }
+
+    /** A locked crate from a drill or belt goes through to the tray untouched. */
+    @Override
+    public boolean canAcceptItem(Level level, BlockPos pos, BlockState state, Direction from, ItemStack one) {
+        if (one.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof com.holeydigsite.crate.CrateBlock) {
+            return canAcceptClump(level, pos, state, from, 1) && entityAt(level, pos) instanceof SluiceBoxBlockEntity s && !s.isTrayFull();
+        }
+        return DirtClumpTarget.super.canAcceptItem(level, pos, state, from, one);
+    }
+
+    @Override
+    public void acceptItem(Level level, BlockPos pos, BlockState state, Direction from, ItemStack one) {
+        if (one.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof com.holeydigsite.crate.CrateBlock) {
+            if (entityAt(level, pos) instanceof SluiceBoxBlockEntity s) {
+                s.addToTray(one.copyWithCount(1));
+            }
+            return;
+        }
+        DirtClumpTarget.super.acceptItem(level, pos, state, from, one);
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -336,11 +431,21 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         if (upgrade != SluiceUpgrade.NONE) {
             return installUpgrade(upgrade, stack, state, level, pos, player);
         }
-        if (!DirtTier.isClump(stack) || !(level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice)) {
+        if (!DirtTier.isClump(stack)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (!takesHandClumps(state)) {
+            if (!level.isClientSide) {
+                player.displayClientMessage(Component.translatable("message.holeydigsite.sluice.use_chute"), true);
+            }
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        }
+        BlockPos entity = entityPos(pos, state);
+        if (!(level.getBlockEntity(entity) instanceof SluiceBoxBlockEntity sluice)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         if (!level.isClientSide) {
-            int added = sluice.addClumps(player.isShiftKeyDown() ? stack.getCount() : 1, DirtTier.ofClump(stack));
+            int added = sluice.addClumps(player.isShiftKeyDown() ? stack.getCount() : 1, DirtTier.panKind(stack));
             if (sluice.owner() == null && player instanceof net.minecraft.server.level.ServerPlayer sp) sluice.setOwnerPlayer(sp);
             if (added == 0) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.sluice_full"), true);
@@ -349,19 +454,31 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
             stack.consume(added, player);
             level.playSound(null, pos, SoundEvents.ROOTED_DIRT_PLACE, SoundSource.BLOCKS, 0.7F, 1.0F);
             level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-            refreshStatus(level, pos, state);
+            refreshStatus(level, entity, level.getBlockState(entity));
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Installs an upgrade item into the single slot. Public for tests. */
+    /** Installs an insert into a free slot. Public for tests; {@code pos} may be any part. */
     public ItemInteractionResult installUpgrade(SluiceUpgrade upgrade, ItemStack stack, BlockState state, Level level, BlockPos pos, Player player) {
+        BlockPos entity = entityPos(pos, state);
+        if (!entity.equals(pos)) {
+            pos = entity;
+            state = level.getBlockState(pos);
+        }
         if (!level.isClientSide) {
-            if (state.getValue(UPGRADE) != SluiceUpgrade.NONE) {
+            List<SluiceUpgrade> have = inserts(state);
+            if (have.contains(upgrade)) {
+                player.displayClientMessage(Component.translatable("message.holeydigsite.sluice.upgrade_same").withStyle(ChatFormatting.RED), true);
+                return ItemInteractionResult.CONSUME;
+            }
+            if (have.size() >= insertSlots()) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.sluice.upgrade_full").withStyle(ChatFormatting.RED), true);
                 return ItemInteractionResult.CONSUME;
             }
-            level.setBlock(pos, state.setValue(UPGRADE, upgrade), Block.UPDATE_ALL);
+            List<SluiceUpgrade> next = new java.util.ArrayList<>(have);
+            next.add(upgrade);
+            placeState(level, pos, withInserts(state, next), Block.UPDATE_ALL);
             if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
                 com.holeydigsite.ledger.ModTriggers.UPGRADE_INSTALLED.get().trigger(
                         sp, net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(upgrade.item()));
@@ -378,10 +495,19 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Removes the installed upgrade. Public for tests. */
+    /** Takes the last insert out and gives it back. Public for tests; {@code pos} may be any part. */
     public void removeUpgrade(BlockState state, Level level, BlockPos pos, Player player) {
-        SluiceUpgrade upgrade = state.getValue(UPGRADE);
-        level.setBlock(pos, state.setValue(UPGRADE, SluiceUpgrade.NONE), Block.UPDATE_ALL);
+        BlockPos entity = entityPos(pos, state);
+        if (!entity.equals(pos)) {
+            pos = entity;
+            state = level.getBlockState(pos);
+        }
+        List<SluiceUpgrade> have = new java.util.ArrayList<>(inserts(state));
+        if (have.isEmpty()) {
+            return;
+        }
+        SluiceUpgrade upgrade = have.remove(have.size() - 1);
+        placeState(level, pos, withInserts(state, have), Block.UPDATE_ALL);
         ItemStack back = new ItemStack(upgrade.item());
         if (!player.getInventory().add(back)) {
             player.drop(back, false);
@@ -396,11 +522,13 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         if (!player.getMainHandItem().isEmpty()) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide && player.isShiftKeyDown() && state.getValue(UPGRADE) != SluiceUpgrade.NONE) {
-            removeUpgrade(state, level, pos, player);
+        BlockPos entity = entityPos(pos, state);
+        BlockState eState = entity.equals(pos) ? state : level.getBlockState(entity);
+        if (!level.isClientSide && player.isShiftKeyDown() && !inserts(eState).isEmpty()) {
+            removeUpgrade(eState, level, entity, player);
             return InteractionResult.SUCCESS;
         }
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof SluiceBoxBlockEntity sluice) {
+        if (!level.isClientSide && level.getBlockEntity(entity) instanceof SluiceBoxBlockEntity sluice) {
             if (sluice.owner() == null && player instanceof net.minecraft.server.level.ServerPlayer sp) {
                 sluice.setOwnerPlayer(sp);
             }
@@ -413,8 +541,8 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
             if (!items.isEmpty()) {
                 level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.4F, 1.0F);
             }
-            refreshStatus(level, pos, state);
-            BlockState now = level.getBlockState(pos);
+            refreshStatus(level, entity, eState);
+            BlockState now = level.getBlockState(entity);
             player.displayClientMessage(statusMessage(now, sluice), true);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
@@ -437,7 +565,7 @@ public class SluiceBoxBlock extends BaseEntityBlock implements WaterNetworkBlock
         super.appendHoverText(stack, context, tooltip, flag);
         String key = "tooltip." + net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(this).toLanguageKey();
         tooltip.add(Component.translatable(key).withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("tooltip.holeydigsite.sluice_box.ports").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable(portsTooltipKey()).withStyle(ChatFormatting.DARK_GRAY));
     }
 
     // ------------------------------------------------------------------------------------------------

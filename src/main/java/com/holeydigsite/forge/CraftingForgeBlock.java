@@ -546,6 +546,7 @@ public class CraftingForgeBlock extends BaseEntityBlock implements WaterNetworkB
             case CHUNK -> "message.holeydigsite.crafting_forge.chunk";
             case DIRTY -> "message.holeydigsite.crafting_forge.dirty";
             case FULL -> "message.holeydigsite.crafting_forge.full";
+            case EVENT_ITEM -> "message.holeydigsite.crafting_forge.refused_event";
             default -> "message.holeydigsite.crafting_forge.refused";
         };
         msg(player, key, ChatFormatting.RED);

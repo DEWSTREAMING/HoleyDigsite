@@ -48,7 +48,8 @@ AIR = 'minecraft:air'
 # squashed them). deep_dig v3: the crane stands on the island (v2's post hung over the void).
 # home v3, gravel_flats v3, sand_dunes v4: air slits under ground-level blocks filled (Trading Post corner, kiosk foundation). Older structure files are kept.
 VERSIONS = {'home': 4, 'deep_dig': 4, 'gravel_flats': 4, 'sand_dunes': 5,
-            'deep_dig_shop': 2, 'gravel_flats_shop': 2, 'sand_dunes_shop': 2}
+            'deep_dig_shop': 2, 'gravel_flats_shop': 2, 'sand_dunes_shop': 2,
+            'event_shop': 1, 'event_frame': 1, 'event_sections': 1}
 # Sites whose structure was built by hand in-game and exported with /holeydigsite site export (see the dev guide): the
 # generator still designs the rest of the world and writes their site json, but never writes their structure or layout.
 HAND_BUILT = set()          # e.g. {'home'} once data/holeydigsite/structure/store/home_v2.nbt is a hand-made design
@@ -79,8 +80,12 @@ HOME_ROWS = {   # row name -> items in slot order (None = empty display, kept fo
                  'holeydigsite:crucible', 'holeydigsite:mold'],
     'crafting': ['minecraft:bread', 'holeydigsite:smithing_anvil', 'holeydigsite:crafting_forge', 'holeydigsite:blacksmith_hammer', 'holeydigsite:prospectors_ledger', 'holeydigsite:skin_bench'],
     'land':     ['holeydigsite:land_deed_deep_dig', 'holeydigsite:land_deed_gravel_flats', 'holeydigsite:land_deed_sand_dunes'],
-    'crates':   ['holeydigsite:wooden_crate', 'holeydigsite:iron_crate', 'holeydigsite:gold_crate'],
+    'crates':   ['holeydigsite:bolt_cutters'],
 }
+# event kiosk display slots 1-12 (10-12 free for later)
+EVENT_KIOSK_ITEMS = ['holeydigsite:land_deed_event_t1', 'holeydigsite:land_deed_event_t2', 'holeydigsite:land_deed_event_t3',
+                     'holeydigsite:outback_crate', 'holeydigsite:corrugated_iron_sheet', 'holeydigsite:little_windmill',
+                     'holeydigsite:ute_ore_cart', 'holeydigsite:southern_cross_banner', 'holeydigsite:welcome_stranger_stand']
 KIOSK_ITEMS = {
     'deep_dig': ['holeydigsite:dirt_clump', 'holeydigsite:mining_drill', 'holeydigsite:miners_lantern', 'holeydigsite:water_intake',
                  'holeydigsite:water_pipe', 'holeydigsite:clump_belt', 'holeydigsite:prospectors_pick'],
@@ -113,7 +118,7 @@ LIGHTS_NOTE = []
 
 
 def put(x, y, z, state, nbt=None):
-    if 0 <= x < TW and 0 <= y < TH and 0 <= z < TD:
+    if (0 <= x < TW and 0 <= y < TH and 0 <= z < TD) or (EV_PUT[0] and inside(EV_FRAME, x, y, z)):
         if state is None:
             W.pop((x, y, z), None)
         else:
@@ -490,7 +495,7 @@ def settle_floating(max_drop=4, passes=6):
         changed = False
         for grp in detached_groups():
             cells = set(grp)
-            if any(inside(kiosk_box(pid), *c) for pid in PLOTS for c in cells):
+            if any(inside(kiosk_box(pid), *c) for pid in PLOTS for c in cells) or any(inside(ev_kiosk_box(), *c) for c in cells):
                 continue                      # kiosks are designed to stand on their own (see build_kiosk), never settled
             if any(structural(get(*n)) and n not in cells and not ('leaves' in get(*n) and any('leaves' in W[c][0] for c in cells))
                    for c in cells for d in DIRS26 if d not in DIRS for n in [(c[0] + d[0], c[1] + d[1], c[2] + d[2])]):
@@ -924,6 +929,10 @@ def build_store():
         disp(22, lz, cz, 'crates')
     # Contract Board on the west wall, right of the door (old worlds get it placed into air on load)
     L(6, FL + 2, 12, 'holeydigsite:contract_board{facing:east}')
+    # World Leaderboard on the same wall, left of the door (old worlds get it the same way)
+    L(6, FL + 2, 8, 'holeydigsite:leaderboard{facing:east}')
+    # Crate Switch on the east wall above the Skin Bench (old worlds get it placed into air on load)
+    L(22, FL + 3, 7, 'holeydigsite:crate_switch{facing:west}')
     # ---- outside: yard, wood pile, cart wheel, lantern posts, flower beds
     for lx in range(X0 + 1, X1, 3):
         pass
@@ -1622,6 +1631,362 @@ def build_kiosk(pid):
     stamp(loc, KIOSK, (ox + kx0, oy + ky0, oz + kz0), facing)
 
 
+# ================================================================================================ EVENT ISLAND
+# Its own island north of the home island, on its own bridge. Placed by the mod (not part of the pack template), relative to the
+# home site's anchor, so old worlds get it too. Three tier sections (each its own plot with a deed), the event kiosk, and a frame
+# (everything else) that is placed once. Section structures are per event: their rock pockets come from the event's seed.
+EVENTS_DIR = os.path.join(DATA, 'events')
+BEDROCK = 'minecraft:bedrock'
+HARDPAN = 'holeydigsite:hardpan'
+PINDAN = 'holeydigsite:pindan'
+ROCKS.add(BEDROCK)
+EV_SECTION = (25, 32, 25)
+EV_SECTIONS = {1: (-2, 0, -42), 2: (-29, 0, -42), 3: (25, 0, -42)}     # tier -> anchor (template coordinates)
+EV_FRAME = (-31, 0, -42, 51, 31, -1)                                     # frame zone (island + its bridge)
+EV_KIOSK_AT = (13, 7, -16)                                               # kiosk anchor; it faces west onto the main path
+EV_KIOSK = (7, 11, 9)                                                    # world-axis size (built 9 wide x 7 deep, turned)
+EV_BOARD = (12, G + 2, -8)                                               # event board on the kiosk's front corner post, by the gate
+EV_SEC_BOARD = (12, G + 1, 24)                                           # section-local board, at the gate (south edge)
+EV_CHESTS = [(lx, G + 1, 24) for lx in list(range(2, 12)) + list(range(13, 23))]   # where a rebuild puts players' things
+# pockets per tier: (count, min size, max size)
+EV_POCKETS = {1: (16, 4, 8), 2: (10, 3, 6), 3: (6, 2, 4)}
+DIG_SECONDS = {'pindan': 0.4, 'hardpan': 1.15}   # wooden shovel; walking to the next spot below
+MOVE_SECONDS = 1.5
+EV_PARTS = {}      # what the last build put where: 'pockets' {tier: [cells]}, 'event' id
+EV_PUT = [False]   # put() accepts coordinates outside the template only while the event island is being built
+
+
+def ev_box(tier):
+    ax, ay, az = EV_SECTIONS[tier]
+    return (ax, ay, az, ax + EV_SECTION[0] - 1, ay + EV_SECTION[1] - 1, az + EV_SECTION[2] - 1)
+
+
+def ev_kiosk_box():
+    ax, ay, az = EV_KIOSK_AT
+    return (ax, ay, az, ax + EV_KIOSK[0] - 1, ay + EV_KIOSK[1] - 1, az + EV_KIOSK[2] - 1)
+
+
+def ev_active():
+    with open(os.path.join(EVENTS_DIR, 'index.json'), encoding='utf-8') as f:
+        eid = json.load(f)['active']
+    with open(os.path.join(EVENTS_DIR, eid + '.json'), encoding='utf-8') as f:
+        return json.load(f)
+
+
+def ev_mask(x, z):
+    """Rounded rectangle with a wobbly edge; the bridge landing is always ground."""
+    x0, z0, x1, z1 = EV_FRAME[0], EV_FRAME[2], EV_FRAME[3], -5
+    if not (x0 <= x <= x1 and z0 <= z <= z1):
+        return False
+    if 7 <= x <= 11 and z >= -6:
+        return True
+    r = 6.0 + 1.5 * h01(x // 3, z // 3, 91)
+    cx = min(max(x, x0 + r), x1 - r)
+    cz = min(max(z, z0 + r), z1 - r)
+    return math.hypot(x - cx, z - cz) <= r + 0.35 * math.sin(x * 0.7 + z * 0.4)
+
+
+def ev_pockets(seed, tier, mask):
+    import random
+    rnd = random.Random(seed * 1000 + tier)
+    n, smin, smax = EV_POCKETS[tier]
+    ax, _, az = EV_SECTIONS[tier]
+    pockets, tries = [], 0
+    while len(pockets) < n and tries < 20000:
+        tries += 1
+        lx, lz = rnd.randint(3, 21), rnd.randint(3, 19)
+        if any(max(abs(lx - p[0][0]), abs(lz - p[0][2])) < 4 for p in pockets):
+            continue
+        top = rnd.randint(B + 1, G - 2)
+        size = rnd.randint(smin, smax)
+        cells, guard = [(lx, top, lz)], 0
+        while len(cells) < size and guard < 200:
+            guard += 1
+            c = rnd.choice(cells)
+            d = rnd.choice(((1, 0, 0), (-1, 0, 0), (0, 0, 1), (0, 0, -1), (0, -1, 0)))
+            nc = (c[0] + d[0], c[1] + d[1], c[2] + d[2])
+            if nc[1] < B + 1 or nc in cells or not (2 <= nc[0] <= 22 and 2 <= nc[2] <= 20):
+                continue
+            cells.append(nc)
+        if any(edge_dist(mask, ax + c[0], az + c[2], 3) < 3 for c in cells):
+            continue
+        pockets.append(cells)
+    return pockets
+
+
+def ev_column(x, z, h, top):
+    """Event island column: red rock underside, bedrock, Hardpan, `top` at h."""
+    for i in range(1, 4):
+        y = B - i
+        if i > 1 and h01(x, z, 7 + i) < 0.25 * i:
+            break
+        r = h01(x, y, z, 5)
+        put(x, y, z, 'minecraft:red_terracotta' if r < 0.4 else 'minecraft:terracotta' if r < 0.7 else 'minecraft:granite'
+            if r < 0.9 else 'minecraft:orange_terracotta')
+    put(x, B, z, BEDROCK)
+    for y in range(B + 1, h):
+        put(x, y, z, HARDPAN)
+    if top is not None:
+        put(x, h, z, top)
+
+
+def build_event_section(tier, event, mask, heights):
+    """One tier section: Hardpan with pockets of the tier's rock, Pindan on top, scrub, termite mounds, its board, lights."""
+    import random
+    ax, ay, az = EV_SECTIONS[tier]
+    rock = next(t['rock'] for t in event['tiers'] if t['tier'] == tier)
+    chest_cols = {(lx, lz) for (lx, ly, lz) in EV_CHESTS}
+    for lx in range(EV_SECTION[0]):
+        for lz in range(EV_SECTION[2]):
+            x, z = ax + lx, az + lz
+            if not mask(x, z):
+                continue
+            h = heights[(x, z)]
+            ev_column(x, z, h, PINDAN)
+            if (lx, lz) in chest_cols or (lx, lz) == (EV_SEC_BOARD[0], EV_SEC_BOARD[2]) or lz >= 22:
+                continue
+            if h01(x, z, 40 + tier) < 0.06:
+                put(x, h + 1, z, 'minecraft:dead_bush')
+    pockets = ev_pockets(event['seed'], tier, mask)
+    for cells in pockets:
+        for (lx, y, lz) in cells:
+            put(ax + lx, y, az + lz, rock)
+    EV_PARTS.setdefault('pockets', {})[tier] = [[(ax + c[0], c[1], az + c[2]) for c in cells] for cells in pockets]
+    rnd = random.Random(event['seed'] * 31 + tier)        # termite mounds
+    for _ in range(4):
+        lx, lz = rnd.randint(2, 22), rnd.randint(2, 19)
+        x, z = ax + lx, az + lz
+        if mask(x, z) and edge_dist(mask, x, z, 2) >= 2:
+            for i in range(1, rnd.randint(2, 3) + 1):
+                put(x, heights[(x, z)] + i, z, PINDAN)
+    bx, by, bz = EV_SEC_BOARD
+    nbt = '{id:"holeydigsite:plot_board",Plot:"event_t%d",Min:[I;%d,%d,%d],Max:[I;%d,%d,%d]}' % (
+        tier, -bx, -by, -bz, EV_SECTION[0] - 1 - bx, EV_SECTION[1] - 1 - by, EV_SECTION[2] - 1 - bz)
+    put(ax + bx, by, az + bz, 'holeydigsite:plot_board{facing:south,owned:false}', nbt)
+    for lx in range(2, 25, 5):
+        for lz in range(2, 25, 5):
+            x, z = ax + lx, az + lz
+            if (x, z) not in heights:
+                continue
+            y = heights[(x, z)] + 4
+            while get(x, y, z) is not None:
+                y += 1
+            put(x, y, z, LIGHT)
+
+
+def build_event_kiosk():
+    """The event store: 9 wide, 7 deep, built facing north and turned to face west. Event Sell Pad, button, Buy Pad, Money Pan,
+    12 displays, waxed rusty-iron roof."""
+    loc = {}
+
+    def K(kx, ky, kz, st, nbt=None):
+        if st is None:
+            loc.pop((kx, ky, kz), None)
+        else:
+            loc[(kx, ky, kz)] = (st, nbt)
+    wood, post, counter = 'minecraft:acacia_planks', log('stripped_acacia_log'), log('stripped_acacia_log', 'x')
+    roof_a, roof_b = 'minecraft:waxed_exposed_cut_copper', 'minecraft:waxed_cut_copper'
+    for kx in range(9):
+        for kz in range(7):
+            K(kx, 0, kz, 'minecraft:red_sandstone')
+            K(kx, 1, kz, 'minecraft:red_sandstone')
+            K(kx, 2, kz, wood if 0 < kx < 8 and kz > 0 else 'minecraft:cut_red_sandstone')
+    for (kx, kz) in ((0, 0), (8, 0), (0, 6), (8, 6)):
+        for ky in range(3, 6):
+            K(kx, ky, kz, post)
+    for kx in range(1, 8):
+        K(kx, 3, 6, wood)
+    for kz in range(1, 6):
+        for kx in (0, 8):
+            K(kx, 3, kz, wood)
+    slots = [(kx, 5) for kx in range(1, 8)] + [(1, 4), (1, 3), (1, 2), (7, 4), (7, 3)]
+    for (kx, kz) in slots:
+        K(kx, 3, kz, counter)
+    for i, (kx, kz) in enumerate(slots):
+        K(kx, 4, kz, 'holeydigsite:shop_display', '{id:"holeydigsite:shop_display",Slot:%d}' % (i + 1))
+    K(3, 3, 2, 'holeydigsite:event_sell_pad{locked:true}')
+    K(4, 3, 2, 'holeydigsite:shop_button{locked:true,pressed:false}')
+    K(5, 3, 2, 'holeydigsite:buy_pad{locked:true}')
+    K(4, 3, 3, 'holeydigsite:money_pan{locked:true,pile:0}')
+    for kx in range(9):
+        for kz in range(7):
+            y = 6 + (1 if kz >= 3 else 0) + (1 if kz >= 6 else 0)
+            K(kx, y, kz, stairs('waxed_exposed_cut_copper', 'south') if kz in (0, 3) else roof_a if kx % 2 == 0 else roof_b)
+    for kx in (0, 8):
+        for kz in range(1, 6):
+            for ky in range(4, 6 + (1 if kz >= 3 else 0)):
+                K(kx, ky, kz, wood)
+    for kx in range(1, 8):
+        for ky in range(4, 8):
+            K(kx, ky, 6, wood)
+    K(4, 5, 3, 'minecraft:lantern{hanging:true,waterlogged:false}')
+    roof = {c: v for c, v in loc.items() if c[1] >= 6 and (base(v[0]) in (roof_a, roof_b) or base(v[0]).endswith('_stairs'))}
+    for (kx, ky, kz), (st, _) in sorted(roof.items()):
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            if (kx + dx, ky - 1, kz + dz) in roof and (kx, ky - 1, kz) not in loc and (kx + dx, ky, kz + dz) not in loc:
+                K(kx, ky - 1, kz, roof_a if base(st).endswith('_stairs') else st)
+    K(4, 4, 1, LIGHT)
+    K(4, 5, 0, 'minecraft:acacia_hanging_sign{attached:false,rotation:8,waterlogged:false}',
+      hanging_sign_nbt(['Outback', 'Event Store'], 'black'))
+    ax, ay, az = EV_KIOSK_AT
+    clear(*ev_kiosk_box())
+    for (kx, ky, kz), (st, nbt) in loc.items():
+        put(ax + kz, ay + ky, az + (8 - kx), rot_state(st, 3), nbt)
+
+
+def build_event_island(event=None):
+    event = event or ev_active()
+    EV_PARTS.clear()
+    EV_PARTS['event'] = event['id']
+    EV_PUT[0] = True
+    try:
+        _build_event_island(event)
+    finally:
+        EV_PUT[0] = False
+
+
+def _build_event_island(event):
+    mask = ev_mask
+    x0, _, z0, x1, _, z1 = EV_FRAME
+    cols = {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1) if mask(x, z)}
+    MASKS['event'] = cols
+    kb = ev_kiosk_box()
+    sections = {t: ev_box(t) for t in EV_SECTIONS}
+
+    def in_section(x, z):
+        return any(b[0] <= x <= b[3] and b[2] <= z <= b[5] for b in sections.values())
+    # paths: main (bridge to the Tier 1 gate), west to Tier 2, east (south of the kiosk) to Tier 3
+    path = {(x, z) for x in range(8, 11) for z in range(-17, -4)}
+    path |= {(x, z) for x in range(-18, 9) for z in (-12, -11)} | {(x, z) for x in (-18, -17, -16) for z in range(-17, -10)}
+    path |= {(x, z) for x in range(11, 39) for z in (-7, -6)} | {(x, z) for x in (36, 37, 38) for z in range(-17, -5)}
+    pts = [(-31, -8), (-25, -9), (-20, -10), (-14, -14), (-8, -15), (-3, -13), (2, -15)]    # dry creek
+
+    def creek_d(x, z):
+        best = 99
+        for (a, b), (c, d) in zip(pts, pts[1:]):
+            vx, vz = c - a, d - b
+            t = max(0, min(1, ((x - a) * vx + (z - b) * vz) / float(vx * vx + vz * vz)))
+            best = min(best, math.hypot(x - (a + t * vx), z - (b + t * vz)))
+        return best
+    creek = {(x, z) for (x, z) in cols if creek_d(x, z) <= 1.0 and not in_section(x, z) and (x, z) not in path}
+    landing = {(x, z) for x in range(7, 12) for z in (-6, -5)}
+    heights = {}
+    for (x, z) in cols:
+        h = G if (x, z) in landing else soften(G, edge_dist(mask, x, z, 3))
+        if (x, z) in creek:
+            h = min(h, G - 1)
+        heights[(x, z)] = h
+    for (x, z) in cols:
+        if in_section(x, z):
+            continue
+        h = heights[(x, z)]
+        if (x, z) in landing:          # steps up from the bridge deck (y 7) to the ground
+            ev_column(x, z, G - (2 if z == -5 else 1), 'minecraft:packed_mud')
+            put(x, G - (1 if z == -5 else 0), z, stairs('mud_brick', 'north'))
+            continue
+        if (x, z) in creek:
+            r = h01(x, z, 61)
+            top = 'minecraft:smooth_sandstone' if r < 0.5 else 'minecraft:sandstone' if r < 0.8 else 'minecraft:cobblestone'
+        elif (x, z) in path:
+            top = 'minecraft:packed_mud'
+        else:
+            top = PINDAN
+        ev_column(x, z, h, top)
+        if top == PINDAN and not inside(kb, x, h + 1, z) and h01(x, z, 62) < (0.18 if creek_d(x, z) < 2.6 else 0.05):
+            put(x, h + 1, z, 'minecraft:dead_bush')
+    for t in EV_SECTIONS:
+        build_event_section(t, event, mask, heights)
+    for x in (7, 11):                   # gate over the main path
+        for y in range(G + 1, G + 5):
+            put(x, y, -7, log('stripped_acacia_log'))
+    for x in range(7, 12):
+        put(x, G + 5, -7, log('acacia_log', 'x'))
+    put(9, G + 4, -7, 'minecraft:acacia_hanging_sign{attached:false,rotation:0,waterlogged:false}',
+        hanging_sign_nbt(['Event Plot', 'Diggings'], 'black'))
+    wx, wz = -22, -14                   # windmill (a farm windpump) and its tank
+    hub = G + 9
+    for y in range(heights[(wx, wz)] + 1, hub):
+        put(wx, y, wz, 'minecraft:spruce_fence')
+    put(wx, hub, wz, 'minecraft:iron_block')
+    put(wx, hub, wz - 1, 'minecraft:iron_block')
+    for d in (1, 2):
+        for dx, dy in ((d, 0), (-d, 0), (0, d), (0, -d)):
+            put(wx + dx, hub + dy, wz - 1, 'minecraft:light_gray_concrete')
+    put(wx, hub, wz + 1, 'minecraft:iron_block')
+    put(wx, hub, wz + 2, 'minecraft:iron_block')
+    put(wx, hub + 1, wz + 2, 'minecraft:light_gray_concrete')
+    for dx in (2, 3):
+        for dz in (0, 1):
+            for y in (G + 1, G + 2):
+                put(wx + dx, y, wz + dz, 'minecraft:light_gray_terracotta')
+    put(wx + 1, G + 1, wz + 1, 'minecraft:cauldron')
+    for (tx, tz, hh) in ((-27, -15, 5), (-6, -9, 6), (27, -14, 5), (46, -10, 5), (-12, -16, 4)):   # ghost gums
+        if (tx, tz) in cols and (tx, tz) not in path and (tx, tz) not in creek and not in_section(tx, tz):
+            put(tx, heights[(tx, tz)] + 1, tz, None)
+            tree(tx, heights[(tx, tz)] + 1, tz, 'birch', hh, seed=tx)
+    build_event_kiosk()
+    put(EV_BOARD[0], EV_BOARD[1], EV_BOARD[2], 'holeydigsite:event_board{facing:west}')
+    for x in range(x0 + 1, x1 + 1, 5):  # lights over the frame
+        for z in range(z0 + 2, z1 + 1, 5):
+            if (x, z) not in cols or in_section(x, z):
+                continue
+            y = heights[(x, z)] + 4
+            while get(x, y, z) is not None:
+                y += 1
+            if not inside(kb, x, y, z):
+                put(x, y, z, LIGHT)
+    for (x, z) in ((wx, wz - 3), (-17, -15), (37, -16), (9, -16), (wx, wz)):
+        y = heights.get((x, z), G) + 4
+        while get(x, y, z) is not None:
+            y += 1
+        put(x, y, z, LIGHT)
+    bridge(7, -4, 11, -1, G - 2, 'z')
+
+
+def ev_frame_chests(n=24):
+    """Free ground spots east of the kiosk where a whole-island rebuild puts players' things from the frame."""
+    out = []
+    for x in range(20, 35):
+        for z in range(-15, -8):
+            if base(get(x, G, z) or '') == PINDAN and get(x, G + 1, z) is None and get(x, G + 2, z) is None:
+                out.append((x, G + 1, z))
+    out.sort(key=lambda c: (abs(c[0] - 20) + abs(c[2] + 12), c))
+    return out[:n]
+
+
+def event_report():
+    """Rock blocks, pockets, drill spots and the expected minutes to a first node per section (digging random columns straight
+    down with a wooden shovel)."""
+    import random
+    out = {}
+    for t, pockets in sorted(EV_PARTS.get('pockets', {}).items()):
+        b = ev_box(t)
+        cells = {c for p in pockets for c in p}
+        rock_top = {}
+        for (x, y, z) in cells:
+            rock_top[(x, z)] = max(rock_top.get((x, z), -1), y)
+        faces = sum(1 for (x, y, z) in cells if (x, y + 1, z) not in cells)
+        cols = sorted((x, z) for (x, z) in MASKS['event'] if b[0] <= x <= b[3] and b[2] <= z <= b[5])
+        surf = {c: max(y for y in range(B, G + 1) if get(c[0], y, c[1]) is not None) for c in cols}
+        rnd = random.Random(7)
+        total, trials = 0.0, 500
+        for _ in range(trials):
+            order = cols[:]
+            rnd.shuffle(order)
+            secs = 0.0
+            for (x, z) in order:
+                stop = rock_top.get((x, z), B)
+                secs += DIG_SECONDS['pindan'] + (surf[(x, z)] - 1 - stop) * DIG_SECONDS['hardpan'] + MOVE_SECONDS
+                if (x, z) in rock_top:
+                    break
+            total += secs
+        out['t%d' % t] = {'rock': len(cells), 'pockets': len(pockets), 'drill_spots': faces, 'columns': len(cols),
+                          'first_node_minutes': round(total / trials / 60, 2),
+                          'min_cover': min(surf[(x, z)] - y for (x, y, z) in cells),
+                          'rock_on_surface': sum(1 for (x, y, z) in cells if y >= surf[(x, z)] - 1)}
+    return out
+
+
 # ================================================================================================ BRIDGES
 BRIDGE_COLS = set()      # (x, z) columns of the bridges (they span the void on purpose)
 
@@ -1687,6 +2052,7 @@ def build():
     bridge(35, 32, 39, 35, G, 'z')      # home -> Gravel Flats
     bridge(21, 44, 26, 48, G, 'x')      # Deep Dig -> Gravel Flats
     bridge(48, 50, 53, 54, G, 'x')      # Gravel Flats -> Sand Dunes
+    build_event_island()
     settle_floating()
     fill_slits()
     connect()
@@ -1694,6 +2060,13 @@ def build():
 
 
 def owner_of(k):
+    if inside(ev_kiosk_box(), *k):
+        return 'event_shop'
+    for t in EV_SECTIONS:
+        if inside(ev_box(t), *k):
+            return 'event_t%d' % t
+    if inside(EV_FRAME, *k):
+        return 'event_frame'
     for pid in PLOTS:
         if inside(kiosk_box(pid), *k):
             return pid + '_shop'
@@ -1706,6 +2079,7 @@ def owner_of(k):
 def split():
     parts = {sid: {} for sid in SITES}
     parts.update({pid + '_shop': {} for pid in PLOTS})
+    parts.update({sid: {} for sid in EVENT_PARTS})
     template = {}
     for k, v in W.items():
         o = owner_of(k)
@@ -1713,13 +2087,28 @@ def split():
     return parts, template
 
 
+EVENT_PARTS = ('event_shop', 'event_frame', 'event_t1', 'event_t2', 'event_t3')
+
+
 def struct_name(sid):
+    if sid == 'event_shop':
+        return 'store/event_shop_v%d' % VERSIONS['event_shop']
+    if sid == 'event_frame':
+        return 'event/frame_v%d' % VERSIONS['event_frame']
+    if sid.startswith('event_t'):
+        return 'event/%s_%s_v%d' % (EV_PARTS['event'], sid[6:], VERSIONS['event_sections'])
     if sid.endswith('_shop') or SITES[sid][0] == 'store':
         return 'store/%s_v%d' % (sid, VERSIONS[sid])
     return 'plot/%s_v%d' % (sid, VERSIONS[sid])
 
 
 def box_of(sid):
+    if sid == 'event_shop':
+        return ev_kiosk_box()
+    if sid == 'event_frame':
+        return EV_FRAME
+    if sid.startswith('event_t'):
+        return ev_box(int(sid[7:]))
     return kiosk_box(sid[:-5]) if sid.endswith('_shop') else site_box(sid)
 
 
@@ -1797,7 +2186,27 @@ def main():
     if 'home' not in HAND_BUILT:
         write(os.path.join(DATA, 'store_layout', 'home.json'),
           json.dumps({'slots': dict(sorted(lay.items(), key=lambda kv: int(kv[0])))}, indent=2) + '\n')
+    # ---- event island: kiosk site, layout, island layout for the mod
+    (kx, ky, kz) = EV_KIOSK_AT
+    site_json('event_shop', {'kind': 'store', 'name': 'site.holeydigsite.event_shop', 'version': VERSIONS['event_shop'],
+                             'structure': 'holeydigsite:' + struct_name('event_shop'), 'size': list(EV_KIOSK),
+                             'entrance': [-1, 3, 4], 'protect': True, 'layout': 'holeydigsite:event_shop'})
+    write(os.path.join(DATA, 'store_layout', 'event_shop.json'),
+          json.dumps({'slots': {str(i + 1): it for i, it in enumerate(EVENT_KIOSK_ITEMS) if it}}, indent=2) + '\n')
+    home = SITES['home'][1]
+    write(os.path.join(DATA, 'event_island.json'), json.dumps({
+        'home': list(home), 'side': 'north',
+        'frame': {'structure': 'holeydigsite:' + struct_name('event_frame'), 'pos': list(EV_FRAME[:3]),
+                  'size': [EV_FRAME[3] - EV_FRAME[0] + 1, EV_FRAME[4] - EV_FRAME[1] + 1, EV_FRAME[5] - EV_FRAME[2] + 1]},
+        'shop': {'site': 'holeydigsite:event_shop', 'pos': list(EV_KIOSK_AT)},
+        'board': list(EV_BOARD),
+        'frame_chests': [list(c) for c in ev_frame_chests()],
+        'sections': [{'tier': t, 'plot': 'event_t%d' % t, 'pos': list(EV_SECTIONS[t]), 'size': list(EV_SECTION),
+                      'board': list(EV_SEC_BOARD), 'gate': [EV_SEC_BOARD[0], G + 1, EV_SECTION[2] + 1],
+                      'chests': [list(c) for c in EV_CHESTS]} for t in sorted(EV_SECTIONS)],
+    }, indent=2) + '\n')
     rep = economy_counts()
+    rep['event'] = event_report()
     rep['home_slots'] = sum(len(v) for v in STORE_SLOTS.values())
     rep['home_items'] = len(lay)
     rep['spawn'] = SPAWN

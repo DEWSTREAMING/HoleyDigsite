@@ -1,0 +1,30 @@
+{
+  "name": "crate.holeydigsite.collection.outback_crate",
+  "look": "outback",
+  "odds": {"common": 80, "rare": 16, "epic": 3, "legendary": 1},
+  "finds": {"pan": 2000, "sluice": 1440, "drill": 1440, "shovel": 3000},
+  "site": "event_island",
+  "pools": {
+    "common": [
+      {"skin": "outback"},
+      {"skin": "outback_dusty"},
+      {"item": "holeydigsite:corrugated_iron_sheet", "count": 4},
+      {"item": "holeydigsite:southern_cross_banner"}
+    ],
+    "rare": [
+      {"skin": "outback_ochre"},
+      {"skin": "opal_calm"},
+      {"title": "fossicker"},
+      {"item": "holeydigsite:little_windmill"},
+      {"item": "holeydigsite:ute_ore_cart"}
+    ],
+    "epic": [
+      {"skin": "opal"},
+      {"skin": "opal_boulder"},
+      {"item": "holeydigsite:welcome_stranger_stand"}
+    ],
+    "legendary": [
+      {"skin": "black_opal"}
+    ]
+  }
+}

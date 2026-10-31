@@ -1,0 +1,44 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.2
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:ironstone_pebble",
+          "weight": 60
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:outback_gold_chunk_small",
+          "weight": 40
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.017
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_potch",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

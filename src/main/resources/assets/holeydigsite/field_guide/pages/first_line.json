@@ -1,0 +1,15 @@
+{
+  "order": 4,
+  "title": "field_guide.holeydigsite.page.first_line.title",
+  "text": [
+    "field_guide.holeydigsite.page.first_line.line1",
+    "field_guide.holeydigsite.page.first_line.line2",
+    "field_guide.holeydigsite.page.first_line.line3"
+  ],
+  "clip": "first_line",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

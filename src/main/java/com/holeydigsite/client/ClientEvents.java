@@ -1,19 +1,28 @@
 package com.holeydigsite.client;
 
 import com.holeydigsite.HoleyDigsite;
+import com.holeydigsite.contract.ContractBoardBlock;
+import com.holeydigsite.contract.ContractNetwork;
 import com.holeydigsite.economy.ResourceInfo;
 import com.holeydigsite.economy.Selling;
 import com.holeydigsite.shovel.ShovelHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -33,7 +42,31 @@ public final class ClientEvents {
         if (event.isUseItem() && RecipeWheels.onUseKeyTriggered(event.getHand())) {
             event.setCanceled(true);
             event.setSwingHand(false);
+        } else if (event.isUseItem() && event.getHand() == InteractionHand.MAIN_HAND && useContractCard()) {
+            event.setCanceled(true);
+            event.setSwingHand(true);
         }
+    }
+
+    /** A right-click on a Contract Board card whose text is over a block next to the board goes to the board instead. */
+    private static boolean useContractCard() {
+        Minecraft mc = Minecraft.getInstance();
+        BlockPos pos = FloatingText.focus();
+        if (mc.level == null || pos == null || mc.getConnection() == null
+                || !mc.getConnection().hasChannel(ContractNetwork.UseCardPayload.TYPE)) {
+            return false;
+        }
+        BlockState state = mc.level.getBlockState(pos);
+        if (!(state.getBlock() instanceof ContractBoardBlock)
+                || mc.hitResult instanceof BlockHitResult bh && bh.getType() == HitResult.Type.BLOCK && bh.getBlockPos().equals(pos)) {
+            return false;
+        }
+        int slot = ContractBoardRenderer.cardUnderCrosshair(pos, state.getValue(ContractBoardBlock.FACING), 1.0F);
+        if (slot < 0) {
+            return false;
+        }
+        PacketDistributor.sendToServer(new ContractNetwork.UseCardPayload(pos, slot));
+        return true;
     }
 
     /**
@@ -53,6 +86,20 @@ public final class ClientEvents {
 
         if (stack.is(com.holeydigsite.registry.ModItems.SKIN_SCRAP.get())) {
             tip.add(1, Component.translatable("tooltip.holeydigsite.skin_scrap").withStyle(ChatFormatting.GRAY));
+        }
+
+        if (stack.is(com.holeydigsite.registry.ModItems.BOLT_CUTTERS.get())) {
+            tip.add(1, Component.translatable("tooltip.holeydigsite.bolt_cutters").withStyle(ChatFormatting.GRAY));
+        }
+        if (stack.is(com.holeydigsite.registry.ModItems.CRATE_SWITCH.get())) {
+            tip.add(1, Component.translatable("tooltip.holeydigsite.crate_switch").withStyle(ChatFormatting.GRAY));
+        }
+
+        if (com.holeydigsite.event.EventDefs.isEventFind(stack)) {
+            tip.add(1, Component.translatable("tooltip.holeydigsite.event_find").withStyle(ChatFormatting.GRAY));
+        }
+        if (stack.is(com.holeydigsite.registry.ModBlocks.HARDPAN.asItem())) {
+            tip.add(1, Component.translatable("tooltip.holeydigsite.hardpan").withStyle(ChatFormatting.GRAY));
         }
 
         String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());

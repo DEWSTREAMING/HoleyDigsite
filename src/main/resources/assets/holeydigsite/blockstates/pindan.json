@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "holeydigsite:block/pindan"
+      },
+      {
+        "model": "holeydigsite:block/pindan",
+        "y": 90
+      },
+      {
+        "model": "holeydigsite:block/pindan",
+        "y": 180
+      },
+      {
+        "model": "holeydigsite:block/pindan",
+        "y": 270
+      }
+    ]
+  }
+}

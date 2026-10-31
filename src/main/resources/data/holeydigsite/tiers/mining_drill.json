@@ -39,7 +39,8 @@
         "strength": 2.0,
         "resistance": 6.0,
         "sound": "METAL",
-        "push_reaction": "BLOCK"
+        "push_reaction": "BLOCK",
+        "no_occlusion": true
       },
       "item": {},
       "stats": {
@@ -100,7 +101,8 @@
         "strength": 2.0,
         "resistance": 6.0,
         "sound": "METAL",
-        "push_reaction": "BLOCK"
+        "push_reaction": "BLOCK",
+        "no_occlusion": true
       },
       "item": {
         "rarity": "UNCOMMON"
@@ -177,7 +179,8 @@
         "strength": 2.0,
         "resistance": 6.0,
         "sound": "METAL",
-        "push_reaction": "BLOCK"
+        "push_reaction": "BLOCK",
+        "no_occlusion": true
       },
       "item": {
         "rarity": "RARE"

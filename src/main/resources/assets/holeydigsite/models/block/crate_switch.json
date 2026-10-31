@@ -1,0 +1,77 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "0": "holeydigsite:block/crate_switch",
+    "particle": "holeydigsite:block/crate_switch"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        3,
+        14
+      ],
+      "to": [
+        13,
+        13,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            3,
+            3,
+            13,
+            13
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            14,
+            3,
+            16,
+            13
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            14,
+            3,
+            16,
+            13
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            3,
+            14,
+            13,
+            16
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            3,
+            14,
+            13,
+            16
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

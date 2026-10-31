@@ -1,0 +1,13 @@
+{
+  "values": [
+    "holeydigsite:pindan",
+    "holeydigsite:hardpan",
+    "holeydigsite:red_dirt_rock",
+    "holeydigsite:mullock_rock",
+    "holeydigsite:opal_clay_rock",
+    "holeydigsite:plot_board",
+    "minecraft:bedrock",
+    "minecraft:dead_bush",
+    "minecraft:light"
+  ]
+}

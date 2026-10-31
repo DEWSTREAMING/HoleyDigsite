@@ -41,7 +41,7 @@ public final class LedgerDefs {
     public static final int MAX_LEVEL = 50;
 
     public static final List<String> CHAPTER_ORDER = List.of(
-            "start", "machines", "metal", "gems", "land", "farming", "smithing", "contracts", "riches"
+            "start", "machines", "metal", "gems", "land", "farming", "smithing", "contracts", "riches", "events"
     );
 
     private static final String[] BUILTIN_MILESTONES = {
@@ -52,7 +52,8 @@ public final class LedgerDefs {
             "first_pan", "first_piece", "first_sale", "first_sluice", "gem_necklace",
             "goldchro_ingot", "gravel_flats", "large_crucible", "large_gem", "lava_forge",
             "mixed_piece", "netherite_sword", "plot_upgrade", "sand_dunes", "seed_screen",
-            "ten_contracts", "tier2_machine", "water_intake", "wear_jewellery"
+            "ten_contracts", "tier2_machine", "water_intake", "wear_jewellery",
+            "first_event_clump", "first_event_plot", "event_top_ten"
     };
 
     public record OngoingRule(int per, int renown, int cap) {}

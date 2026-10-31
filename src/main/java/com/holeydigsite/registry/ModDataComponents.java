@@ -95,8 +95,20 @@ public final class ModDataComponents {
     /**
      * {@code holeydigsite:pick_head}, the head fitted onto a Prospector's Pick as an {@link Item}, see {@link com.holeydigsite.item.ProspectorPickItem}.
      */
+    /** {@code holeydigsite:event_dug}, event id (e.g. "outback") set when an event clump was dug by a drill. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> EVENT_DUG =
+            DATA_COMPONENTS.registerComponentType("event_dug", builder -> builder
+                    .persistent(Codec.STRING)
+                    .networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Item>> PICK_HEAD =
             DATA_COMPONENTS.registerComponentType("pick_head", builder -> builder
                     .persistent(net.minecraft.core.registries.BuiltInRegistries.ITEM.byNameCodec())
                     .networkSynchronized(ByteBufCodecs.registry(Registries.ITEM)));
+
+    /** {@code holeydigsite:locked}, true on a padlocked crate: it needs Bolt Cutters before it opens. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> LOCKED =
+            DATA_COMPONENTS.registerComponentType("locked", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL));
 }

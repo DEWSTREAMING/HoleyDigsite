@@ -32,7 +32,7 @@
   "tiers": [
     {
       "id": "sluice_box",
-      "name": "Tier 1 Sluice Box",
+      "name": "Starter Sluice Box",
       "mark": "I",
       "block": {
         "map_color": "WOOD",
@@ -98,7 +98,8 @@
     },
     {
       "id": "sluice_box_t2",
-      "name": "Tier 2 Sluice Box",
+      "name": "Tier 2 Long Sluice",
+      "kind": "long",
       "tag": "t2",
       "mark": "II",
       "block": {
@@ -114,7 +115,7 @@
       },
       "stats": {
         "cycle_ticks": 50,
-        "max_queue": 8,
+        "max_queue": 16,
         "tray_slots": 18
       },
       "tags": [
@@ -171,7 +172,7 @@
           ]
         ]
       },
-      "tooltip": "Tier 2: washes a clump every 2.5 s (2x Tier 1), queue 8, tray 18 slots",
+      "tooltip": "Tier 2 long sluice: 3 blocks, clumps in at the chute on top. Washes a clump every 2.5 s, queue 16, tray 18 slots, two inserts",
       "tab": [
         {
           "order": 520

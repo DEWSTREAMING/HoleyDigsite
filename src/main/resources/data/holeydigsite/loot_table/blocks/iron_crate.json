@@ -7,17 +7,42 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "holeydigsite:iron_crate"
+          "name": "holeydigsite:iron_crate",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "holeydigsite:iron_crate",
+              "properties": {
+                "open": "false",
+                "locked": "true"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "holeydigsite:locked": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:iron_crate",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "holeydigsite:iron_crate",
+              "properties": {
+                "open": "false",
+                "locked": "false"
+              }
+            }
+          ]
         }
       ],
       "conditions": [
-        {
-          "condition": "minecraft:block_state_property",
-          "block": "holeydigsite:iron_crate",
-          "properties": {
-            "open": "false"
-          }
-        },
         {
           "condition": "minecraft:survives_explosion"
         }

@@ -757,18 +757,18 @@ public class PhaseTenTests {
         h.setBlock(in, ModBlocks.WATER_INTAKE.get().defaultBlockState().setValue(WaterIntakeBlock.WATERLOGGED, true));
         SluiceBoxBlockEntity s = (SluiceBoxBlockEntity) h.getBlockEntity(sl);
         ServerPlayer p = player(h);
-        check(h, s.stats().cycleTicks() == 50 && s.stats().maxQueue() == 8 && s.stats().traySlots() == 18, "stats " + s.stats());
+        check(h, s.stats().cycleTicks() == 50 && s.stats().maxQueue() == 16 && s.stats().traySlots() == 18, "stats " + s.stats());
         check(h, h.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, h.absolutePos(sl), null) == null, "no item handler");
         h.startSequence()
                 .thenExecuteAfter(2, () -> {
-                    click(h, p, sl, new ItemStack(ModItems.DIRT_CLUMP.get(), 12), true, new Vec3(0.5, 0.5, 0.5), Direction.UP);
-                    check(h, s.queued() == 8 && p.getMainHandItem().getCount() == 4, "sneak fills the queue to 8: " + s.queued());
+                    click(h, p, sl.above(), new ItemStack(ModItems.DIRT_CLUMP.get(), 20), true, new Vec3(0.5, 0.5, 0.5), Direction.UP);
+                    check(h, s.queued() == 16 && p.getMainHandItem().getCount() == 4, "sneak fills the queue to 16 at the chute: " + s.queued());
                     check(h, h.getBlockState(sl).getValue(SluiceBoxBlock.STATUS) == SluiceStatus.WORKING, "working");
                 })
-                .thenExecuteAfter(45, () -> check(h, s.queued() == 8, "nothing washed before 50 ticks"))
-                .thenExecuteAfter(8, () -> check(h, s.queued() == 7, "one washed at ~50 ticks: " + s.queued()))
+                .thenExecuteAfter(45, () -> check(h, s.queued() == 16, "nothing washed before 50 ticks"))
+                .thenExecuteAfter(8, () -> check(h, s.queued() == 15, "one washed at ~50 ticks: " + s.queued()))
                 .thenExecuteAfter(50, () -> {
-                    check(h, s.queued() == 6, "another 50 ticks later: " + s.queued());
+                    check(h, s.queued() == 14, "another 50 ticks later: " + s.queued());
                     // fill the tray to 17 distinct stacks: still running; the 18th stops it
                     s.takeTray();
                     for (int i = 0; i < 17; i++) s.addToTray(new ItemStack(i % 2 == 0 ? Items.STICK : Items.APPLE, 64));
@@ -782,9 +782,9 @@ public class PhaseTenTests {
                     var b = (SluiceBoxBlock) st.getBlock();
                     check(h, b.hasWaterConnection(st, Direction.NORTH) && b.hasWaterConnection(st, Direction.SOUTH)
                             && !b.hasWaterConnection(st, Direction.EAST) && !b.hasWaterConnection(st, Direction.WEST), "ports on the sides");
-                    // breaking drops the sluice + 6 queued clumps + the tray
-                    p.gameMode.destroyBlock(h.absolutePos(sl));
-                    check(h, itemEntities(h, ModItems.SLUICE_BOX_T2.get()) == 1 && itemEntities(h, ModItems.DIRT_CLUMP.get()) == 6,
+                    // breaking any part drops the sluice once + 14 queued clumps + the tray
+                    p.gameMode.destroyBlock(h.absolutePos(sl.above()));
+                    check(h, itemEntities(h, ModItems.SLUICE_BOX_T2.get()) == 1 && itemEntities(h, ModItems.DIRT_CLUMP.get()) == 14,
                             "drops itself and its clumps");
                 })
                 .thenSucceed();

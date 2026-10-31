@@ -192,6 +192,10 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
+        if (!level.isClientSide && placer instanceof net.minecraft.world.entity.player.Player p
+                && level.getBlockEntity(lowerPos(pos, state)) instanceof MiningDrillBlockEntity d) {
+            d.setOwner(p.getUUID());
+        }
         String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
         if (skin != null && !skin.isEmpty()) {
             BlockPos lower = lowerPos(pos, state);
@@ -203,9 +207,12 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
-        List<ItemStack> drops = super.getDrops(state, params);
+        List<ItemStack> drops = new java.util.ArrayList<>(super.getDrops(state, params));
         BlockEntity be = params.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
         if (be instanceof MiningDrillBlockEntity drill) {
+            if (!drill.heldCrate().isEmpty()) {
+                drops.add(drill.heldCrate().copy());
+            }
             String skin = drill.getSkin();
             if (skin != null && !skin.isEmpty() && !skin.equals("default")) {
                 for (ItemStack drop : drops) {
@@ -382,6 +389,16 @@ public class MiningDrillBlock extends BaseEntityBlock implements WaterNetworkBlo
             return InteractionResult.PASS;
         }
         BlockPos lower = lowerPos(pos, state);
+        if (!level.isClientSide && level.getBlockEntity(lower) instanceof MiningDrillBlockEntity held && !held.heldCrate().isEmpty()
+                && player instanceof net.minecraft.server.level.ServerPlayer sp) {
+            if (!com.holeydigsite.plot.PlotLock.canUse(sp, level, lower)) {
+                return InteractionResult.CONSUME;
+            }
+            com.holeydigsite.ledger.LedgerManager.giveOrDrop(sp, held.heldCrate().copy());
+            held.setHeldCrate(net.minecraft.world.item.ItemStack.EMPTY);
+            player.displayClientMessage(Component.translatable("message.holeydigsite.drill.took_crate"), true);
+            return InteractionResult.CONSUME;
+        }
         if (!level.isClientSide && level.getBlockEntity(lower) instanceof MiningDrillBlockEntity drill) {
             player.displayClientMessage(statusMessage(level, lower, level.getBlockState(lower), drill), true);
         }

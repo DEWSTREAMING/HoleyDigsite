@@ -26,7 +26,8 @@ import java.util.List;
 
 /**
  * Simple decorative blocks from the Prospector's Ledger (claim flag, ore cart, tool rack, lucky
- * lantern, gem display case, golden pan trophy) and Mining Crates (helmet stand, mine bell, sluice model, drill statue). One class, one {@code FACING} state; the front faces the player when placed.
+ * lantern, gem display case, golden pan trophy), Mining Crates (helmet stand, mine bell, sluice model, drill statue) and the event store
+ * (corrugated iron sheet, little windmill, ute ore cart, Southern Cross banner). One class, one {@code FACING} state; the front faces the player when placed.
  * The collision shape of each kind is given for the NORTH-facing model and rotated for the other directions.
  * The Tool Rack is a wall block: it hangs on the side of the block it was placed against and faces away from that wall.
  */
@@ -44,7 +45,11 @@ public class DecorBlock extends HorizontalDirectionalBlock {
         MINERS_HELMET_STAND(false, new double[][]{{4, 0, 4, 12, 2, 12}, {7, 2, 7, 9, 11, 9}, {4, 11, 4, 12, 16, 12}}),
         RUSTY_MINE_BELL(false, new double[][]{{1, 0, 6, 15, 16, 10}}),
         SLUICE_MODEL(false, new double[][]{{1, 0, 3, 15, 9, 13}}),
-        GOLDEN_DRILL_STATUE(false, new double[][]{{2, 0, 2, 14, 4, 14}, {4, 4, 4, 12, 16, 12}});
+        GOLDEN_DRILL_STATUE(false, new double[][]{{2, 0, 2, 14, 4, 14}, {4, 4, 4, 12, 16, 12}}),
+        CORRUGATED_IRON_SHEET(false, new double[][]{{0, 0, 7, 16, 16, 9}}),
+        LITTLE_WINDMILL(false, new double[][]{{3, 0, 3, 13, 16, 13}}),
+        UTE_ORE_CART(false, new double[][]{{2, 0, 0, 14, 7.5, 16}, {3, 7.5, 4, 13, 10, 8}}),
+        SOUTHERN_CROSS_BANNER(false, new double[][]{{4, 0, 4, 12, 1, 12}, {7, 1, 7, 9, 16, 9}, {9, 5, 7.5, 16, 16, 8.5}});
 
         private final boolean wall;
         private final VoxelShape[] shapes = new VoxelShape[4]; // by Direction.get2DDataValue (S, W, N, E)

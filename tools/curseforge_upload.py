@@ -5,8 +5,10 @@ Nothing is sent unless --upload is given; without it the script shows what it wo
 
   python tools/curseforge_upload.py check
       Checks the token and finds the game version ids (read only).
-  python tools/curseforge_upload.py mod 1.26.0 [--release-type alpha] [--upload]
+  python tools/curseforge_upload.py mod 1.26.0 [--release-type release] [--upload]
       Uploads build/libs/holeydigsite-1.26.0.jar with the "## 1.26.0" section of docs/CHANGELOG.md.
+  python tools/curseforge_upload.py helper 1.1.2 [--changelog <file.md>] [--upload]
+      Uploads ../Holey Digsite Pack/mods/holeydigsite_pack-1.1.2.jar (Skyblock Builder as a required dependency).
   python tools/curseforge_upload.py pack 1.0.1 --from <exported pack zip> --project <modpack project id>
          [--mod-file <file id>] [--author <name>] [--put <path in zip>=<local file>] [--changelog <file.md>] [--upload]
       Sets the pack version (and the Holey Digsite file id, if given) in the zip's manifest.json, saves the new zip
@@ -25,9 +27,11 @@ import zipfile
 
 API = "https://minecraft.curseforge.com/api"
 MOD_PROJECT = 1762674
+HELPER_PROJECT = 1762726
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PACK_ROOT = os.path.join(os.path.dirname(ROOT), "Holey Digsite Pack")
 GAME_VERSIONS = ["1.21.1", "NeoForge", "Java 21", "Client", "Server"]
-OPTIONAL = ["curios", "jei", "skyblock-builder", "ftb-teams-forge"]
+OPTIONAL = ["curios", "jei", "skyblock-builder", "ftb-teams-forge", "jade"]
 
 
 def token():
@@ -122,6 +126,22 @@ def cmd_mod(a):
     send(MOD_PROJECT, jar, meta, a.upload)
 
 
+def cmd_helper(a):
+    jar = os.path.join(PACK_ROOT, "mods", f"holeydigsite_pack-{a.version}.jar")
+    if not os.path.exists(jar):
+        sys.exit(f"{jar} not found: run _source/holeydigsite_pack/build.sh first")
+    ids = version_ids()
+    meta = {
+        "changelog": open(a.changelog, encoding="utf-8").read() if a.changelog else f"Holey Digsite Pack Defaults {a.version}",
+        "changelogType": "markdown",
+        "displayName": f"Holey Digsite Pack Defaults {a.version}",
+        "gameVersions": [ids[n] for n in GAME_VERSIONS],
+        "releaseType": a.release_type,
+        "relations": {"projects": [{"slug": "skyblock-builder", "type": "requiredDependency"}]},
+    }
+    send(HELPER_PROJECT, jar, meta, a.upload)
+
+
 def cmd_pack(a):
     with zipfile.ZipFile(a.source) as z:
         entries = {n: z.read(n) for n in z.namelist()}
@@ -135,6 +155,13 @@ def cmd_pack(a):
             sys.exit("Holey Digsite is not in the pack's manifest")
         for f in hits:
             f["fileID"] = a.mod_file
+    for pair in a.set_file or []:
+        project, _, file_id = pair.partition("=")
+        hits = [f for f in manifest.get("files", []) if f.get("projectID") == int(project)]
+        if not hits:
+            sys.exit(f"project {project} is not in the pack's manifest")
+        for f in hits:
+            f["fileID"] = int(file_id)
     if a.author:
         manifest["author"] = a.author
     for put in a.put or []:
@@ -170,6 +197,8 @@ def main():
     sub.add_parser("check")
     m = sub.add_parser("mod")
     m.add_argument("version")
+    h = sub.add_parser("helper")
+    h.add_argument("version")
     p_pack = sub.add_parser("pack")
     p_pack.add_argument("version")
     p_pack.add_argument("--from", dest="source", required=True)
@@ -177,12 +206,13 @@ def main():
     p_pack.add_argument("--mod-file", type=int)
     p_pack.add_argument("--author")
     p_pack.add_argument("--put", action="append", help="replace a file in the zip: <path in zip>=<local file>")
-    for s in (m, p_pack):
-        s.add_argument("--release-type", default="alpha", choices=["alpha", "beta", "release"])
+    p_pack.add_argument("--set-file", action="append", help="<project id>=<file id>: another mod's file in the manifest")
+    for s in (m, h, p_pack):
+        s.add_argument("--release-type", default="release", choices=["alpha", "beta", "release"])
         s.add_argument("--changelog")
         s.add_argument("--upload", action="store_true")
     a = p.parse_args()
-    {"check": cmd_check, "mod": cmd_mod, "pack": cmd_pack}[a.cmd](a)
+    {"check": cmd_check, "mod": cmd_mod, "helper": cmd_helper, "pack": cmd_pack}[a.cmd](a)
 
 
 if __name__ == "__main__":

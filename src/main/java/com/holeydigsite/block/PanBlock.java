@@ -153,7 +153,7 @@ public class PanBlock extends Block implements SimpleWaterloggedBlock, DirtClump
             return ItemInteractionResult.CONSUME;
         }
 
-        int tier = clump ? DirtTier.ofClump(stack) : ShovelHelper.kind(stack);
+        int tier = clump ? DirtTier.panKind(stack) : ShovelHelper.kind(stack);
         if (!acceptsTier(state, tier)) {
             if (!level.isClientSide) {
                 player.displayClientMessage(Component.translatable("message.holeydigsite.pan_other_tier",

@@ -197,11 +197,19 @@ public class Phase16Tests {
             BlockState s = h.getBlockState(rel);
             h.assertTrue(s.getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.RIFFLE, "riffle not installed on " + b);
             h.assertTrue(p.getMainHandItem().getCount() == 1, "one insert should be used up");
-            // second upgrade refused, nothing consumed, still riffle
+            // second upgrade: refused by the Starter sluice (nothing consumed, still riffle), taken by the long one's second slot
             ItemStack mesh = new ItemStack(ModItems.FINE_MESH_SCREEN.get());
             click(h, p, rel, mesh, false);
             h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.RIFFLE, "second upgrade replaced the first");
-            h.assertTrue(mesh.getCount() == 1, "refused upgrade was consumed");
+            if (b == ModBlocks.SLUICE_BOX_T2.get()) {
+                h.assertTrue(mesh.isEmpty() && h.getBlockState(rel).getValue(com.holeydigsite.sluice.LongSluiceBlock.UPGRADE2) == SluiceUpgrade.MESH,
+                        "the long sluice should take a second insert");
+                click(h, p, rel, ItemStack.EMPTY, true);
+                h.assertTrue(h.getBlockState(rel).getValue(com.holeydigsite.sluice.LongSluiceBlock.UPGRADE2) == SluiceUpgrade.NONE, "second insert not removed first");
+                h.getEntities(EntityType.ITEM).forEach(ItemEntity::discard);
+            } else {
+                h.assertTrue(mesh.getCount() == 1, "refused upgrade was consumed");
+            }
             // sneak + empty hand removes and returns it
             click(h, p, rel, ItemStack.EMPTY, true);
             h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.NONE, "not removed");

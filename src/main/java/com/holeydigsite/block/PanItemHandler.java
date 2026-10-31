@@ -40,7 +40,7 @@ public record PanItemHandler(Level level, BlockPos pos) implements IItemHandler 
         if (!(state.getBlock() instanceof PanBlock) || com.holeydigsite.plot.PlotLock.isLocked(level, pos)) {
             return stack;
         }
-        int tier = DirtTier.ofClump(stack);
+        int tier = DirtTier.panKind(stack);
         if (!PanBlock.acceptsTier(state, tier)) {
             return stack; // a different tier waits until the pan is empty
         }

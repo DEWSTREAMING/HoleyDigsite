@@ -29,8 +29,9 @@ import java.util.List;
  * <ul>
  *   <li>cools three times faster ({@link #COOL_TICKS} ticks) and takes targets up to the Large Crucible's 500 g;</li>
  *   <li><b>ejects</b> the finished ingot by itself into the {@link com.holeydigsite.transport.ItemTarget} in front of it
- *       (a belt, Sell Pad, Crafting Forge...), in the direction of {@link #FACING} (the way the player looked when placing
- *       it). If the target refuses, the ingot stays and it tries again about every half second. Clicking still takes it.</li>
+ *       (a belt, Sell Pad, Crafting Forge...), or behind it if the front takes nothing, so it works whichever way round it
+ *       was placed. Crucibles are skipped, or ingots would go straight back in to melt. If nothing takes it, the ingot stays
+ *       and it tries again about every half second. Clicking still takes it.</li>
  * </ul>
  */
 public class CastingMoldBlock extends MoldBlock {
@@ -84,8 +85,16 @@ public class CastingMoldBlock extends MoldBlock {
         }
     }
 
+    private static boolean output(ServerLevel level, BlockPos pos, Direction side, ItemStack ingot) {
+        BlockPos target = pos.relative(side);
+        if (level.getBlockState(target).getBlock() instanceof CrucibleBlock) {
+            return false;
+        }
+        return ItemOutputs.tryOutput(level, target, side.getOpposite(), ingot);
+    }
+
     /**
-     * Pushes the finished ingot into the target in front. Public for tests. Returns true if the mold is empty afterwards.
+     * Pushes the finished ingot into the target in front (or behind). Public for tests. Returns true if the mold is empty afterwards.
      */
     public static boolean eject(ServerLevel level, BlockPos pos, MoldBlockEntity mold) {
         BlockState state = level.getBlockState(pos);
@@ -97,7 +106,7 @@ public class CastingMoldBlock extends MoldBlock {
         if (ingot.isEmpty()) {
             return false;
         }
-        if (!ItemOutputs.tryOutput(level, pos.relative(facing), facing.getOpposite(), ingot)) {
+        if (!output(level, pos, facing, ingot) && !output(level, pos, facing.getOpposite(), ingot)) {
             return false;
         }
         net.minecraft.resources.ResourceLocation castMetal = mold.metal();

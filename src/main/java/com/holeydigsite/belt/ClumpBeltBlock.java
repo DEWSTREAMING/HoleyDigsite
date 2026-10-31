@@ -225,8 +225,8 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         if (b.getBlock() instanceof MiningDrillBlock) {
             return b.getValue(MiningDrillBlock.FACING) == dir && MiningDrillBlock.isLower(b);
         }
-        if (b.getBlock() instanceof SluiceBoxBlock) {
-            return b.getValue(SluiceBoxBlock.FACING) == dir;
+        if (b.getBlock() instanceof SluiceBoxBlock sluice) {
+            return b.getValue(SluiceBoxBlock.FACING) == dir && sluice.feedsForward(b);
         }
         return false;
     }

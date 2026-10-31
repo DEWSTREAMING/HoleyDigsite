@@ -174,7 +174,7 @@ public class Phase25Tests {
         List<CrucibleMeltingRow> rows = CrucibleMeltingRow.loadAll();
         check(h, rows.size() >= 16, "expected at least 16 meltables, got " + rows.size());
 
-        int folkironCount = 0, goldchroCount = 0, orchremiaCount = 0, silvaneCount = 0;
+        int folkironCount = 0, goldchroCount = 0, orchremiaCount = 0, silvaneCount = 0, outbackGoldCount = 0;
         for (CrucibleMeltingRow r : rows) {
             check(h, !r.input().isEmpty(), "empty input stack");
             check(h, r.grams() > 0, "non-positive grams");
@@ -187,12 +187,14 @@ public class Phase25Tests {
                 case "goldchro" -> goldchroCount++;
                 case "orchremia" -> orchremiaCount++;
                 case "silvane" -> silvaneCount++;
+                case "outback_gold" -> outbackGoldCount++;
                 default -> h.fail("unknown metal: " + metal);
             }
 
             // Gems must never be meltable
             String inputPath = BuiltInRegistries.ITEM.getKey(r.input().getItem()).getPath();
-            check(h, !inputPath.contains("ruby") && !inputPath.contains("sapphire") && !inputPath.contains("topaz"),
+            check(h, !inputPath.contains("ruby") && !inputPath.contains("sapphire") && !inputPath.contains("topaz")
+                    && !inputPath.contains("opal") && !inputPath.contains("potch") && !inputPath.contains("diamond"),
                     "gem was included in crucible melting: " + inputPath);
         }
 
@@ -200,6 +202,7 @@ public class Phase25Tests {
         check(h, goldchroCount == 4, "expected 4 goldchro meltables, got " + goldchroCount);
         check(h, orchremiaCount == 4, "expected 4 orchremia meltables, got " + orchremiaCount);
         check(h, silvaneCount == 4, "expected 4 silvane meltables, got " + silvaneCount);
+        check(h, outbackGoldCount == 4, "expected 4 outback_gold meltables (3 chunks + 1 ingot), got " + outbackGoldCount);
         h.succeed();
     }
 
@@ -221,10 +224,10 @@ public class Phase25Tests {
     @GameTest(template = "empty")
     public static void panning_everyClumpKindProducesRow(GameTestHelper h) {
         List<PanningRow> rows = PanningRow.loadAll();
-        check(h, rows.size() == 8, "expected 8 clump kinds, got " + rows.size());
+        check(h, rows.size() == 11, "expected 11 clump kinds, got " + rows.size());
 
         for (PanningRow r : rows) {
-            check(h, r.clumpKind() >= 1 && r.clumpKind() <= 8, "bad clump kind: " + r.clumpKind());
+            check(h, r.clumpKind() >= 1 && r.clumpKind() <= 11, "bad clump kind: " + r.clumpKind());
             check(h, !r.clumpStack().isEmpty(), "empty clump stack for kind " + r.clumpKind());
             check(h, !r.baseDrops().isEmpty(), "base drops empty for kind " + r.clumpKind());
             check(h, !r.seedDrops().isEmpty(), "seed drops empty for kind " + r.clumpKind());
@@ -244,7 +247,7 @@ public class Phase25Tests {
     @GameTest(template = "empty")
     public static void gemCutting_everyUncutGemProducesRow(GameTestHelper h) {
         List<GemCuttingRow> rows = GemCuttingRow.loadAll(h.getLevel().registryAccess());
-        check(h, rows.size() == 9, "expected 9 gem cutting rows (3 gems * 3 sizes), got " + rows.size());
+        check(h, rows.size() == 15, "expected 15 gem cutting rows (3 base gems * 3 sizes + 6 event gems), got " + rows.size());
 
         for (GemCuttingRow r : rows) {
             String uncutPath = BuiltInRegistries.ITEM.getKey(r.uncut().getItem()).getPath();
@@ -259,7 +262,7 @@ public class Phase25Tests {
     @GameTest(template = "empty")
     public static void miningCrates_everyTierProducesRow(GameTestHelper h) {
         List<CrateOddsRow> rows = CrateOddsRow.loadAll();
-        check(h, rows.size() == 3, "expected 3 crate tiers, got " + rows.size());
+        check(h, rows.size() == 5, "expected 5 crate tiers (Prospector, Outback and the 3 old Mining Crates), got " + rows.size());
 
         for (CrateOddsRow r : rows) {
             check(h, !r.crateStack().isEmpty(), "crate stack empty in " + r.tierId());
@@ -277,7 +280,10 @@ public class Phase25Tests {
             }
 
             if (r.tierId().equals("wooden_crate")) {
-                check(h, r.panFindOneIn() == 1500, "wooden crate pan find rate should be 1500");
+                check(h, r.panFindOneIn() == 0, "the old wooden crate is not found by panning any more");
+            }
+            if (r.tierId().equals("prospector_crate")) {
+                check(h, r.panFindOneIn() == 2000, "prospector crate pan find rate should be 2000");
             }
         }
         h.succeed();
@@ -296,7 +302,8 @@ public class Phase25Tests {
 
         for (ShopInfoRow r : rows) {
             check(h, r.item() != null, "item null in shop row");
-            check(h, r.price() > 0, "price <= 0 in shop row");
+            check(h, r.price() > 0 || com.holeydigsite.shop.ShopCatalogue.find(reg, r.item()).map(com.holeydigsite.shop.ShopItem::paidInChips).orElse(false),
+                    "price <= 0 in shop row (and not paid in Opal Chips): " + r.item());
             check(h, !key(r.location()).isEmpty(), "location not translatable in shop row");
             check(h, args(r.infoLine()).get(0).equals(r.location().getString()), "info line missing location");
 
@@ -369,6 +376,11 @@ public class Phase25Tests {
 
         for (GemCuttingRow r : GemCuttingRow.loadAll(reg)) {
             var info = Selling.resource(r.uncut());
+            if (com.holeydigsite.event.EventDefs.isEventGem(r.uncut())) {
+                check(h, r.uncutPercent() == 50, "event gem uncut percent: " + r.uncutPercent());
+                check(h, args(r.note()).equals(List.of("50")), "event gem note args: " + args(r.note()));
+                continue;
+            }
             var price = Selling.price(reg, info.material());
             check(h, price != null, "no sell value for " + info.material());
             int expected = (int) Math.round(price.perGram(info.form()) / price.copperPerGram() * 100);

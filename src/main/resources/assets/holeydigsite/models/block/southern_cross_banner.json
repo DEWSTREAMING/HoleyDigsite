@@ -1,0 +1,169 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "0": "holeydigsite:block/australian_flag",
+    "1": "minecraft:block/stripped_spruce_log",
+    "particle": "holeydigsite:block/australian_flag"
+  },
+  "elements": [
+    {
+      "from": [
+        7,
+        0,
+        7
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#1"
+        },
+        "south": {
+          "texture": "#1"
+        },
+        "east": {
+          "texture": "#1"
+        },
+        "west": {
+          "texture": "#1"
+        },
+        "up": {
+          "texture": "#1"
+        },
+        "down": {
+          "texture": "#1"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        0,
+        4
+      ],
+      "to": [
+        12,
+        1,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#1"
+        },
+        "south": {
+          "texture": "#1"
+        },
+        "east": {
+          "texture": "#1"
+        },
+        "west": {
+          "texture": "#1"
+        },
+        "up": {
+          "texture": "#1"
+        },
+        "down": {
+          "texture": "#1"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        5,
+        7.75
+      ],
+      "to": [
+        31,
+        16,
+        8.25
+      ],
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            0,
+            0,
+            11,
+            5.5
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            11,
+            0,
+            0,
+            5.5
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            10,
+            5,
+            10.25,
+            5.5
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            10,
+            5,
+            10.5,
+            5.25
+          ]
+        },
+        "down": {
+          "texture": "#0",
+          "uv": [
+            10,
+            5,
+            10.5,
+            5.25
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -2,
+        -1,
+        0
+      ],
+      "scale": [
+        0.42,
+        0.42,
+        0.42
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        -3,
+        0,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    }
+  }
+}

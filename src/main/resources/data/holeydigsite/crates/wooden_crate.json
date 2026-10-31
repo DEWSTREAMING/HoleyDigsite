@@ -1,11 +1,11 @@
 {
+  "old": true,
   "odds": {
     "common": 70,
     "rare": 25,
     "epic": 5,
     "legendary": 0
   },
-  "pan_find_one_in": 1500,
   "pools": {
     "common": [
       {

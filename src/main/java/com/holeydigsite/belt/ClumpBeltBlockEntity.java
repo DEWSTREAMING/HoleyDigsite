@@ -583,7 +583,7 @@ public class ClumpBeltBlockEntity extends BlockEntity {
             if (!DirtTier.isClump(c.stack)) {
                 return false;
             }
-            int tier = DirtTier.ofClump(c.stack);
+            int tier = DirtTier.panKind(c.stack);
             if (PanBlock.fill(target) + drops.size() < PanBlock.maxFill(target)) {
                 if (!panTakesTier(target, tier)) {
                     return false; // other kind in the pan (or on its way): wait
@@ -616,7 +616,7 @@ public class ClumpBeltBlockEntity extends BlockEntity {
                 boolean drillFed = c.fromDrill || sl.getBlockState(pos.relative(state.getValue(ClumpBeltBlock.FACING).getOpposite())).getBlock() instanceof com.holeydigsite.drill.MiningDrillBlock;
                 if (drillFed) {
                     net.minecraft.server.level.ServerPlayer sp = resolveOwnerPlayer(sl, front);
-                    if (sp == null && sl.getBlockEntity(front) instanceof com.holeydigsite.sluice.SluiceBoxBlockEntity sb) {
+                    if (sp == null && com.holeydigsite.sluice.SluiceBoxBlock.entityAt(sl, front) instanceof com.holeydigsite.sluice.SluiceBoxBlockEntity sb) {
                         sp = sb.resolveOwnerPlayer(sl, front);
                     }
                     if (sp != null) {

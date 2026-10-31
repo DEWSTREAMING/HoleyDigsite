@@ -1,0 +1,11 @@
+{
+  "parent": "holeydigsite:block/prospector_crate",
+  "overrides": [
+    {
+      "predicate": {
+        "holeydigsite:locked": 1
+      },
+      "model": "holeydigsite:block/prospector_crate_locked"
+    }
+  ]
+}

@@ -48,7 +48,7 @@ public final class ModBlockEntities {
     @SuppressWarnings("DataFlowIssue")
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PadBlockEntity>> SHOP_PAD =
             BLOCK_ENTITIES.register("shop_pad", () -> BlockEntityType.Builder
-                    .of(PadBlockEntity::new, ModBlocks.SELL_PAD.get(), ModBlocks.BUY_PAD.get())
+                    .of(PadBlockEntity::new, ModBlocks.SELL_PAD.get(), ModBlocks.BUY_PAD.get(), ModBlocks.EVENT_SELL_PAD.get())
                     .build(null));
 
     /** {@code holeydigsite:money_pan} holding the balance in copper. */
@@ -112,6 +112,20 @@ public final class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.contract.ContractBoardBlockEntity>> CONTRACT_BOARD =
             BLOCK_ENTITIES.register("contract_board", () -> BlockEntityType.Builder
                     .of(com.holeydigsite.contract.ContractBoardBlockEntity::new, ModBlocks.CONTRACT_BOARD.get())
+                    .build(null));
+
+    /** {@code holeydigsite:welcome_stranger_stand}: the nugget on show. */
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.block.TrophyStandBlockEntity>> TROPHY_STAND =
+            BLOCK_ENTITIES.register("trophy_stand", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.block.TrophyStandBlockEntity::new, ModBlocks.WELCOME_STRANGER_STAND.get())
+                    .build(null));
+
+    /** {@code holeydigsite:event_board} and {@code holeydigsite:leaderboard}: page and sort. */
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.board.ScoreBoardBlockEntity>> SCORE_BOARD =
+            BLOCK_ENTITIES.register("score_board", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.board.ScoreBoardBlockEntity::new, ModBlocks.EVENT_BOARD.get(), ModBlocks.LEADERBOARD.get())
                     .build(null));
 
     /** {@code holeydigsite:site_marker} holding the site id a template marker builds. */

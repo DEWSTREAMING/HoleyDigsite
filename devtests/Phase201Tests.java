@@ -109,7 +109,7 @@ public final class Phase201Tests {
             var def = SiteDefs.get(HoleyDigsite.id(v[0]));
             check(h, def != null && def.version() == Integer.parseInt(v[1]), v[0] + " version " + (def == null ? "missing" : def.version()));
         }
-        check(h, com.holeydigsite.site.WorldVersion.CURRENT == 4, "world version 4");
+        check(h, com.holeydigsite.site.WorldVersion.CURRENT >= 4, "world version 4 or later");
         h.succeed();
     }
 }

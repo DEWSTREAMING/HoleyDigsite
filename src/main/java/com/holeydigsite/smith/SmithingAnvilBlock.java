@@ -198,6 +198,7 @@ public class SmithingAnvilBlock extends BaseEntityBlock {
                 case LIGHT -> "message.holeydigsite.anvil.light";
                 case FULL -> "message.holeydigsite.anvil.full";
                 case SECOND_GEM -> "message.holeydigsite.anvil.gem_second";
+                case EVENT_ITEM -> "message.holeydigsite.anvil.refused_event";
                 default -> "message.holeydigsite.anvil.refused";
             };
             Component msg = why == SmithingAnvilBlockEntity.Refusal.LIGHT && e != null

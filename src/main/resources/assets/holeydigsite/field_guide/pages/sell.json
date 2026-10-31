@@ -1,0 +1,15 @@
+{
+  "order": 2,
+  "title": "field_guide.holeydigsite.page.sell.title",
+  "text": [
+    "field_guide.holeydigsite.page.sell.line1",
+    "field_guide.holeydigsite.page.sell.line2",
+    "field_guide.holeydigsite.page.sell.line3"
+  ],
+  "clip": "sell",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

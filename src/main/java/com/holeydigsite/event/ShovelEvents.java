@@ -33,6 +33,7 @@ public final class ShovelEvents {
         event.setCanceled(true);
         level.destroyBlock(pos, false, player);
         ShovelHelper.fill(tool, com.holeydigsite.tier.DirtTier.ofScooped(event.getState()));
+        com.holeydigsite.crate.CrateFinds.shovelFind(level, pos, player);
 
         if (ShovelHelper.SCOOP_DURABILITY_COST > 0 && !player.getAbilities().instabuild) {
             tool.hurtAndBreak(ShovelHelper.SCOOP_DURABILITY_COST, player, EquipmentSlot.MAINHAND);

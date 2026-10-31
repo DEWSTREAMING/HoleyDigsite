@@ -39,7 +39,13 @@ public record GemCuttingRow(
             ModItems.UNCUT_SAPPHIRE_LARGE,
             ModItems.UNCUT_TOPAZ_SMALL,
             ModItems.UNCUT_TOPAZ_MEDIUM,
-            ModItems.UNCUT_TOPAZ_LARGE
+            ModItems.UNCUT_TOPAZ_LARGE,
+            ModItems.UNCUT_POTCH,
+            ModItems.UNCUT_BOULDER_OPAL,
+            ModItems.UNCUT_SAPPHIRE_PARTI,
+            ModItems.UNCUT_BLACK_OPAL,
+            ModItems.UNCUT_FIRE_OPAL,
+            ModItems.UNCUT_PINK_DIAMOND
     );
 
     public static List<GemCuttingRow> loadAll(@Nullable HolderLookup.Provider registries) {
@@ -57,6 +63,9 @@ public record GemCuttingRow(
     private static double uncutRatio(ItemStack uncut, @Nullable HolderLookup.Provider registries) {
         ResourceInfo info = Selling.resource(uncut);
         if (info == null) return 1.0;
+        if (com.holeydigsite.event.EventDefs.isEventGem(uncut)) {
+            return com.holeydigsite.event.EventDefs.uncutRatio(info.material());
+        }
         SellValue value = registries == null ? null : Selling.price(registries, info.material());
         if (value == null) {
             value = fromJar(info.material());

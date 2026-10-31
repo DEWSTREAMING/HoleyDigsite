@@ -20,7 +20,7 @@ public final class FlatItems {
             return false;
         }
         String path = key.getPath();
-        return path.endsWith("_clump") || path.contains("_chunk_");
+        return path.endsWith("_clump") || path.contains("_chunk_") || path.equals("welcome_stranger");
     }
 
     public static boolean isFlat(ItemStack stack) {

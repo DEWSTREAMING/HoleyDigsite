@@ -1,0 +1,18 @@
+{
+  "kind": "store",
+  "name": "site.holeydigsite.event_shop",
+  "version": 1,
+  "structure": "holeydigsite:store/event_shop_v1",
+  "size": [
+    7,
+    11,
+    9
+  ],
+  "entrance": [
+    -1,
+    3,
+    4
+  ],
+  "protect": true,
+  "layout": "holeydigsite:event_shop"
+}

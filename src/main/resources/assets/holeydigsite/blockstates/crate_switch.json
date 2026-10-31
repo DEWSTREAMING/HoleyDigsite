@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/crate_switch"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/crate_switch",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/crate_switch",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/crate_switch",
+      "y": 270
+    }
+  }
+}

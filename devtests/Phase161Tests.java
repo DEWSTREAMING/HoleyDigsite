@@ -235,9 +235,13 @@ public class Phase161Tests {
             check(h, r.applied() == 0, name + ": nothing applies to an empty area: " + r.applied());
             check(h, r.notes().stream().noneMatch(n -> n.contains("bad state")), name + ": all block states parse: " + r.notes());
         }
-        // one WorldVersion step per fix-up file, in order
-        check(h, com.holeydigsite.site.WorldVersion.CURRENT == 1 + WorldFixups.ALL.size()
-                && com.holeydigsite.site.WorldVersion.STEPS.size() == WorldFixups.ALL.size(), "a step per fix-up file");
+        // one WorldVersion step per fix-up file, in order, then the event island step (1.27.0)
+        var steps = com.holeydigsite.site.WorldVersion.STEPS;
+        check(h, steps.size() == WorldFixups.ALL.size() + 1 && com.holeydigsite.site.WorldVersion.CURRENT == 2 + WorldFixups.ALL.size()
+                && steps.get(steps.size() - 1).version() == com.holeydigsite.site.WorldVersion.CURRENT, "a step per fix-up file, then the event island");
+        for (int i = 0; i < WorldFixups.ALL.size(); i++) {
+            check(h, steps.get(i).version() == i + 2, "fix-up step " + i + " is version " + (i + 2));
+        }
         h.succeed();
     }
 }

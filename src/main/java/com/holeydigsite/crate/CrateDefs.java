@@ -35,7 +35,9 @@ public final class CrateDefs {
 
     /** Best to worst. */
     public static final List<String> RARITIES = List.of("common", "rare", "epic", "legendary");
-    public static final List<String> BUILTIN_TIERS = List.of("wooden_crate", "iron_crate", "gold_crate");
+    public static final List<String> BUILTIN_TIERS = List.of("prospector_crate", "outback_crate", "wooden_crate", "iron_crate", "gold_crate");
+
+    public static final List<String> FIND_SOURCES = List.of("pan", "sluice", "drill", "shovel");
 
     public enum Kind { SKIN, TITLE, ITEM, COINS, INGOT }
 
@@ -54,10 +56,20 @@ public final class CrateDefs {
      */
     public record Entry(Kind kind, String id, int amount, int weight) {}
 
-    public record CrateTier(String id, Map<String, Integer> odds, int panFindOneIn, Map<String, List<Entry>> pools) {
-        public int totalOdds() {
-            int t = 0;
-            for (int v : odds.values()) t += Math.max(0, v);
+    /**
+     * One crate collection. {@code old}: a Wooden, Iron or Gold Crate from before collections (never sold, found or given any
+     * more, still opens). {@code finds}: source to "one in N" for locked crates turning up while working (pan, sluice, drill,
+     * shovel); a {@code site} limits the finds to the site of that id. Odds are per crate in the data and may be decimals.
+     */
+    public record CrateTier(String id, String name, String look, boolean old, Map<String, Double> odds, Map<String, Integer> finds,
+                            String site, Map<String, List<Entry>> pools) {
+        public CrateTier(String id, Map<String, Double> odds, int panFindOneIn, Map<String, List<Entry>> pools) {
+            this(id, "crate.holeydigsite.collection." + id, id, false, odds, panFindOneIn > 0 ? Map.of("pan", panFindOneIn) : Map.of(), "", pools);
+        }
+
+        public double totalOdds() {
+            double t = 0;
+            for (double v : odds.values()) t += Math.max(0, v);
             return t;
         }
 
@@ -67,14 +79,36 @@ public final class CrateDefs {
 
         /** Chance in percent of rolling {@code rarity}, as written in the data. */
         public double percent(String rarity) {
-            int total = totalOdds();
-            return total <= 0 ? 0 : 100.0 * Math.max(0, odds.getOrDefault(rarity, 0)) / total;
+            double total = totalOdds();
+            return total <= 0 ? 0 : 100.0 * Math.max(0, odds.getOrDefault(rarity, 0.0)) / total;
+        }
+
+        /** One in N for a find source (pan, sluice, drill, shovel), 0 if crates are not found there. */
+        public int findOneIn(String source) {
+            return finds.getOrDefault(source, 0);
+        }
+
+        public int panFindOneIn() {
+            return findOneIn("pan");
+        }
+
+        public boolean found() {
+            return !finds.isEmpty();
         }
     }
 
     public record Wear(String id, int odds, double scrapMultiplier) {}
 
-    public record Rules(List<Wear> wears, Map<String, Integer> scrap) {}
+    /**
+     * {@code lockedSellCopper}: what the Sell Pad pays for a locked crate. {@code offCrateCopper} and {@code offSkinCopper}: the coins a
+     * Ledger or contract crate and a Ledger skin pay instead while the player's crate switch is off.
+     */
+    public record Rules(List<Wear> wears, Map<String, Integer> scrap, int lockedSellCopper, int offCrateCopper,
+                        Map<String, Integer> offSkinCopper) {
+        public Rules(List<Wear> wears, Map<String, Integer> scrap) {
+            this(wears, scrap, 48, 1536, Map.of("common", 768, "rare", 2304, "epic", 6144, "legendary", 15360));
+        }
+    }
 
     private static volatile Map<String, CrateTier> TIERS = Map.of();
     private static volatile Rules RULES = new Rules(List.of(new Wear("fresh_from_the_forge", 1, 1.0)), Map.of());
@@ -129,10 +163,10 @@ public final class CrateDefs {
     }
 
     static CrateTier parseTier(String id, JsonObject obj) {
-        Map<String, Integer> odds = new LinkedHashMap<>();
+        Map<String, Double> odds = new LinkedHashMap<>();
         JsonObject o = obj.getAsJsonObject("odds");
         for (String r : RARITIES) {
-            odds.put(r, o != null && o.has(r) ? o.get(r).getAsInt() : 0);
+            odds.put(r, o != null && o.has(r) ? o.get(r).getAsDouble() : 0.0);
         }
         Map<String, List<Entry>> pools = new LinkedHashMap<>();
         JsonObject p = obj.getAsJsonObject("pools");
@@ -145,8 +179,21 @@ public final class CrateDefs {
             }
             pools.put(r, List.copyOf(list));
         }
-        int pan = obj.has("pan_find_one_in") ? obj.get("pan_find_one_in").getAsInt() : 0;
-        return new CrateTier(id, Map.copyOf(odds), pan, Map.copyOf(pools));
+        Map<String, Integer> finds = new LinkedHashMap<>();
+        if (obj.has("pan_find_one_in") && obj.get("pan_find_one_in").getAsInt() > 0) {
+            finds.put("pan", obj.get("pan_find_one_in").getAsInt());
+        }
+        JsonObject f = obj.getAsJsonObject("finds");
+        if (f != null) {
+            for (String source : FIND_SOURCES) {
+                if (f.has(source) && f.get(source).getAsInt() > 0) finds.put(source, f.get(source).getAsInt());
+            }
+        }
+        boolean old = obj.has("old") && obj.get("old").getAsBoolean();
+        String name = obj.has("name") ? obj.get("name").getAsString() : "crate.holeydigsite.collection." + id;
+        String look = obj.has("look") ? obj.get("look").getAsString() : id;
+        String site = obj.has("site") ? obj.get("site").getAsString() : "";
+        return new CrateTier(id, name, look, old, Map.copyOf(odds), Map.copyOf(finds), site, Map.copyOf(pools));
     }
 
     private static Optional<Entry> parseEntry(JsonObject e) {
@@ -177,7 +224,14 @@ public final class CrateDefs {
         for (String r : RARITIES) {
             scrap.put(r, s != null && s.has(r) ? s.get(r).getAsInt() : 1);
         }
-        return new Rules(List.copyOf(wears), Map.copyOf(scrap));
+        Map<String, Integer> offSkin = new LinkedHashMap<>();
+        JsonObject off = obj.getAsJsonObject("off_coins");
+        JsonObject offSkins = off != null && off.has("skin") ? off.getAsJsonObject("skin") : null;
+        for (String r : RARITIES) {
+            offSkin.put(r, offSkins != null && offSkins.has(r) ? offSkins.get(r).getAsInt() : 0);
+        }
+        return new Rules(List.copyOf(wears), Map.copyOf(scrap), obj.has("locked_sell_copper") ? obj.get("locked_sell_copper").getAsInt() : 48,
+                off != null && off.has("crate") ? off.get("crate").getAsInt() : 1536, Map.copyOf(offSkin));
     }
 
     @SubscribeEvent

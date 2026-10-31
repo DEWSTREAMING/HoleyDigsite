@@ -1,19 +1,25 @@
 package com.holeydigsite.client;
 
+import com.holeydigsite.sluice.LongSluiceBlock;
 import com.holeydigsite.sluice.SluiceBoxBlock;
 import com.holeydigsite.sluice.SluiceBoxBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.holeydigsite.sluice.SluiceUpgrade;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Draws the first few stacks in a Sluice Box's tray, lying flat in the tray at the front of the block (like items on
@@ -26,6 +32,7 @@ public class SluiceBoxRenderer implements BlockEntityRenderer<SluiceBoxBlockEnti
             {6.5F, 4.0F}, {9.5F, 4.0F}, {8.0F, 3.4F}};
     /** Top of the tray floor, in pixels. */
     private static final float TRAY_TOP = 5.0F;
+    private static final float LONG_TRAY_TOP = 3.6F;
 
     private final ItemRenderer itemRenderer;
 
@@ -34,22 +41,54 @@ public class SluiceBoxRenderer implements BlockEntityRenderer<SluiceBoxBlockEnti
     }
 
     @Override
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(SluiceBoxBlockEntity sluice) {
+        net.minecraft.world.phys.AABB box = new net.minecraft.world.phys.AABB(sluice.getBlockPos());
+        return sluice.getBlockState().getBlock() instanceof LongSluiceBlock ? box.inflate(1.5) : box;
+    }
+
+    /** The inserts of a long sluice as a floating line while one of its three parts is looked at. */
+    private void drawInsertLabel(SluiceBoxBlockEntity sluice, BlockState state, PoseStack pose, MultiBufferSource buffers, int light) {
+        BlockPos back = sluice.getBlockPos();
+        boolean focused = false;
+        for (BlockPos part : ((LongSluiceBlock) state.getBlock()).allParts(back, state)) {
+            focused |= FloatingText.focused(part, 1.0);
+        }
+        if (!focused) {
+            return;
+        }
+        List<SluiceUpgrade> inserts = sluice.inserts();
+        Component text = inserts.isEmpty()
+                ? Component.translatable("label.holeydigsite.sluice.no_inserts")
+                : Component.translatable("label.holeydigsite.sluice.inserts", inserts.stream()
+                        .map(u -> u.item().getDescription().getString()).collect(Collectors.joining(", ")));
+        FloatingText.draw(pose, buffers, text, 0.5, 2.1, 0.5, FloatingText.labelScale(back), light);
+    }
+
+    @Override
     public void render(SluiceBoxBlockEntity sluice, float partialTick, PoseStack pose, MultiBufferSource buffers,
                        int light, int overlay) {
+        BlockState state = sluice.getBlockState();
+        boolean isLong = state.getBlock() instanceof LongSluiceBlock;
+        if (isLong) {
+            drawInsertLabel(sluice, state, pose, buffers, light);
+        }
         List<ItemStack> tray = sluice.tray();
         if (tray.isEmpty()) {
             return;
         }
-        Direction facing = sluice.getBlockState().getValue(SluiceBoxBlock.FACING);
+        Direction facing = state.getValue(SluiceBoxBlock.FACING);
         float modelY = (facing.toYRot() + 180.0F) % 360.0F; // same rotation as the blockstate variant
         pose.pushPose();
         pose.translate(0.5, 0, 0.5);
         pose.mulPose(Axis.YP.rotationDegrees(-modelY));
         pose.translate(-0.5, 0, -0.5);
+        if (isLong) {
+            pose.translate(0, 0, -1); // the tray is on the front part, one block towards the player
+        }
         int n = Math.min(tray.size(), SPOTS.length);
         for (int i = 0; i < n; i++) {
             pose.pushPose();
-            pose.translate(SPOTS[i][0] / 16.0, (TRAY_TOP + 0.3F + i * 0.05F) / 16.0, SPOTS[i][1] / 16.0);
+            pose.translate(SPOTS[i][0] / 16.0, ((isLong ? LONG_TRAY_TOP : TRAY_TOP) + 0.3F + i * 0.05F) / 16.0, SPOTS[i][1] / 16.0);
             if (FlatItems.isLump(tray.get(i))) {
                 float scale = 0.6F;
                 pose.translate(0, scale / 16.0, 0);

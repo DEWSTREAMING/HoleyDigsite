@@ -97,14 +97,29 @@ public class Phase18Tests {
             // another upgrade is refused while the slot is taken
             ItemStack riffle = new ItemStack(ModItems.RIFFLE_INSERT.get());
             click(h, p, rel, riffle, false);
-            h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.SEED && riffle.getCount() == 1, "slot not exclusive");
+            if (b == ModBlocks.SLUICE_BOX_T2.get()) {
+                // the long sluice has a second slot: the riffle goes in, then comes out again
+                h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.SEED && riffle.isEmpty()
+                        && h.getBlockState(rel).getValue(com.holeydigsite.sluice.LongSluiceBlock.UPGRADE2) == SluiceUpgrade.RIFFLE, "second slot not used");
+                click(h, p, rel, ItemStack.EMPTY, true);
+                h.getEntities(EntityType.ITEM).forEach(ItemEntity::discard);
+            } else {
+                h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.SEED && riffle.getCount() == 1, "slot not exclusive");
+            }
             // and the screen cannot replace a value upgrade
             click(h, p, rel, ItemStack.EMPTY, true);
             h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.NONE && count(p, ModItems.SEED_SCREEN.get()) == 1, "not removed / not returned");
             click(h, p, rel, new ItemStack(ModItems.RIFFLE_INSERT.get()), false);
             ItemStack screen = new ItemStack(ModItems.SEED_SCREEN.get());
             click(h, p, rel, screen, false);
-            h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.RIFFLE && screen.getCount() == 1, "screen replaced the riffle");
+            if (b == ModBlocks.SLUICE_BOX_T2.get()) {
+                h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.RIFFLE && screen.isEmpty()
+                        && h.getBlockState(rel).getValue(com.holeydigsite.sluice.LongSluiceBlock.UPGRADE2) == SluiceUpgrade.SEED, "screen should take the long sluice's second slot");
+                click(h, p, rel, ItemStack.EMPTY, true);
+                h.getEntities(EntityType.ITEM).forEach(ItemEntity::discard);
+            } else {
+                h.assertTrue(h.getBlockState(rel).getValue(SluiceBoxBlock.UPGRADE) == SluiceUpgrade.RIFFLE && screen.getCount() == 1, "screen replaced the riffle");
+            }
             click(h, p, rel, ItemStack.EMPTY, true);
             click(h, p, rel, new ItemStack(ModItems.SEED_SCREEN.get()), false);
             h.getLevel().removeBlock(h.absolutePos(rel), false);

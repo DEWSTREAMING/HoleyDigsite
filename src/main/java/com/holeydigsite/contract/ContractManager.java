@@ -350,23 +350,25 @@ public final class ContractManager {
 
     // ------------------------------------------------------------------------------------------------ rewards
 
-    /** Which crate a finished contract of this reward size gives, or null. */
-    @Nullable
-    public static Item crateFor(long reward, RandomSource rng) {
+    /**
+     * The crates a finished contract of this reward size gives (Prospector Crates, unlocked), or empty. The old Wooden chance gives
+     * one, the old Iron chance two.
+     */
+    public static ItemStack crateFor(long reward, RandomSource rng) {
         ContractDefs.CrateRule rule = null;
         for (ContractDefs.CrateRule r : ContractDefs.rules().crates()) {
             if (reward >= r.minReward()) rule = r;
         }
         if (rule == null) {
-            return null;
+            return ItemStack.EMPTY;
         }
         if (rule.iron() > 0 && rng.nextDouble() < rule.iron()) {
-            return ModItems.IRON_CRATE.get();
+            return new ItemStack(ModItems.PROSPECTOR_CRATE.get(), 2);
         }
         if (rule.wooden() > 0 && rng.nextDouble() < rule.wooden()) {
-            return ModItems.WOODEN_CRATE.get();
+            return new ItemStack(ModItems.PROSPECTOR_CRATE.get(), 1);
         }
-        return null;
+        return ItemStack.EMPTY;
     }
 
     /** Pays a finished contract: coins (biggest first), Renown under the cap, maybe a crate, then the Ledger counters. */
@@ -381,17 +383,29 @@ public final class ContractManager {
         if (ledger.level() > oldLevel) {
             LedgerManager.notifyLevelUp(sp, ledger.level());
         }
-        Item crate = crateFor(c.reward, rng);
-        if (crate != null) {
-            LedgerManager.giveOrDrop(sp, new ItemStack(crate));
+        ItemStack crate = crateFor(c.reward, rng);
+        long crateCoins = 0;
+        if (!crate.isEmpty()) {
+            if (ledger.cratesOn()) {
+                LedgerManager.giveCountOrDrop(sp, crate.copyWithCount(1), crate.getCount());
+            } else {
+                crateCoins = (long) crate.getCount() * com.holeydigsite.crate.CrateDefs.rules().offCrateCopper();
+                for (ItemStack coins : Selling.coins(crateCoins)) {
+                    LedgerManager.giveOrDrop(sp, coins);
+                }
+            }
         }
         d.setCompleted(d.completed() + 1);
 
         sp.displayClientMessage(Component.translatable("message.holeydigsite.contract.done", Selling.format(c.reward, 30))
                 .withStyle(ChatFormatting.GOLD), true);
         MutableComponent chat = Component.translatable("chat.holeydigsite.contract.reward", Selling.format(c.reward), renown);
-        if (crate != null) {
-            chat.append(Component.translatable("chat.holeydigsite.contract.crate", crate.getDescription()));
+        if (!crate.isEmpty() && crateCoins > 0) {
+            chat.append(Component.translatable("chat.holeydigsite.contract.crate_coins", Selling.format(crateCoins)));
+        } else if (!crate.isEmpty()) {
+            Component name = crate.getCount() > 1 ? Component.literal(crate.getCount() + " x ").append(crate.getItem().getDescription())
+                    : crate.getItem().getDescription();
+            chat.append(Component.translatable("chat.holeydigsite.contract.crate", name));
         }
         sp.sendSystemMessage(chat.withStyle(ChatFormatting.GOLD));
 

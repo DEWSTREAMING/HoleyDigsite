@@ -1,0 +1,29 @@
+{
+  "name": "crate.holeydigsite.collection.prospector_crate",
+  "look": "prospector",
+  "odds": {"common": 80, "rare": 16, "epic": 3, "legendary": 1},
+  "finds": {"pan": 2000, "sluice": 1440, "drill": 1440, "shovel": 3000},
+  "pools": {
+    "common": [
+      {"skin": "rustic"},
+      {"skin": "rustic_weathered"},
+      {"title": "lucky_strike"},
+      {"item": "holeydigsite:miners_helmet_stand"}
+    ],
+    "rare": [
+      {"skin": "brass"},
+      {"skin": "frosted"},
+      {"title": "crate_cracker"},
+      {"item": "holeydigsite:rusty_mine_bell"}
+    ],
+    "epic": [
+      {"skin": "obsidian"},
+      {"title": "high_roller"},
+      {"item": "holeydigsite:sluice_model"}
+    ],
+    "legendary": [
+      {"title": "jackpot"},
+      {"item": "holeydigsite:golden_drill_statue"}
+    ]
+  }
+}

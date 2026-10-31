@@ -233,6 +233,99 @@
       "grams": 1,
       "form": "crop",
       "meltable": false
+    },
+    "holeydigsite:outback_gold_chunk_small": {
+      "material": "holeydigsite:outback_gold",
+      "grams": 1
+    },
+    "holeydigsite:outback_gold_chunk_medium": {
+      "material": "holeydigsite:outback_gold",
+      "grams": 3
+    },
+    "holeydigsite:outback_gold_chunk_large": {
+      "material": "holeydigsite:outback_gold",
+      "grams": 8
+    },
+    "holeydigsite:outback_gold_ingot": {
+      "material": "holeydigsite:outback_gold",
+      "grams": 10,
+      "form": "ingot"
+    },
+    "holeydigsite:ironstone_pebble": {
+      "material": "holeydigsite:ironstone_pebble",
+      "grams": 1,
+      "meltable": false
+    },
+    "holeydigsite:potch": {
+      "material": "holeydigsite:potch",
+      "grams": 1,
+      "meltable": false
+    },
+    "holeydigsite:uncut_potch": {
+      "material": "holeydigsite:potch",
+      "grams": 1,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:boulder_opal": {
+      "material": "holeydigsite:boulder_opal",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_boulder_opal": {
+      "material": "holeydigsite:boulder_opal",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:sapphire_parti": {
+      "material": "holeydigsite:sapphire_parti",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_sapphire_parti": {
+      "material": "holeydigsite:sapphire_parti",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:black_opal": {
+      "material": "holeydigsite:black_opal",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_black_opal": {
+      "material": "holeydigsite:black_opal",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:fire_opal": {
+      "material": "holeydigsite:fire_opal",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_fire_opal": {
+      "material": "holeydigsite:fire_opal",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:pink_diamond": {
+      "material": "holeydigsite:pink_diamond",
+      "grams": 2,
+      "meltable": false
+    },
+    "holeydigsite:uncut_pink_diamond": {
+      "material": "holeydigsite:pink_diamond",
+      "grams": 2,
+      "form": "uncut",
+      "meltable": false
+    },
+    "holeydigsite:welcome_stranger": {
+      "material": "holeydigsite:welcome_stranger",
+      "grams": 72000,
+      "meltable": false
     }
   }
 }

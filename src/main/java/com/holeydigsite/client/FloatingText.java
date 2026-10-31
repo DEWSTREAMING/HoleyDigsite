@@ -151,6 +151,12 @@ public final class FloatingText {
      */
     public static void draw(PoseStack pose, MultiBufferSource buffers, Component text, double x, double y, double z,
                             float scale, int light) {
+        drawFrom(pose, buffers, text, x, y, z, scale, light, -Minecraft.getInstance().font.width(text) / 2.0F);
+    }
+
+    /** {@link #draw} with the text starting {@code left} text pixels from the anchor (a left-aligned block of lines). */
+    public static void drawFrom(PoseStack pose, MultiBufferSource buffers, Component text, double x, double y, double z,
+                                float scale, int light, float left) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
         pose.pushPose();
@@ -159,7 +165,7 @@ public final class FloatingText {
         pose.scale(scale, -scale, scale);
         Matrix4f m = pose.last().pose();
         int bg = (int) (mc.options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
-        float w = -font.width(text) / 2.0F;
+        float w = left;
         font.drawInBatch(text, w, 0, 553648127, false, m, buffers, Font.DisplayMode.SEE_THROUGH, bg, light);
         font.drawInBatch(text, w, 0, -1, false, m, buffers, Font.DisplayMode.NORMAL, 0, light);
         pose.popPose();

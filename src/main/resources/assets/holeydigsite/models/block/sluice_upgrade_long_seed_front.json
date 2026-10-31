@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "holeydigsite:block/sluice_insert_seed",
+    "insert": "holeydigsite:block/sluice_insert_seed"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        5.75,
+        12.5
+      ],
+      "to": [
+        14,
+        6.5,
+        15.5
+      ],
+      "faces": {
+        "up": {
+          "texture": "#insert"
+        },
+        "down": {
+          "texture": "#insert"
+        },
+        "north": {
+          "texture": "#insert"
+        },
+        "south": {
+          "texture": "#insert"
+        },
+        "east": {
+          "texture": "#insert"
+        },
+        "west": {
+          "texture": "#insert"
+        }
+      }
+    }
+  ]
+}

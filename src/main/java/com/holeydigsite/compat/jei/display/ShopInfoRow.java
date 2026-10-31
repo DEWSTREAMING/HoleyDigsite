@@ -42,8 +42,8 @@ public record ShopInfoRow(
 
         List<ShopInfoRow> rows = new ArrayList<>();
         for (ShopItem si : items) {
-            Component loc = locationFor(si.site());
-            MutableComponent priceText = Selling.format(si.price());
+            Component loc = isEventStore(si) ? JeiText.t("location_event_shop") : locationFor(si.site());
+            MutableComponent priceText = si.priceText();
             Component line;
             if (si.ledger()) {
                 line = JeiText.t("shop_line_ledger", loc, priceText);
@@ -71,6 +71,11 @@ public record ShopInfoRow(
     public static final String LOC_TRADING_POST = "location_trading_post";
     public static final List<String> KNOWN_SITES = List.of("deep_dig", "gravel_flats", "sand_dunes");
 
+    /** Chip-priced things and the event plot deeds are sold at the event store. */
+    public static boolean isEventStore(ShopItem si) {
+        return si.paidInChips() || BuiltInRegistries.ITEM.getKey(si.item()).getPath().startsWith("land_deed_event_");
+    }
+
     public static Component locationFor(Optional<String> site) {
         if (site.isEmpty()) {
             return JeiText.t(LOC_TRADING_POST);
@@ -85,14 +90,15 @@ public record ShopInfoRow(
             "belt_splitter", "blacksmith_hammer", "bread", "brush", "buy_pad",
             "claim_flag", "clump_belt", "crafting_forge", "crucible", "dirt",
             "dirt_clump", "down_incline_belt", "drop_chute", "filter_belt", "fine_mesh_screen",
-            "forge", "gem_cutter", "gold_crate", "gravel_clump", "gravel_head",
-            "incline_belt", "iron_crate", "land_deed_deep_dig", "land_deed_gravel_flats", "land_deed_sand_dunes",
+            "bolt_cutters", "forge", "gem_cutter", "land_deed_event_t1", "land_deed_event_t2", "land_deed_event_t3",
+            "outback_crate", "corrugated_iron_sheet", "little_windmill", "ute_ore_cart", "southern_cross_banner", "welcome_stranger_stand", "gravel_clump", "gravel_head",
+            "incline_belt", "land_deed_deep_dig", "land_deed_gravel_flats", "land_deed_sand_dunes",
             "lava_bucket", "lava_intake", "lava_pipe", "lucky_lantern", "miners_lantern",
             "mining_drill", "mold", "money_pan", "ore_cart", "pan",
             "prospectors_ledger", "prospectors_pick", "riffle_insert", "river_stone_lamp", "sandstone_lamp",
             "sand_clump", "sand_head", "seed_screen", "sell_pad", "shop_button",
             "skin_bench", "sluice_box", "smithing_anvil", "water_intake", "water_pipe",
-            "wooden_crate", "wooden_shovel"
+            "wooden_shovel"
     };
 
     private static List<ShopItem> loadBuiltin() {
@@ -108,7 +114,8 @@ public record ShopInfoRow(
                 long price = obj.get("price").getAsLong();
                 Optional<String> site = obj.has("site") ? Optional.of(obj.get("site").getAsString()) : Optional.empty();
                 boolean ledger = obj.has("ledger") && obj.get("ledger").getAsBoolean();
-                list.add(new ShopItem(item, count, price, site, ledger));
+                int chips = obj.has("chips") ? obj.get("chips").getAsInt() : 0;
+                list.add(new ShopItem(item, count, price, site, ledger, chips));
             } catch (Exception e) {
                 HoleyDigsite.LOGGER.warn("Failed to load builtin shop item {}: {}", file, e.toString());
             }

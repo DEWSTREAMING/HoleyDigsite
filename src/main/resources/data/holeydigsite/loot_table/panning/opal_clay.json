@@ -1,0 +1,83 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.1
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:outback_gold_chunk_medium",
+          "weight": 70
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:outback_gold_chunk_large",
+          "weight": 30
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.008
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_black_opal",
+          "weight": 50
+        },
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_fire_opal",
+          "weight": 50
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.0011
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:uncut_pink_diamond",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.000104167
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "holeydigsite:welcome_stranger",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

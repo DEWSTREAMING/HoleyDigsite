@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "holeydigsite:block/southern_cross_banner"
+    },
+    "facing=east": {
+      "model": "holeydigsite:block/southern_cross_banner",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "holeydigsite:block/southern_cross_banner",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "holeydigsite:block/southern_cross_banner",
+      "y": 270
+    }
+  }
+}

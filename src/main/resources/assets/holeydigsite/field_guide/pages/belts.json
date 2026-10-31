@@ -1,0 +1,15 @@
+{
+  "order": 5,
+  "title": "field_guide.holeydigsite.page.belts.title",
+  "text": [
+    "field_guide.holeydigsite.page.belts.line1",
+    "field_guide.holeydigsite.page.belts.line2",
+    "field_guide.holeydigsite.page.belts.line3"
+  ],
+  "clip": "belts",
+  "frames": 1,
+  "fps": 10,
+  "cols": 1,
+  "frame_w": 320,
+  "frame_h": 180
+}

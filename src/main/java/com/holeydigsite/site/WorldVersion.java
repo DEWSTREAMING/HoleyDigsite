@@ -29,8 +29,8 @@ import java.util.function.Consumer;
 public class WorldVersion extends SavedData {
     public static final String NAME = "holeydigsite_world";
 
-    /** Content version of this mod build. 1 = 1.12.0: sites + this hook. 2 = 1.14.2: floating-block fix-ups. 3 = 1.14.4: slits under the Trading Post corner / kiosk foundation. 4 = 1.18.1: new sign texts. */
-    public static final int CURRENT = 4;
+    /** Content version of this mod build. 1 = 1.12.0: sites + this hook. 2 = 1.14.2: floating-block fix-ups. 3 = 1.14.4: slits under the Trading Post corner / kiosk foundation. 4 = 1.18.1: new sign texts. 5 = 1.27.0: the event island. */
+    public static final int CURRENT = 5;
 
     /** One upgrade: runs once on worlds older than {@code version}. */
     public record Step(int version, String name, Consumer<MinecraftServer> run) {}
@@ -42,7 +42,9 @@ public class WorldVersion extends SavedData {
             new Step(3, "air slits under ground-level blocks in owned plots (Phase 16.1, 1.14.4)",
                     server -> WorldFixups.applyAll(server, WorldFixups.ALL.get(1))),
             new Step(4, "sign texts rewritten (Phase 20.1, 1.18.1): drill pad, signpost, plot sign posts",
-                    server -> WorldFixups.applyAll(server, WorldFixups.ALL.get(2))));
+                    server -> WorldFixups.applyAll(server, WorldFixups.ALL.get(2))),
+            new Step(5, "the event island north of every home island (Phase 28b, 1.27.0), placed into air only",
+                    com.holeydigsite.event.EventIsland::addToAllIslands));
 
     private int version;
     private final List<String> applied = new ArrayList<>();
