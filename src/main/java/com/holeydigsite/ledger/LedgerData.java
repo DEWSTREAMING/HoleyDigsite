@@ -57,6 +57,21 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
     private final Set<String> collected = new LinkedHashSet<>();
     private boolean collectionsScanned;
 
+    // Records (Phase Quick 1)
+    private int heaviestGemGrams;
+    private String heaviestGemKind = "";
+    private int heaviestChunkGrams;
+    private String heaviestChunkKind = "";
+    private int heaviestIngotGrams;
+    private String heaviestIngotMetal = "";
+    private long biggestSaleCopper;
+    private long mostCoinsDayCopper;
+    private long lastDayRecordNotifiedDay = -1;
+    private int flawlessGemsFound;
+    private int handFlawlessExemption;
+    private long currentDay;
+    private long currentDayCopper;
+
     public static LedgerData get(Player player) {
         return player.getData(ModAttachments.LEDGER_DATA.get());
     }
@@ -282,6 +297,107 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.collected.clear();
         this.collectionsScanned = true;
         this.contracts.clear();
+        this.heaviestGemGrams = 0;
+        this.heaviestGemKind = "";
+        this.heaviestChunkGrams = 0;
+        this.heaviestChunkKind = "";
+        this.heaviestIngotGrams = 0;
+        this.heaviestIngotMetal = "";
+        this.biggestSaleCopper = 0;
+        this.mostCoinsDayCopper = 0;
+        this.lastDayRecordNotifiedDay = -1;
+        this.flawlessGemsFound = 0;
+        this.handFlawlessExemption = 0;
+        this.currentDay = 0;
+        this.currentDayCopper = 0;
+    }
+
+    public int heaviestGemGrams() { return heaviestGemGrams; }
+    public String heaviestGemKind() { return heaviestGemKind; }
+    public boolean checkHeaviestGem(int grams, String kind) {
+        if (grams > heaviestGemGrams) {
+            heaviestGemGrams = grams;
+            heaviestGemKind = kind == null ? "" : kind;
+            return true;
+        }
+        return false;
+    }
+
+    public int heaviestChunkGrams() { return heaviestChunkGrams; }
+    public String heaviestChunkKind() { return heaviestChunkKind; }
+    public boolean checkHeaviestChunk(int grams, String kind) {
+        if (grams > heaviestChunkGrams) {
+            heaviestChunkGrams = grams;
+            heaviestChunkKind = kind == null ? "" : kind;
+            return true;
+        }
+        return false;
+    }
+
+    public int heaviestIngotGrams() { return heaviestIngotGrams; }
+    public String heaviestIngotMetal() { return heaviestIngotMetal; }
+    public boolean checkHeaviestIngot(int grams, String metal) {
+        if (grams > heaviestIngotGrams) {
+            heaviestIngotGrams = grams;
+            heaviestIngotMetal = metal == null ? "" : metal;
+            return true;
+        }
+        return false;
+    }
+
+    public long biggestSaleCopper() { return biggestSaleCopper; }
+    public void setBiggestSaleCopper(long val) { this.biggestSaleCopper = val; }
+    public boolean checkBiggestSale(long copper) {
+        if (copper > biggestSaleCopper) {
+            biggestSaleCopper = copper;
+            return true;
+        }
+        return false;
+    }
+
+    public long mostCoinsDayCopper() { return mostCoinsDayCopper; }
+    public void setMostCoinsDayCopper(long val) { this.mostCoinsDayCopper = val; }
+    public long lastDayRecordNotifiedDay() { return lastDayRecordNotifiedDay; }
+    public long currentDay() { return currentDay; }
+    public long currentDayCopper() { return currentDayCopper; }
+    public boolean addDayCopper(long day, long copper) {
+        if (copper <= 0) return false;
+        long oldBest = mostCoinsDayCopper;
+        if (day != currentDay) {
+            currentDay = day;
+            currentDayCopper = copper;
+        } else {
+            currentDayCopper += copper;
+        }
+        boolean beatRecord = currentDayCopper > oldBest;
+        if (beatRecord) {
+            mostCoinsDayCopper = currentDayCopper;
+            if (lastDayRecordNotifiedDay != day) {
+                lastDayRecordNotifiedDay = day;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int flawlessGemsFound() { return flawlessGemsFound; }
+    public int handFlawlessExemption() { return handFlawlessExemption; }
+
+    public void addFlawlessGemFound() {
+        flawlessGemsFound++;
+    }
+
+    public void addHandFlawlessFound() {
+        flawlessGemsFound++;
+        handFlawlessExemption++;
+    }
+
+    public boolean useHandFlawlessExemption() {
+        if (handFlawlessExemption > 0) {
+            handFlawlessExemption--;
+            return true;
+        }
+        return false;
     }
 
     public void copyFrom(LedgerData other) {
@@ -324,6 +440,19 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.collected.clear();
         this.collected.addAll(other.collected);
         this.collectionsScanned = other.collectionsScanned;
+        this.heaviestGemGrams = other.heaviestGemGrams;
+        this.heaviestGemKind = other.heaviestGemKind;
+        this.heaviestChunkGrams = other.heaviestChunkGrams;
+        this.heaviestChunkKind = other.heaviestChunkKind;
+        this.heaviestIngotGrams = other.heaviestIngotGrams;
+        this.heaviestIngotMetal = other.heaviestIngotMetal;
+        this.biggestSaleCopper = other.biggestSaleCopper;
+        this.mostCoinsDayCopper = other.mostCoinsDayCopper;
+        this.lastDayRecordNotifiedDay = other.lastDayRecordNotifiedDay;
+        this.flawlessGemsFound = other.flawlessGemsFound;
+        this.handFlawlessExemption = other.handFlawlessExemption;
+        this.currentDay = other.currentDay;
+        this.currentDayCopper = other.currentDayCopper;
     }
 
     @Override
@@ -388,6 +517,22 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         }
         tag.put("Collected", coll);
         tag.putBoolean("CollectionsScanned", collectionsScanned);
+        CompoundTag rec = new CompoundTag();
+        rec.putInt("HeaviestGemGrams", heaviestGemGrams);
+        rec.putString("HeaviestGemKind", heaviestGemKind);
+        rec.putInt("HeaviestChunkGrams", heaviestChunkGrams);
+        rec.putString("HeaviestChunkKind", heaviestChunkKind);
+        rec.putInt("HeaviestIngotGrams", heaviestIngotGrams);
+        rec.putString("HeaviestIngotMetal", heaviestIngotMetal);
+        rec.putLong("BiggestSaleCopper", biggestSaleCopper);
+        rec.putLong("MostCoinsDayCopper", mostCoinsDayCopper);
+        rec.putLong("LastDayRecordNotifiedDay", lastDayRecordNotifiedDay);
+        rec.putInt("FlawlessGemsFound", flawlessGemsFound);
+        rec.putInt("HandFlawlessExemption", handFlawlessExemption);
+        rec.putLong("CurrentDay", currentDay);
+        rec.putLong("CurrentDayCopper", currentDayCopper);
+        tag.put("Records", rec);
+
         return tag;
     }
 
@@ -417,6 +562,36 @@ public final class LedgerData implements INBTSerializable<CompoundTag> {
         this.sellRemainder = tag.getLong("SellRemainder");
         this.contractRenown = tag.getInt("ContractRenown");
         this.contracts.deserialize(tag.getCompound("Contracts"));
+        if (tag.contains("Records")) {
+            CompoundTag rec = tag.getCompound("Records");
+            this.heaviestGemGrams = rec.getInt("HeaviestGemGrams");
+            this.heaviestGemKind = rec.getString("HeaviestGemKind");
+            this.heaviestChunkGrams = rec.getInt("HeaviestChunkGrams");
+            this.heaviestChunkKind = rec.getString("HeaviestChunkKind");
+            this.heaviestIngotGrams = rec.getInt("HeaviestIngotGrams");
+            this.heaviestIngotMetal = rec.getString("HeaviestIngotMetal");
+            this.biggestSaleCopper = rec.getLong("BiggestSaleCopper");
+            this.mostCoinsDayCopper = rec.getLong("MostCoinsDayCopper");
+            this.lastDayRecordNotifiedDay = rec.contains("LastDayRecordNotifiedDay") ? rec.getLong("LastDayRecordNotifiedDay") : -1;
+            this.flawlessGemsFound = rec.getInt("FlawlessGemsFound");
+            this.handFlawlessExemption = rec.getInt("HandFlawlessExemption");
+            this.currentDay = rec.getLong("CurrentDay");
+            this.currentDayCopper = rec.getLong("CurrentDayCopper");
+        } else {
+            this.heaviestGemGrams = 0;
+            this.heaviestGemKind = "";
+            this.heaviestChunkGrams = 0;
+            this.heaviestChunkKind = "";
+            this.heaviestIngotGrams = 0;
+            this.heaviestIngotMetal = "";
+            this.biggestSaleCopper = 0;
+            this.mostCoinsDayCopper = 0;
+            this.lastDayRecordNotifiedDay = -1;
+            this.flawlessGemsFound = 0;
+            this.handFlawlessExemption = 0;
+            this.currentDay = 0;
+            this.currentDayCopper = 0;
+        }
 
         this.harvestedCrops.clear();
         ListTag crops = tag.getList("HarvestedCrops", Tag.TAG_STRING);

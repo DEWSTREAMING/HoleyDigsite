@@ -446,6 +446,9 @@ public class CrucibleBlock extends BaseEntityBlock implements com.holeydigsite.t
         ResourceLocation metal = c.metal();
         int grams = c.takeMolten(Math.min(mold.missing(), c.molten()));
         mold.pour(metal, grams);   // the mold restarts its cooling
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp && metal != null) {
+            com.holeydigsite.ledger.LedgerManager.recordPour(sp, metal, grams);
+        }
         level.setBlock(pos, level.getBlockState(pos).setValue(TIPPING, true), Block.UPDATE_CLIENTS);
         level.scheduleTick(pos, level.getBlockState(pos).getBlock(), TIP_TICKS);
         level.playSound(null, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 0.8F, 1.2F);

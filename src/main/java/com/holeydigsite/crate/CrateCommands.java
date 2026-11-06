@@ -19,14 +19,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * {@code /holeydigsite crate give <player> <id> [count] [locked]}, {@code crate odds <id>} and {@code crate switch <player> [on|off]}.
+ * {@code /holeydigsite crate give <player> <id> [count] [locked]}, {@code crate chances <id>} and {@code crate switch <player> [on|off]}.
  */
 public final class CrateCommands {
     private CrateCommands() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("crate")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("crate").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("give")
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("tier", StringArgumentType.word())
@@ -36,7 +36,7 @@ public final class CrateCommands {
                                                         .executes(c -> give(c, IntegerArgumentType.getInteger(c, "count"), false))
                                                         .then(Commands.literal("locked")
                                                                 .executes(c -> give(c, IntegerArgumentType.getInteger(c, "count"), true)))))))
-                        .then(Commands.literal("odds")
+                        .then(Commands.literal("chances")
                                 .then(Commands.argument("tier", StringArgumentType.word())
                                         .suggests((c, b) -> SharedSuggestionProvider.suggest(CrateDefs.tiers().keySet(), b))
                                         .executes(CrateCommands::odds)))

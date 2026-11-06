@@ -231,6 +231,30 @@ public class HoleyDigsiteJeiPlugin implements IModPlugin {
         );
 
         // Shop items from catalogue
+        registration.addItemStackInfo(new ItemStack(ModItems.SCYTHE.get()),
+                JeiText.t("info_scythe_1"),
+                JeiText.t("info_scythe_2")
+        );
+        registration.addItemStackInfo(new ItemStack(ModBlocks.SPRINKLER.get()),
+                JeiText.t("info_sprinkler_1"),
+                JeiText.t("info_sprinkler_2")
+        );
+        registration.addItemStackInfo(new ItemStack(ModBlocks.FLOOD_GATE.get()),
+                JeiText.t("info_flood_gate_1"),
+                JeiText.t("info_flood_gate_2")
+        );
+        registration.addItemStackInfo(new ItemStack(ModBlocks.THRESHING_DRUM.get()),
+                JeiText.t("info_threshing_drum_1"),
+                JeiText.t("info_threshing_drum_2")
+        );
+        registration.addItemStackInfo(new ItemStack(ModBlocks.ROPE_MACHINE.get()),
+                JeiText.t("info_rope_machine_1"),
+                JeiText.t("info_rope_machine_2")
+        );
+        registration.addItemStackInfo(new ItemStack(ModBlocks.SAWMILL.get()),
+                JeiText.t("info_sawmill_1"),
+                JeiText.t("info_sawmill_2")
+        );
         for (ShopInfoRow shopRow : ShopInfoRow.loadAll(registries)) {
             registration.addItemStackInfo(new ItemStack(shopRow.item()), shopRow.infoLine());
         }

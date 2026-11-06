@@ -121,8 +121,9 @@ public final class CrateRolls {
                     out = scrap(sp, roll, icon, Component.translatable("crate.holeydigsite.result.duplicate", Component.literal(e.id()), n), n);
                     break;
                 }
+                int count = SkinDefs.CONVEYOR.equals(roll.kitFamily()) ? SkinDefs.CONVEYOR_KIT_DROP_COUNT : 1;
                 ItemStack kit = SkinKitItem.of(e.id(), roll.kitFamily(), wear, 1);
-                LedgerManager.giveOrDrop(sp, kit.copy());
+                LedgerManager.giveCountOrDrop(sp, kit.copy(), count);
                 out = new Outcome(roll, Result.KIT, 0, kit, Component.translatable("crate.holeydigsite.result.skin_kit",
                         kit.getHoverName(), SkinWear.displayName(wear)));
             }

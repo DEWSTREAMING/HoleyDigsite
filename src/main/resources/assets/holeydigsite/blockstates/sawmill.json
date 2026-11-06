@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "facing=north,mode=beam,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill"
+    },
+    "facing=north,mode=beam,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working"
+    },
+    "facing=north,mode=beam,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill"
+    },
+    "facing=north,mode=beam,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working"
+    },
+    "facing=north,mode=pit_prop,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill"
+    },
+    "facing=north,mode=pit_prop,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working"
+    },
+    "facing=north,mode=pit_prop,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill"
+    },
+    "facing=north,mode=pit_prop,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working"
+    },
+    "facing=east,mode=beam,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 90
+    },
+    "facing=east,mode=beam,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 90
+    },
+    "facing=east,mode=beam,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 90
+    },
+    "facing=east,mode=beam,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 90
+    },
+    "facing=east,mode=pit_prop,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 90
+    },
+    "facing=east,mode=pit_prop,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 90
+    },
+    "facing=east,mode=pit_prop,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 90
+    },
+    "facing=east,mode=pit_prop,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 90
+    },
+    "facing=south,mode=beam,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 180
+    },
+    "facing=south,mode=beam,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 180
+    },
+    "facing=south,mode=beam,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 180
+    },
+    "facing=south,mode=beam,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 180
+    },
+    "facing=south,mode=pit_prop,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 180
+    },
+    "facing=south,mode=pit_prop,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 180
+    },
+    "facing=south,mode=pit_prop,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 180
+    },
+    "facing=south,mode=pit_prop,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 180
+    },
+    "facing=west,mode=beam,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 270
+    },
+    "facing=west,mode=beam,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 270
+    },
+    "facing=west,mode=beam,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 270
+    },
+    "facing=west,mode=beam,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 270
+    },
+    "facing=west,mode=pit_prop,water_powered=false,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 270
+    },
+    "facing=west,mode=pit_prop,water_powered=false,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 270
+    },
+    "facing=west,mode=pit_prop,water_powered=true,working=false": {
+      "model": "holeydigsite:block/sawmill",
+      "y": 270
+    },
+    "facing=west,mode=pit_prop,water_powered=true,working=true": {
+      "model": "holeydigsite:block/sawmill_working",
+      "y": 270
+    }
+  }
+}

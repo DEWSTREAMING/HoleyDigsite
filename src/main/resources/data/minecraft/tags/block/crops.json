@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "holeydigsite:glowroot_crop",
+    "holeydigsite:riverbean_crop",
+    "holeydigsite:dune_melon_crop",
+    "holeydigsite:hemp_crop"
+  ]
+}

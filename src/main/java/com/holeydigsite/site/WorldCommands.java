@@ -15,8 +15,8 @@ public final class WorldCommands {
     private WorldCommands() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("world")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("world").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("version").executes(WorldCommands::version))));
     }
 

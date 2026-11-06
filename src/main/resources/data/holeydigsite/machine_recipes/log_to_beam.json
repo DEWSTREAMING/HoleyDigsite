@@ -1,0 +1,13 @@
+{
+  "machine": "holeydigsite:sawmill",
+  "mode": "beam",
+  "ingredient": {
+    "tag": "minecraft:logs",
+    "count": 1
+  },
+  "result": {
+    "item": "holeydigsite:beam",
+    "count": 1
+  },
+  "ticks": 20
+}

@@ -318,7 +318,92 @@ public final class LedgerManager {
             int newLevel = data.level();
             if (newLevel > oldLevel) notifyLevelUp(sp, newLevel);
         }
+        boolean newBiggestSale = data.checkBiggestSale(totalCopperSold);
+        long day = sp.serverLevel().getDayTime() / 24000L;
+        boolean newDayRecord = data.addDayCopper(day, totalCopperSold);
+        if (newBiggestSale) {
+            sp.displayClientMessage(Component.translatable("message.holeydigsite.record.biggest_sale", com.holeydigsite.economy.Selling.format(totalCopperSold)), true);
+        } else if (newDayRecord) {
+            sp.displayClientMessage(Component.translatable("message.holeydigsite.record.most_coins_day", com.holeydigsite.economy.Selling.format(data.mostCoinsDayCopper())), true);
+        }
         LedgerNetwork.syncToClient(sp);
+    }
+
+    public static boolean recordSaleItem(ServerPlayer sp, ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        LedgerData data = LedgerData.get(sp);
+        int grams = com.holeydigsite.economy.Selling.grams(stack);
+        com.holeydigsite.economy.ResourceInfo info = com.holeydigsite.economy.Selling.resource(stack);
+        boolean changed = false;
+        boolean notified = false;
+        if (com.holeydigsite.economy.FlawlessDefs.isFlawless(stack)) {
+            for (int i = 0; i < stack.getCount(); i++) {
+                if (stack.getOrDefault(com.holeydigsite.registry.ModDataComponents.COUNTED.get(), false)) {
+                    // explicitly marked as counted
+                } else if (data.useHandFlawlessExemption()) {
+                    // counted upon hand find
+                } else {
+                    data.addFlawlessGemFound();
+                    changed = true;
+                }
+            }
+        }
+        if (com.holeydigsite.economy.FlawlessDefs.isGem(stack)) {
+            String name = stack.getItem().getName(stack).getString();
+            if (data.checkHeaviestGem(grams, net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())) {
+                sp.displayClientMessage(Component.translatable("message.holeydigsite.record.heaviest_gem", name, grams), true);
+                changed = true;
+                notified = true;
+            }
+        } else if (info != null && com.holeydigsite.economy.ResourceInfo.RAW.equals(info.form()) && !info.isCrop()) {
+            String name = stack.getItem().getName(stack).getString();
+            if (data.checkHeaviestChunk(grams, net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())) {
+                sp.displayClientMessage(Component.translatable("message.holeydigsite.record.heaviest_chunk", name, grams), true);
+                changed = true;
+                notified = true;
+            }
+        }
+        if (changed) {
+            LedgerNetwork.syncToClient(sp);
+        }
+        return notified;
+    }
+
+    public static void recordPour(ServerPlayer sp, ResourceLocation metal, int grams) {
+        if (grams <= 0) return;
+        LedgerData data = LedgerData.get(sp);
+        if (data.checkHeaviestIngot(grams, metal.toString())) {
+            sp.displayClientMessage(Component.translatable("message.holeydigsite.record.heaviest_ingot", grams), true);
+        }
+        LedgerNetwork.syncToClient(sp);
+    }
+
+    public static void recordFind(ServerPlayer sp, ItemStack stack) {
+        if (stack.isEmpty()) return;
+        LedgerData data = LedgerData.get(sp);
+        int grams = com.holeydigsite.economy.Selling.grams(stack);
+        com.holeydigsite.economy.ResourceInfo info = com.holeydigsite.economy.Selling.resource(stack);
+        boolean changed = false;
+        if (com.holeydigsite.economy.FlawlessDefs.isFlawless(stack)) {
+            data.addHandFlawlessFound();
+            changed = true;
+        }
+        if (com.holeydigsite.economy.FlawlessDefs.isGem(stack)) {
+            String name = stack.getItem().getName(stack).getString();
+            if (data.checkHeaviestGem(grams, net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())) {
+                sp.displayClientMessage(Component.translatable("message.holeydigsite.record.heaviest_gem", name, grams), true);
+                changed = true;
+            }
+        } else if (info != null && com.holeydigsite.economy.ResourceInfo.RAW.equals(info.form()) && !info.isCrop()) {
+            String name = stack.getItem().getName(stack).getString();
+            if (data.checkHeaviestChunk(grams, net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())) {
+                sp.displayClientMessage(Component.translatable("message.holeydigsite.record.heaviest_chunk", name, grams), true);
+                changed = true;
+            }
+        }
+        if (changed) {
+            LedgerNetwork.syncToClient(sp);
+        }
     }
 
     public static void notifyLevelUp(ServerPlayer sp, int newLevel) {

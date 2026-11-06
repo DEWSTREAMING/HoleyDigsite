@@ -40,8 +40,10 @@ public final class SkinDefs {
     public static final String DEFAULT_ID = "default";
     public static final String DRILL = "mining_drill";
     public static final String SLUICE = "sluice_box";
+    public static final String CONVEYOR = "conveyor";
+    public static final int CONVEYOR_KIT_DROP_COUNT = 16;
     /** Every machine family a skin can fit, in display order. */
-    public static final List<String> FAMILIES = List.of(DRILL, SLUICE);
+    public static final List<String> FAMILIES = List.of(DRILL, SLUICE, CONVEYOR);
 
     public static boolean isFamily(@Nullable String family) {
         return family != null && FAMILIES.contains(family);
@@ -95,7 +97,8 @@ public final class SkinDefs {
 
     private static final String[] BUILTIN_SKINS = {
             "rustic", "rustic_weathered", "brass", "obsidian", "frosted", "outback", "outback_dusty", "outback_ochre",
-            "opal_calm", "opal", "opal_boulder", "black_opal"
+            "opal_calm", "opal", "opal_boulder", "black_opal",
+            "patina", "gunmetal", "ironbark", "enamel", "quartz_reef", "nugget"
     };
 
     static {
@@ -142,8 +145,18 @@ public final class SkinDefs {
             if (bi.getBlock() instanceof SluiceBoxBlock) {
                 return SLUICE;
             }
+            if (isConveyorBlock(bi.getBlock())) {
+                return CONVEYOR;
+            }
         }
         return null;
+    }
+
+    public static boolean isConveyorBlock(net.minecraft.world.level.block.Block block) {
+        if (block instanceof com.holeydigsite.belt.GemCutterBlock) {
+            return false;
+        }
+        return block instanceof com.holeydigsite.belt.ClumpBeltBlock || block instanceof com.holeydigsite.transport.DropChuteBlock;
     }
 
     public static List<SkinDef> skinsForFamily(String family) {

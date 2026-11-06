@@ -98,6 +98,17 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(ModBlockEntities.CONTRACT_BOARD.get(), ContractBoardRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.SCORE_BOARD.get(), ScoreBoardRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.TROPHY_STAND.get(), TrophyStandRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.SPRINKLER.get(), SprinklerRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.FLOOD_GATE.get(), FloodGateRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.THRESHING_DRUM.get(), WaterMachineRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.ROPE_MACHINE.get(), WaterMachineRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.SAWMILL.get(), WaterMachineRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerReloadListeners(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener)
+                com.holeydigsite.ledger.ComingUpDefs::reload);
     }
 
     @SubscribeEvent
@@ -108,6 +119,9 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
         event.register(MiningDrillRenderer.AUGER);
+        event.register(WaterMachineRenderer.THRESHING_DRUM_ROTOR);
+        event.register(WaterMachineRenderer.ROPE_MACHINE_WHEEL);
+        event.register(WaterMachineRenderer.SAWMILL_BLADE);
     }
 
     @SubscribeEvent
@@ -130,7 +144,17 @@ public final class ClientSetup {
         if (path.startsWith("sluice_upgrade") || path.startsWith("block/sluice_upgrade") || path.startsWith("item/sluice_upgrade")) {
             return false;
         }
-        return path.startsWith("mining_drill") || path.startsWith("block/mining_drill") || path.startsWith("item/mining_drill")
-                || path.startsWith("sluice_box") || path.startsWith("block/sluice_box") || path.startsWith("item/sluice_box");
+        String clean = path.startsWith("block/") ? path.substring(6) : (path.startsWith("item/") ? path.substring(5) : path);
+        return clean.startsWith("mining_drill")
+                || clean.startsWith("sluice_box")
+                || clean.startsWith("clump_belt")
+                || clean.startsWith("fast_clump_belt")
+                || clean.startsWith("incline_belt")
+                || clean.startsWith("fast_incline_belt")
+                || clean.startsWith("down_incline_belt")
+                || clean.startsWith("fast_down_incline_belt")
+                || clean.startsWith("belt_splitter")
+                || clean.startsWith("filter_belt")
+                || clean.startsWith("drop_chute");
     }
 }

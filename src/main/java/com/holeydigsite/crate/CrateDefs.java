@@ -35,7 +35,7 @@ public final class CrateDefs {
 
     /** Best to worst. */
     public static final List<String> RARITIES = List.of("common", "rare", "epic", "legendary");
-    public static final List<String> BUILTIN_TIERS = List.of("prospector_crate", "outback_crate", "wooden_crate", "iron_crate", "gold_crate");
+    public static final List<String> BUILTIN_TIERS = List.of("prospector_crate", "goldfields_crate", "outback_crate", "wooden_crate", "iron_crate", "gold_crate");
 
     public static final List<String> FIND_SOURCES = List.of("pan", "sluice", "drill", "shovel");
 

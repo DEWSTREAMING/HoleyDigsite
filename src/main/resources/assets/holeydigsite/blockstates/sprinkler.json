@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,water_powered=false": {
+      "model": "holeydigsite:block/sprinkler"
+    },
+    "facing=north,water_powered=true": {
+      "model": "holeydigsite:block/sprinkler"
+    },
+    "facing=east,water_powered=false": {
+      "model": "holeydigsite:block/sprinkler",
+      "y": 90
+    },
+    "facing=east,water_powered=true": {
+      "model": "holeydigsite:block/sprinkler",
+      "y": 90
+    },
+    "facing=south,water_powered=false": {
+      "model": "holeydigsite:block/sprinkler",
+      "y": 180
+    },
+    "facing=south,water_powered=true": {
+      "model": "holeydigsite:block/sprinkler",
+      "y": 180
+    },
+    "facing=west,water_powered=false": {
+      "model": "holeydigsite:block/sprinkler",
+      "y": 270
+    },
+    "facing=west,water_powered=true": {
+      "model": "holeydigsite:block/sprinkler",
+      "y": 270
+    }
+  }
+}

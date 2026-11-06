@@ -1,0 +1,50 @@
+{
+  "name": "crate.holeydigsite.collection.goldfields_crate",
+  "look": "goldfields",
+  "odds": {
+    "common": 80,
+    "rare": 16,
+    "epic": 4
+  },
+  "finds": {
+    "pan": 2000,
+    "sluice": 1440,
+    "drill": 1440,
+    "shovel": 3000
+  },
+  "pools": {
+    "common": [
+      {
+        "skin": "patina"
+      },
+      {
+        "skin": "gunmetal"
+      },
+      {
+        "item": "holeydigsite:ore_cart"
+      },
+      {
+        "item": "holeydigsite:miners_lantern"
+      }
+    ],
+    "rare": [
+      {
+        "skin": "ironbark"
+      },
+      {
+        "skin": "enamel"
+      },
+      {
+        "item": "holeydigsite:golden_pan_trophy"
+      }
+    ],
+    "epic": [
+      {
+        "skin": "quartz_reef"
+      },
+      {
+        "skin": "nugget"
+      }
+    ]
+  }
+}

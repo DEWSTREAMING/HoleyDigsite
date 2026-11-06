@@ -1,0 +1,450 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "holeydigsite:block/threshing_drum_rotor",
+    "rotor": "holeydigsite:block/threshing_drum_rotor"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        23,
+        7
+      ],
+      "to": [
+        14,
+        25,
+        9
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#rotor"
+        },
+        "up": {
+          "uv": [
+            2,
+            7,
+            14,
+            9
+          ],
+          "texture": "#rotor"
+        },
+        "down": {
+          "uv": [
+            2,
+            7,
+            14,
+            9
+          ],
+          "texture": "#rotor"
+        },
+        "north": {
+          "uv": [
+            2,
+            7,
+            14,
+            9
+          ],
+          "texture": "#rotor"
+        },
+        "south": {
+          "uv": [
+            2,
+            7,
+            14,
+            9
+          ],
+          "texture": "#rotor"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        21,
+        6
+      ],
+      "to": [
+        13,
+        27,
+        10
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            4,
+            2,
+            12,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            4,
+            2,
+            12,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "up": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "down": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "north": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "south": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        22,
+        5
+      ],
+      "to": [
+        13,
+        26,
+        11
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            2,
+            4,
+            14,
+            12
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            2,
+            4,
+            14,
+            12
+          ],
+          "texture": "#rotor"
+        },
+        "up": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "down": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "north": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        },
+        "south": {
+          "uv": [
+            0,
+            2,
+            16,
+            14
+          ],
+          "texture": "#rotor"
+        }
+      }
+    },
+    {
+      "from": [
+        3.5,
+        27,
+        7.25
+      ],
+      "to": [
+        12.5,
+        28,
+        8.75
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "north": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "south": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "west": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        }
+      }
+    },
+    {
+      "from": [
+        3.5,
+        20,
+        7.25
+      ],
+      "to": [
+        12.5,
+        21,
+        8.75
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "north": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "south": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "west": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        }
+      }
+    },
+    {
+      "from": [
+        3.5,
+        23.25,
+        4
+      ],
+      "to": [
+        12.5,
+        24.75,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "up": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "down": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "west": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        }
+      }
+    },
+    {
+      "from": [
+        3.5,
+        23.25,
+        11
+      ],
+      "to": [
+        12.5,
+        24.75,
+        12
+      ],
+      "faces": {
+        "south": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "up": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "down": {
+          "uv": [
+            2,
+            1,
+            14,
+            3
+          ],
+          "texture": "#rotor"
+        },
+        "west": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        },
+        "east": {
+          "uv": [
+            6,
+            6,
+            8,
+            8
+          ],
+          "texture": "#rotor"
+        }
+      }
+    }
+  ]
+}

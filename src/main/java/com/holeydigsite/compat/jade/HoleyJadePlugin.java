@@ -29,6 +29,9 @@ public class HoleyJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(SkinLine.INSTANCE, SluiceBoxBlock.class);
         registration.registerBlockComponent(CrateWaitingLine.INSTANCE, MiningDrillBlock.class);
         registration.registerBlockComponent(SwitchLine.INSTANCE, com.holeydigsite.crate.CrateSwitchBlock.class);
+        registration.registerBlockComponent(SprinklerLine.INSTANCE, com.holeydigsite.power.SprinklerBlock.class);
+        registration.registerBlockComponent(FloodGateLine.INSTANCE, com.holeydigsite.power.FloodGateBlock.class);
+        registration.registerBlockComponent(MachineLine.INSTANCE, com.holeydigsite.machine.WaterProcessingBlock.class);
     }
 
     /** "Crate waiting" while a drill holds a crate find. */
@@ -67,6 +70,96 @@ public class HoleyJadePlugin implements IWailaPlugin {
             boolean on = com.holeydigsite.ledger.LedgerData.get(accessor.getPlayer()).cratesOn();
             tooltip.add(Component.translatable(on ? "message.holeydigsite.crate_switch.on" : "message.holeydigsite.crate_switch.off")
                     .withStyle(on ? ChatFormatting.GREEN : ChatFormatting.RED));
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
+    }
+
+    enum SprinklerLine implements IBlockComponentProvider {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(HoleyDigsite.MODID, "sprinkler_status");
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            if (accessor.getBlock() instanceof com.holeydigsite.power.SprinklerBlock) {
+                boolean powered = accessor.getBlockState().hasProperty(com.holeydigsite.power.SprinklerBlock.WATER_POWERED)
+                        && accessor.getBlockState().getValue(com.holeydigsite.power.SprinklerBlock.WATER_POWERED);
+                if (!powered) {
+                    tooltip.add(Component.translatable("message.holeydigsite.sprinkler.no_water").withStyle(ChatFormatting.RED));
+                } else {
+                    tooltip.add(Component.translatable("message.holeydigsite.sprinkler.working").withStyle(ChatFormatting.AQUA));
+                }
+            }
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
+    }
+
+    
+    enum MachineLine implements IBlockComponentProvider {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(HoleyDigsite.MODID, "machine_status");
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            if (accessor.getBlock() instanceof com.holeydigsite.machine.WaterProcessingBlock) {
+                boolean powered = accessor.getBlockState().hasProperty(com.holeydigsite.machine.WaterProcessingBlock.WATER_POWERED)
+                        && accessor.getBlockState().getValue(com.holeydigsite.machine.WaterProcessingBlock.WATER_POWERED);
+                boolean working = accessor.getBlockState().hasProperty(com.holeydigsite.machine.WaterProcessingBlock.WORKING)
+                        && accessor.getBlockState().getValue(com.holeydigsite.machine.WaterProcessingBlock.WORKING);
+
+                if (!powered) {
+                    tooltip.add(Component.translatable("message.holeydigsite.machine.no_water").withStyle(ChatFormatting.RED));
+                } else if (accessor.getBlockEntity() instanceof com.holeydigsite.machine.WaterProcessingBlockEntity be && be.isBufferFull()) {
+                    tooltip.add(Component.translatable("message.holeydigsite.machine.buffer_full").withStyle(ChatFormatting.YELLOW));
+                } else if (working) {
+                    tooltip.add(Component.translatable("message.holeydigsite.machine.working").withStyle(ChatFormatting.AQUA));
+                } else {
+                    tooltip.add(Component.translatable("message.holeydigsite.machine.ready").withStyle(ChatFormatting.GREEN));
+                }
+
+                if (accessor.getBlock() instanceof com.holeydigsite.machine.SawmillBlock) {
+                    com.holeydigsite.machine.SawmillBlock.Mode mode = accessor.getBlockState().getValue(com.holeydigsite.machine.SawmillBlock.MODE);
+                    String key = mode == com.holeydigsite.machine.SawmillBlock.Mode.BEAM ? "message.holeydigsite.sawmill.mode_beam" : "message.holeydigsite.sawmill.mode_pit_prop";
+                    tooltip.add(Component.translatable(key).withStyle(ChatFormatting.GOLD));
+                }
+            }
+        }
+
+        @Override
+        public ResourceLocation getUid() {
+            return UID;
+        }
+    }
+
+    enum FloodGateLine implements IBlockComponentProvider {
+        INSTANCE;
+
+        private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(HoleyDigsite.MODID, "flood_gate_status");
+
+        @Override
+        public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+            if (accessor.getBlock() instanceof com.holeydigsite.power.FloodGateBlock) {
+                boolean powered = accessor.getBlockState().hasProperty(com.holeydigsite.power.FloodGateBlock.WATER_POWERED)
+                        && accessor.getBlockState().getValue(com.holeydigsite.power.FloodGateBlock.WATER_POWERED);
+                boolean washing = accessor.getBlockState().hasProperty(com.holeydigsite.power.FloodGateBlock.WASHING)
+                        && accessor.getBlockState().getValue(com.holeydigsite.power.FloodGateBlock.WASHING);
+                if (!powered) {
+                    tooltip.add(Component.translatable("message.holeydigsite.flood_gate.no_water").withStyle(ChatFormatting.RED));
+                } else if (washing) {
+                    tooltip.add(Component.translatable("message.holeydigsite.flood_gate.washing").withStyle(ChatFormatting.AQUA));
+                } else {
+                    tooltip.add(Component.translatable("message.holeydigsite.flood_gate.ready").withStyle(ChatFormatting.GREEN));
+                }
+            }
         }
 
         @Override

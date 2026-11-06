@@ -28,8 +28,8 @@ public final class DisplayCommands {
     private DisplayCommands() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("display")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("display").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("set")
                                 .then(Commands.argument("price", LongArgumentType.longArg(1, CustomEntry.MAX_PRICE))
                                         .executes(c -> set(c, 1, 0))

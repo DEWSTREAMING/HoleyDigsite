@@ -28,7 +28,7 @@ public class SkinKitItem extends Item {
     public static ItemStack of(String skin, String family, @Nullable String wear, int count) {
         ItemStack s = new ItemStack(ModItems.SKIN_KIT.get(), Math.max(1, count));
         s.set(ModDataComponents.SKIN.get(), skin);
-        s.set(ModDataComponents.SKIN_FAMILY.get(), family);
+        s.set(ModDataComponents.SKIN_FAMILY.get(), normalizeFamily(family));
         SkinWear.set(s, wear);
         return s;
     }
@@ -47,7 +47,19 @@ public class SkinKitItem extends Item {
     @Nullable
     public static String family(ItemStack stack) {
         String f = stack.get(ModDataComponents.SKIN_FAMILY.get());
-        return f == null || f.isEmpty() ? null : f;
+        String norm = normalizeFamily(f);
+        if (norm != null && !norm.equals(f)) {
+            stack.set(ModDataComponents.SKIN_FAMILY.get(), norm);
+        }
+        return norm;
+    }
+
+    @Nullable
+    public static String normalizeFamily(@Nullable String f) {
+        if (f == null || f.isEmpty()) return null;
+        if ("drill".equals(f)) return SkinDefs.DRILL;
+        if ("sluice".equals(f)) return SkinDefs.SLUICE;
+        return f;
     }
 
     public static String wear(ItemStack stack) {
@@ -61,6 +73,9 @@ public class SkinKitItem extends Item {
 
     /** The basic machine of a family, for icons. */
     public static Item machineItem(String family) {
+        if (SkinDefs.CONVEYOR.equals(family)) {
+            return ModItems.CLUMP_BELT.get();
+        }
         return SkinDefs.SLUICE.equals(family) ? ModItems.SLUICE_BOX.get() : ModItems.MINING_DRILL.get();
     }
 
@@ -84,7 +99,11 @@ public class SkinKitItem extends Item {
     /** Skin Scrap for scrapping one kit: the Phase 23 duplicate amount, rarity times wear. */
     public static int scrapValue(ItemStack kit) {
         String skin = skin(kit);
-        return CrateRolls.scrapFor(skin == null ? "common" : rarity(skin), wear(kit));
+        int base = CrateRolls.scrapFor(skin == null ? "common" : rarity(skin), wear(kit));
+        if (SkinDefs.CONVEYOR.equals(family(kit))) {
+            return Math.max(1, (base + 15) / 16);
+        }
+        return base;
     }
 
     /** A family for a rolled skin, each family it fits equally likely. */

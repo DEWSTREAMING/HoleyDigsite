@@ -7,9 +7,10 @@
     "field_guide.holeydigsite.page.first_line.line3"
   ],
   "clip": "first_line",
-  "frames": 1,
+  "frames": 46,
   "fps": 10,
-  "cols": 1,
+  "cols": 7,
   "frame_w": 320,
-  "frame_h": 180
+  "frame_h": 180,
+  "end_pause": 0
 }

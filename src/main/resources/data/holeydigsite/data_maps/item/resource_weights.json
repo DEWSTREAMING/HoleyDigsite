@@ -3,15 +3,43 @@
   "values": {
     "holeydigsite:folkiron_chunk_small": {
       "material": "holeydigsite:folkiron",
-      "grams": 2
+      "grams": 2,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:folkiron_chunk_medium": {
       "material": "holeydigsite:folkiron",
-      "grams": 5
+      "grams": 5,
+      "min": 3,
+      "max": 7,
+      "odds": [
+        1,
+        2,
+        4,
+        2,
+        1
+      ]
     },
     "holeydigsite:folkiron_chunk_large": {
       "material": "holeydigsite:folkiron",
-      "grams": 12
+      "grams": 12,
+      "min": 9,
+      "max": 16,
+      "odds": [
+        2,
+        2,
+        5,
+        6,
+        4,
+        2,
+        1,
+        1
+      ]
     },
     "holeydigsite:goldchro_chunk_small": {
       "material": "holeydigsite:goldchro",
@@ -19,11 +47,28 @@
     },
     "holeydigsite:goldchro_chunk_medium": {
       "material": "holeydigsite:goldchro",
-      "grams": 3
+      "grams": 3,
+      "min": 2,
+      "max": 4,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:goldchro_chunk_large": {
       "material": "holeydigsite:goldchro",
-      "grams": 7
+      "grams": 7,
+      "min": 5,
+      "max": 10,
+      "odds": [
+        2,
+        4,
+        5,
+        3,
+        1,
+        1
+      ]
     },
     "holeydigsite:ruby_small": {
       "material": "holeydigsite:ruby",
@@ -39,24 +84,52 @@
     "holeydigsite:ruby_medium": {
       "material": "holeydigsite:ruby",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_ruby_medium": {
       "material": "holeydigsite:ruby",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:ruby_large": {
       "material": "holeydigsite:ruby",
       "grams": 4,
-      "meltable": false
+      "meltable": false,
+      "min": 3,
+      "max": 5,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_ruby_large": {
       "material": "holeydigsite:ruby",
       "grams": 4,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 3,
+      "max": 5,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:folkiron_ingot": {
       "material": "holeydigsite:folkiron",
@@ -70,15 +143,43 @@
     },
     "holeydigsite:orchremia_chunk_small": {
       "material": "holeydigsite:orchremia",
-      "grams": 2
+      "grams": 2,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:orchremia_chunk_medium": {
       "material": "holeydigsite:orchremia",
-      "grams": 5
+      "grams": 5,
+      "min": 3,
+      "max": 7,
+      "odds": [
+        1,
+        2,
+        4,
+        2,
+        1
+      ]
     },
     "holeydigsite:orchremia_chunk_large": {
       "material": "holeydigsite:orchremia",
-      "grams": 12
+      "grams": 12,
+      "min": 9,
+      "max": 16,
+      "odds": [
+        2,
+        2,
+        5,
+        6,
+        4,
+        2,
+        1,
+        1
+      ]
     },
     "holeydigsite:silvane_chunk_small": {
       "material": "holeydigsite:silvane",
@@ -86,11 +187,28 @@
     },
     "holeydigsite:silvane_chunk_medium": {
       "material": "holeydigsite:silvane",
-      "grams": 3
+      "grams": 3,
+      "min": 2,
+      "max": 4,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:silvane_chunk_large": {
       "material": "holeydigsite:silvane",
-      "grams": 7
+      "grams": 7,
+      "min": 5,
+      "max": 10,
+      "odds": [
+        2,
+        4,
+        5,
+        3,
+        1,
+        1
+      ]
     },
     "holeydigsite:sapphire_small": {
       "material": "holeydigsite:sapphire",
@@ -106,24 +224,52 @@
     "holeydigsite:sapphire_medium": {
       "material": "holeydigsite:sapphire",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_sapphire_medium": {
       "material": "holeydigsite:sapphire",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:sapphire_large": {
       "material": "holeydigsite:sapphire",
       "grams": 4,
-      "meltable": false
+      "meltable": false,
+      "min": 3,
+      "max": 5,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_sapphire_large": {
       "material": "holeydigsite:sapphire",
       "grams": 4,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 3,
+      "max": 5,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:topaz_small": {
       "material": "holeydigsite:topaz",
@@ -139,24 +285,52 @@
     "holeydigsite:topaz_medium": {
       "material": "holeydigsite:topaz",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_topaz_medium": {
       "material": "holeydigsite:topaz",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:topaz_large": {
       "material": "holeydigsite:topaz",
       "grams": 4,
-      "meltable": false
+      "meltable": false,
+      "min": 3,
+      "max": 5,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_topaz_large": {
       "material": "holeydigsite:topaz",
       "grams": 4,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 3,
+      "max": 5,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:orchremia_ingot": {
       "material": "holeydigsite:orchremia",
@@ -240,11 +414,28 @@
     },
     "holeydigsite:outback_gold_chunk_medium": {
       "material": "holeydigsite:outback_gold",
-      "grams": 3
+      "grams": 3,
+      "min": 2,
+      "max": 4,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:outback_gold_chunk_large": {
       "material": "holeydigsite:outback_gold",
-      "grams": 8
+      "grams": 8,
+      "min": 6,
+      "max": 11,
+      "odds": [
+        2,
+        4,
+        5,
+        3,
+        1,
+        1
+      ]
     },
     "holeydigsite:outback_gold_ingot": {
       "material": "holeydigsite:outback_gold",
@@ -270,61 +461,209 @@
     "holeydigsite:boulder_opal": {
       "material": "holeydigsite:boulder_opal",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_boulder_opal": {
       "material": "holeydigsite:boulder_opal",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:sapphire_parti": {
       "material": "holeydigsite:sapphire_parti",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_sapphire_parti": {
       "material": "holeydigsite:sapphire_parti",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:black_opal": {
       "material": "holeydigsite:black_opal",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_black_opal": {
       "material": "holeydigsite:black_opal",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:fire_opal": {
       "material": "holeydigsite:fire_opal",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_fire_opal": {
       "material": "holeydigsite:fire_opal",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:pink_diamond": {
       "material": "holeydigsite:pink_diamond",
       "grams": 2,
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:uncut_pink_diamond": {
       "material": "holeydigsite:pink_diamond",
       "grams": 2,
       "form": "uncut",
-      "meltable": false
+      "meltable": false,
+      "min": 1,
+      "max": 3,
+      "odds": [
+        1,
+        2,
+        1
+      ]
     },
     "holeydigsite:welcome_stranger": {
       "material": "holeydigsite:welcome_stranger",
       "grams": 72000,
+      "meltable": false
+    },
+    "holeydigsite:hemp": {
+      "material": "holeydigsite:hemp",
+      "grams": 1,
+      "form": "crop",
+      "meltable": false
+    },
+    "holeydigsite:fibre": {
+      "material": "holeydigsite:fibre",
+      "grams": 1,
+      "form": "part",
+      "meltable": false
+    },
+    "holeydigsite:rope": {
+      "material": "holeydigsite:rope",
+      "grams": 1,
+      "form": "part",
+      "meltable": false
+    },
+    "holeydigsite:beam": {
+      "material": "holeydigsite:beam",
+      "grams": 1,
+      "form": "part",
+      "meltable": false
+    },
+    "holeydigsite:pit_prop": {
+      "material": "holeydigsite:pit_prop",
+      "grams": 1,
+      "form": "part",
+      "meltable": false
+    },
+    "minecraft:oak_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:birch_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:spruce_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:jungle_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:acacia_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:dark_oak_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:mangrove_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
+      "meltable": false
+    },
+    "minecraft:cherry_log": {
+      "material": "holeydigsite:log",
+      "grams": 1,
+      "form": "raw",
       "meltable": false
     }
   }

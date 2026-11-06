@@ -27,9 +27,14 @@ public final class GemCutting {
         return BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath().substring(6)));
     }
 
-    /** The cut gem (same count), or the stack unchanged if it isn't an uncut gem. */
+    /** The cut gem (same count), or the stack unchanged if it isn't an uncut gem. Preserves data components. */
     public static ItemStack cut(ItemStack stack) {
         Item cut = cutItem(stack);
-        return cut == Items.AIR ? stack : new ItemStack(cut, stack.getCount());
+        if (cut == Items.AIR) {
+            return stack;
+        }
+        ItemStack out = new ItemStack(cut, stack.getCount());
+        out.applyComponents(stack.getComponents());
+        return out;
     }
 }

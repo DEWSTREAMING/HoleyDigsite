@@ -13,6 +13,7 @@ public final class TeamsCompat {
 
     public static final String SKYBLOCK_BUILDER = "skyblockbuilder";
     public static final String FTB_TEAMS = "ftbteams";
+    public static final String FTB_CHUNKS = "ftbchunks";
 
     public static boolean skyblockBuilder() {
         return ModList.get().isLoaded(SKYBLOCK_BUILDER);
@@ -22,6 +23,10 @@ public final class TeamsCompat {
         return ModList.get().isLoaded(FTB_TEAMS);
     }
 
+    public static boolean ftbChunks() {
+        return ModList.get().isLoaded(FTB_CHUNKS);
+    }
+
     public static void init() {
         if (skyblockBuilder()) {
             TeamAccess.set(new SkyblockTeamAccess());
@@ -29,6 +34,10 @@ public final class TeamsCompat {
             if (ftbTeams()) {
                 FtbTeamSync.register();
                 HoleyDigsite.LOGGER.info("FTB Teams found: island teams follow FTB Teams parties");
+                if (ftbChunks()) {
+                    IslandClaims.register();
+                    HoleyDigsite.LOGGER.info("FTB Chunks found: islands are claimed for their team");
+                }
             }
         }
     }

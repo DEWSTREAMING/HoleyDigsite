@@ -7,9 +7,10 @@
     "field_guide.holeydigsite.page.sell.line3"
   ],
   "clip": "sell",
-  "frames": 1,
+  "frames": 50,
   "fps": 10,
-  "cols": 1,
+  "cols": 8,
   "frame_w": 320,
-  "frame_h": 180
+  "frame_h": 180,
+  "end_pause": 0
 }

@@ -100,11 +100,7 @@ def drill_t2():
     # spins twice as fast
     with open(os.path.join(BLOCK, 'mining_drill_t2_front_working.png.mcmeta'), 'w') as f:
         json.dump({"animation": {"frametime": 1}}, f)
-    for status in ('working', 'stopped', 'no_power'):
-        copy_json(os.path.join(MODELS, 'block'), 'mining_drill_' + status, 'mining_drill_t2_' + status,
-                  [('block/mining_drill_', 'block/mining_drill_t2_')])
-    copy_json(STATES, 'mining_drill', 'mining_drill_t2', [('block/mining_drill_', 'block/mining_drill_t2_')])
-    item_parent('mining_drill_t2', 'holeydigsite:block/mining_drill_t2_working')
+    # mining_drill_t2 models and states moved to Phase 22 derrick models (make_derrick_drill.py)
 
 
 # ------------------------------------------------------------------------------------------------ Tier 2 sluice

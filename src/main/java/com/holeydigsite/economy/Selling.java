@@ -66,7 +66,27 @@ public final class Selling {
         if (price == null) {
             return 0;
         }
-        return (long) Math.floor(grams(stack) * price.perGram(info.form()) + 1e-9);
+        double mult = FlawlessDefs.isFlawless(stack) ? FlawlessDefs.rules().valueMultiplier() : 1.0;
+        return (long) Math.floor(grams(stack) * price.perGram(info.form()) * mult + 1e-9);
+    }
+
+    /**
+     * The "Sells for ..." tooltip line for a stack, or null if the item cannot be sold.
+     * Shows the stack total if the count is greater than 1.
+     */
+    @Nullable
+    public static Component sellTooltip(ItemStack stack, @Nullable HolderLookup.Provider registries) {
+        if (registries == null || stack.isEmpty()) {
+            return null;
+        }
+        long each = unitValue(stack, registries);
+        if (each <= 0) {
+            return null;
+        }
+        return stack.getCount() > 1
+                ? Component.translatable("tooltip.holeydigsite.sells_for_stack", format(each),
+                        stack.getCount(), format(each * stack.getCount()))
+                : Component.translatable("tooltip.holeydigsite.sells_for", format(each));
     }
 
     public static boolean isSellable(ItemStack stack, HolderLookup.Provider registries) {

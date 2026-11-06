@@ -102,6 +102,11 @@ public final class ModBlockEntities {
 
     /** {@code holeydigsite:skin_bench} holding an inserted machine item. */
     @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.transport.DropChuteBlockEntity>> DROP_CHUTE =
+            BLOCK_ENTITIES.register("drop_chute", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.transport.DropChuteBlockEntity::new, ModBlocks.DROP_CHUTE.get())
+                    .build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.skin.SkinBenchBlockEntity>> SKIN_BENCH =
             BLOCK_ENTITIES.register("skin_bench", () -> BlockEntityType.Builder
                     .of(com.holeydigsite.skin.SkinBenchBlockEntity::new, ModBlocks.SKIN_BENCH.get())
@@ -128,8 +133,37 @@ public final class ModBlockEntities {
                     .of(com.holeydigsite.board.ScoreBoardBlockEntity::new, ModBlocks.EVENT_BOARD.get(), ModBlocks.LEADERBOARD.get())
                     .build(null));
 
+    /** {@code holeydigsite:sprinkler} managing the water ticket. */
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.power.SprinklerBlockEntity>> SPRINKLER =
+            BLOCK_ENTITIES.register("sprinkler", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.power.SprinklerBlockEntity::new, ModBlocks.SPRINKLER.get())
+                    .build(null));
+
+    /** {@code holeydigsite:flood_gate} running the crop row wash. */
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.power.FloodGateBlockEntity>> FLOOD_GATE =
+            BLOCK_ENTITIES.register("flood_gate", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.power.FloodGateBlockEntity::new, ModBlocks.FLOOD_GATE.get())
+                    .build(null));
+
     /** {@code holeydigsite:site_marker} holding the site id a template marker builds. */
     @SuppressWarnings("DataFlowIssue")
+        public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.machine.ThreshingDrumBlockEntity>> THRESHING_DRUM =
+            BLOCK_ENTITIES.register("threshing_drum", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.machine.ThreshingDrumBlockEntity::new, ModBlocks.THRESHING_DRUM.get())
+                    .build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.machine.RopeMachineBlockEntity>> ROPE_MACHINE =
+            BLOCK_ENTITIES.register("rope_machine", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.machine.RopeMachineBlockEntity::new, ModBlocks.ROPE_MACHINE.get())
+                    .build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.machine.SawmillBlockEntity>> SAWMILL =
+            BLOCK_ENTITIES.register("sawmill", () -> BlockEntityType.Builder
+                    .of(com.holeydigsite.machine.SawmillBlockEntity::new, ModBlocks.SAWMILL.get())
+                    .build(null));
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.holeydigsite.site.SiteMarkerBlockEntity>> SITE_MARKER =
             BLOCK_ENTITIES.register("site_marker", () -> BlockEntityType.Builder
                     .of(com.holeydigsite.site.SiteMarkerBlockEntity::new, ModBlocks.SITE_MARKER.get())

@@ -60,8 +60,14 @@ public final class FieldGuideDefs {
             int fps,
             int cols,
             int frameW,
-            int frameH
+            int frameH,
+            long endPauseMs
     ) {
+        public Page(String id, int order, String titleKey, List<String> textKeys, String clip,
+                    int frames, int fps, int cols, int frameW, int frameH) {
+            this(id, order, titleKey, textKeys, clip, frames, fps, cols, frameW, frameH, END_PAUSE_MS);
+        }
+
         public ResourceLocation texture() {
             return HoleyDigsite.id("textures/gui/field_guide/" + clip + ".png");
         }
@@ -113,7 +119,8 @@ public final class FieldGuideDefs {
     /**
      * Computes which frame index (0..frames-1) to display at {@code elapsedMs}.
      * Single-frame pages always return 0. Multi-frame clips step at {@code fps}
-     * and pause on the final frame for {@link #END_PAUSE_MS} before looping.
+     * and hold the final frame for the page's {@code end_pause} (default {@link #END_PAUSE_MS}) before looping.
+     * Clips cut as clean loops set it to 0.
      */
     public static int frameAt(Page page, long elapsedMs) {
         if (page == null || page.frames() <= 1 || page.fps() <= 0) {
@@ -121,7 +128,7 @@ public final class FieldGuideDefs {
         }
         long frameMs = Math.max(1L, 1000L / page.fps());
         long playMs = page.frames() * frameMs;
-        long cycleMs = playMs + END_PAUSE_MS;
+        long cycleMs = playMs + Math.max(0L, page.endPauseMs());
         long pos = Math.floorMod(elapsedMs, cycleMs);
         if (pos >= playMs) {
             return page.frames() - 1;
@@ -238,6 +245,7 @@ public final class FieldGuideDefs {
         int cols = obj.has("cols") ? Math.max(1, obj.get("cols").getAsInt()) : 1;
         int frameW = obj.has("frame_w") ? Math.max(1, obj.get("frame_w").getAsInt()) : 320;
         int frameH = obj.has("frame_h") ? Math.max(1, obj.get("frame_h").getAsInt()) : 180;
-        return new Page(id, order, titleKey, List.copyOf(textKeys), clip, frames, fps, cols, frameW, frameH);
+        long endPause = obj.has("end_pause") ? Math.max(0L, obj.get("end_pause").getAsLong()) : END_PAUSE_MS;
+        return new Page(id, order, titleKey, List.copyOf(textKeys), clip, frames, fps, cols, frameW, frameH, endPause);
     }
 }

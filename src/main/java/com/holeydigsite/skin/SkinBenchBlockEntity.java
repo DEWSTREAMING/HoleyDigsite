@@ -72,6 +72,8 @@ public class SkinBenchBlockEntity extends BlockEntity {
         if (!item.isEmpty()) {
             tag.put("item", item.save(registries));
         }
+        // NeoForge drops an empty update tag on the client, so an emptied block would keep drawing its old contents.
+        tag.putBoolean("Sync", true);
         return tag;
     }
 

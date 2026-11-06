@@ -34,8 +34,8 @@ public final class SkinCommands {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("skin")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("skin").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("give")
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("skin", StringArgumentType.word())

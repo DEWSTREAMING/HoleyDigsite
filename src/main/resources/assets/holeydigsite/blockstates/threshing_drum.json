@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,water_powered=false,working=false": {
+      "model": "holeydigsite:block/threshing_drum"
+    },
+    "facing=north,water_powered=false,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working"
+    },
+    "facing=north,water_powered=true,working=false": {
+      "model": "holeydigsite:block/threshing_drum"
+    },
+    "facing=north,water_powered=true,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working"
+    },
+    "facing=east,water_powered=false,working=false": {
+      "model": "holeydigsite:block/threshing_drum",
+      "y": 90
+    },
+    "facing=east,water_powered=false,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working",
+      "y": 90
+    },
+    "facing=east,water_powered=true,working=false": {
+      "model": "holeydigsite:block/threshing_drum",
+      "y": 90
+    },
+    "facing=east,water_powered=true,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working",
+      "y": 90
+    },
+    "facing=south,water_powered=false,working=false": {
+      "model": "holeydigsite:block/threshing_drum",
+      "y": 180
+    },
+    "facing=south,water_powered=false,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working",
+      "y": 180
+    },
+    "facing=south,water_powered=true,working=false": {
+      "model": "holeydigsite:block/threshing_drum",
+      "y": 180
+    },
+    "facing=south,water_powered=true,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working",
+      "y": 180
+    },
+    "facing=west,water_powered=false,working=false": {
+      "model": "holeydigsite:block/threshing_drum",
+      "y": 270
+    },
+    "facing=west,water_powered=false,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working",
+      "y": 270
+    },
+    "facing=west,water_powered=true,working=false": {
+      "model": "holeydigsite:block/threshing_drum",
+      "y": 270
+    },
+    "facing=west,water_powered=true,working=true": {
+      "model": "holeydigsite:block/threshing_drum_working",
+      "y": 270
+    }
+  }
+}

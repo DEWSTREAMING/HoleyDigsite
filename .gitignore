@@ -43,3 +43,7 @@ repo/
 tools/world_snbt/
 __pycache__/
 *.pyc
+run-shots/
+run-shots-shaders/
+run-shots-log.txt
+run-yard/

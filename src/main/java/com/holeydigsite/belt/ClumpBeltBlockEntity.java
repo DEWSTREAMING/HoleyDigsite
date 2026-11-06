@@ -44,6 +44,65 @@ import java.util.List;
  * No entities, no physics, no item handler.
  */
 public class ClumpBeltBlockEntity extends BlockEntity {
+    /** Applied skin id, e.g. "rustic", "obsidian", or empty for default. */
+    private String skin = "";
+    /** Wear of the applied skin, empty for Fresh. */
+    private String wear = "";
+
+    public String getSkin() {
+        return skin;
+    }
+
+    public String getWear() {
+        return wear;
+    }
+
+    public String getSkinKey() {
+        return com.holeydigsite.skin.SkinWear.textureKey(skin, wear);
+    }
+
+    public void setSkin(String skin) {
+        setSkin(skin, "");
+    }
+
+    public void setSkin(String skin, String wear) {
+        this.skin = skin == null ? "" : skin;
+        this.wear = wear == null || com.holeydigsite.skin.SkinWear.isFresh(wear) ? "" : wear;
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            requestModelDataUpdate();
+        }
+    }
+
+    @Override
+    public net.neoforged.neoforge.client.model.data.ModelData getModelData() {
+        return net.neoforged.neoforge.client.model.data.ModelData.builder()
+                .with(com.holeydigsite.skin.SkinModelProperties.SKIN, getSkinKey())
+                .build();
+    }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        String s = input.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (s != null) {
+            this.skin = s;
+            String w = input.get(com.holeydigsite.registry.ModDataComponents.SKIN_WEAR.get());
+            this.wear = w == null ? "" : w;
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(net.minecraft.core.component.DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        if (!skin.isEmpty() && !skin.equals("default")) {
+            builder.set(com.holeydigsite.registry.ModDataComponents.SKIN.get(), skin);
+            if (!wear.isEmpty()) {
+                builder.set(com.holeydigsite.registry.ModDataComponents.SKIN_WEAR.get(), wear);
+            }
+        }
+    }
     /** Steps per block (= ticks per block at speed 1). */
     public static final int STEPS = 20;
     /** Last step on this block; the next move leaves the block. */
@@ -765,6 +824,10 @@ public class ClumpBeltBlockEntity extends BlockEntity {
     }
 
     private void writeContents(CompoundTag tag, HolderLookup.Provider registries) {
+        if (!skin.isEmpty()) {
+            tag.putString("Skin", skin);
+            if (!wear.isEmpty()) tag.putString("SkinWear", wear);
+        }
         ListTag list = new ListTag();
         for (Clump k : clumps) {
             CompoundTag t = new CompoundTag();
@@ -793,6 +856,9 @@ public class ClumpBeltBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        skin = tag.getString("Skin");
+        wear = tag.getString("SkinWear");
+        requestModelDataUpdate();
         owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
         clumps.clear();
         for (Tag t0 : tag.getList(ITEMS, Tag.TAG_COMPOUND)) {

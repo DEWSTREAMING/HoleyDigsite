@@ -303,35 +303,8 @@ def decor_models():
             box([5.5, 6, 5.5], [10.5, 11, 10.5], all_faces('#1', (2, 2, 7, 7))),
             box([4.5, 4, 4.5], [11.5, 6, 11.5], all_faces('#1', (1, 9, 8, 11))),
         ]),
-        'sluice_model': ({'0': 'holeydigsite:block/sluice_wood', '1': 'holeydigsite:block/sluice_riffle',
-                          '2': 'holeydigsite:block/sluice_ramp', '3': log, 'particle': 'holeydigsite:block/sluice_wood'}, [
-            box([2, 0, 4], [3, 4, 5], all_faces('#3', (0, 0, 1, 4), True)),
-            box([13, 0, 4], [14, 3, 5], all_faces('#3', (0, 0, 1, 3), True)),
-            box([2, 0, 11], [3, 4, 12], all_faces('#3', (0, 0, 1, 4), True)),
-            box([13, 0, 11], [14, 3, 12], all_faces('#3', (0, 0, 1, 3), True)),
-            box([1, 4, 3], [15, 5, 13], {'up': face('#1', (1, 3, 15, 13)), 'down': face('#0', (1, 3, 15, 13)),
-                                         'north': face('#0', (1, 0, 15, 1)), 'south': face('#0', (1, 0, 15, 1)),
-                                         'east': face('#0', (3, 0, 13, 1)), 'west': face('#0', (3, 0, 13, 1))}),
-            box([1, 5, 3], [15, 8, 4], all_faces('#0', (1, 0, 15, 3))),
-            box([1, 5, 12], [15, 8, 13], all_faces('#0', (1, 0, 15, 3))),
-            box([14, 5, 4], [15, 9, 12], all_faces('#0', (4, 0, 12, 4))),
-            box([11, 5, 4], [14, 7, 12], {'up': face('#2', (0, 0, 16, 16)), 'west': face('#0', (4, 0, 12, 2))},
-                {'origin': [14, 5, 8], 'axis': 'z', 'angle': -22.5}),
-        ]),
-        'golden_drill_statue': ({'0': 'minecraft:block/polished_deepslate', '1': 'minecraft:block/gold_block',
-                                 '2': 'holeydigsite:block/skin/brass/mining_drill_lower_front',
-                                 '3': 'holeydigsite:block/skin/brass/mining_drill_lower_side',
-                                 '4': 'holeydigsite:block/skin/brass/mining_drill_upper_front',
-                                 '5': 'holeydigsite:block/skin/brass/mining_drill_upper_side',
-                                 '6': 'holeydigsite:block/skin/brass/mining_drill_upper_top',
-                                 'particle': 'minecraft:block/gold_block'}, [
-            box([2, 0, 2], [14, 3, 14], all_faces('#0', (2, 2, 14, 14), True)),
-            box([3, 3, 3], [13, 4, 13], all_faces('#1', (3, 3, 13, 13))),
-            box([5, 4, 5], [11, 10, 11], {'north': face('#2', (0, 0, 16, 16)), 'south': face('#3'), 'east': face('#3'),
-                                          'west': face('#3'), 'down': face('#3')}),
-            box([5, 10, 5], [11, 16, 11], {'north': face('#4'), 'south': face('#5'), 'east': face('#5'),
-                                           'west': face('#5'), 'up': face('#6')}),
-        ]),
+        # sluice_model moved to make_sluice_model.py (a miniature copy of the starter sluice)
+        # golden_drill_statue moved to make_gold_statue.py (a small copy of the derrick drill)
     }
     for name, (tex, elements) in models.items():
         write_json(os.path.join(ASSETS, f'models/block/{name}.json'),

@@ -88,12 +88,24 @@ neoForge {
             client()
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            if (project.hasProperty('studioShots')) {
+                gameDirectory = project.file(project.hasProperty('studioShaders') ? 'run-shots-shaders' : 'run-shots')
+                programArguments.addAll '--width', '1920', '--height', '1080'
+                systemProperty 'holeydigsite.studio', 'true'
+                if (project.hasProperty('studioShaders')) {
+                    systemProperty 'holeydigsite.studio.shaders', 'true'
+                }
+            }
         }
 
         server {
             server()
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            if (project.hasProperty('testYard')) {
+                gameDirectory = project.file('run-yard')
+                systemProperty 'holeydigsite.testyard', 'true'
+            }
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -167,12 +179,14 @@ dependencies {
     compileOnly("org.moddingx:LibX:${libx_version}") { transitive = false }
     compileOnly("dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}") { transitive = false }
     compileOnly("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") { transitive = false }
+    compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}") { transitive = false }
     compileOnly("dev.architectury:architectury-neoforge:${architectury_version}") { transitive = false }
     if (project.hasProperty('teamsRuntime')) {
         localRuntime("de.melanx:SkyblockBuilder:${skyblockbuilder_version}") { transitive = false }
         localRuntime("org.moddingx:LibX:${libx_version}") { transitive = false }
         localRuntime("dev.ftb.mods:ftb-teams-neoforge:${ftb_teams_version}") { transitive = false }
         localRuntime("dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}") { transitive = false }
+        localRuntime("dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}") { transitive = false }
         localRuntime("dev.architectury:architectury-neoforge:${architectury_version}") { transitive = false }
     }
 

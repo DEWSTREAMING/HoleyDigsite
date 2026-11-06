@@ -117,6 +117,8 @@ public class ShopDisplayBlockEntity extends BlockEntity {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         write(tag, registries);
+        // NeoForge drops an empty update tag on the client, so an emptied block would keep drawing its old contents.
+        tag.putBoolean("Sync", true);
         return tag;
     }
 

@@ -6,6 +6,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -26,6 +27,7 @@ public class FieldGuideScreen extends Screen {
     private static final int PIC_H = 135;
     private static final int DOT_SIZE = 6;
     private static final int DOT_GAP = 6;
+    private static final int CLOSE_SIZE = 16;
 
     private static final int COL_BG = 0xF0241D16;
     private static final int COL_PANEL = 0xFF3B2E22;
@@ -67,6 +69,13 @@ public class FieldGuideScreen extends Screen {
                 Component.translatable("screen.holeydigsite.field_guide.next"),
                 b -> setPage(currentPage + 1)
         ).bounds(leftPos + WIN_W - 68, navY, 56, 18).build());
+
+        // Same as Escape, so a guide opened from the Ledger closes the same way
+        this.addRenderableWidget(Button.builder(
+                Component.translatable("screen.holeydigsite.field_guide.close"),
+                b -> this.onClose()
+        ).bounds(leftPos + WIN_W - 8 - CLOSE_SIZE, topPos + 7, CLOSE_SIZE, CLOSE_SIZE)
+                .tooltip(Tooltip.create(Component.translatable("screen.holeydigsite.close.tooltip"))).build());
 
         updateNavButtons();
     }
@@ -124,7 +133,7 @@ public class FieldGuideScreen extends Screen {
         if (!pages.isEmpty()) {
             FieldGuideDefs.Page page = pages.get(Math.clamp(currentPage, 0, pages.size() - 1));
 
-            // Page title centered in header, page number on the right
+            // Page title centered in header, page number on the right, left of the close button
             Component pageTitle = Component.translatable(page.titleKey());
             int titleX = leftPos + (WIN_W - this.font.width(pageTitle)) / 2;
             g.drawString(this.font, pageTitle, titleX, topPos + 11, COL_TEXT, true);
@@ -132,7 +141,7 @@ public class FieldGuideScreen extends Screen {
             Component pageIndicator = Component.translatable(
                     "screen.holeydigsite.field_guide.page", currentPage + 1, pages.size());
             g.drawString(this.font, pageIndicator,
-                    leftPos + WIN_W - 12 - this.font.width(pageIndicator), topPos + 11, COL_MUTED, false);
+                    leftPos + WIN_W - 14 - CLOSE_SIZE - this.font.width(pageIndicator), topPos + 11, COL_MUTED, false);
 
             // Left picture frame (240x135, 16:9)
             int picX = leftPos + 12;

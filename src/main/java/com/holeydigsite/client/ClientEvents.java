@@ -110,6 +110,16 @@ public final class ClientEvents {
                     com.holeydigsite.skin.SkinWear.displayName(com.holeydigsite.skin.SkinWear.of(stack))).withStyle(ChatFormatting.GRAY));
         }
 
+        HolderLookup.Provider registries = event.getContext().registries();
+        Component sellLine = Selling.sellTooltip(stack, registries);
+        if (sellLine != null && !tip.isEmpty()) {
+            tip.add(1, sellLine.copy().withStyle(ChatFormatting.GOLD));
+        }
+
+        if (com.holeydigsite.economy.FlawlessDefs.isFlawless(stack) && !tip.isEmpty()) {
+            tip.set(0, Component.translatable("tooltip.holeydigsite.flawless_name", tip.get(0).copy()).withStyle(ChatFormatting.GOLD));
+        }
+
         ResourceInfo info = Selling.resource(stack);
         if (info == null || tip.isEmpty()) {
             return;
@@ -117,18 +127,6 @@ public final class ClientEvents {
         if (!info.isCrop() && !(stack.getItem() instanceof com.holeydigsite.item.IngotItem)) {
             tip.set(0, Component.translatable("tooltip.holeydigsite.weighted_name", tip.get(0).copy(), Selling.grams(stack))
                     .withStyle(tip.get(0).getStyle()));
-        }
-        HolderLookup.Provider registries = event.getContext().registries();
-        if (registries == null) {
-            return;
-        }
-        long each = Selling.unitValue(stack, registries);
-        if (each > 0) {
-            Component line = stack.getCount() > 1
-                    ? Component.translatable("tooltip.holeydigsite.sells_for_stack", Selling.format(each),
-                            stack.getCount(), Selling.format(each * stack.getCount()))
-                    : Component.translatable("tooltip.holeydigsite.sells_for", Selling.format(each));
-            tip.add(1, line.copy().withStyle(ChatFormatting.GOLD));
         }
         if (info.isUncut()) {
             tip.add(Component.translatable("tooltip.holeydigsite.uncut").withStyle(ChatFormatting.AQUA));

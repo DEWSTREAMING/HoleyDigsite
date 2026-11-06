@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """
-Converts a recording (GIF, MP4 or MOV) into a Field Guide frame sheet texture and updates the page's JSON frame count,
-or generates the built-in 320x180 still frames and the Field Guide item icon when run with `--stills`.
+Converts a recording (GIF, MP4, MOV, or a folder of numbered PNG frames from the photo studio) into a Field Guide
+frame sheet texture and updates the page's JSON frame count, or generates the built-in 320x180 still frames and the
+Field Guide item icon when run with `--stills`.
 
 Usage:
   python tools/make_guide_clips.py --stills
   python tools/make_guide_clips.py <input> <page_id> [--start S] [--end E] [--crop X,Y,W,H] [--fps FPS] [--size WxH]
+                                   [--src-fps N] [--fade N] [--colors N]
+
+A folder input takes every *.png in name order, shot at --src-fps (default: --fps). --fade N blends the last N frames
+into the first N so the clip loops without a jump (with --loop dip it fades the end to dark and the start back up
+instead), and sets the page's end pause to 0. --colors N stores the sheet
+with one shared N-colour palette (much smaller in the jar).
 
 Sheet layout:
   Frames are packed into a grid (not a single strip) so the texture stays at or below 4096x4096.
@@ -423,7 +430,7 @@ STILL_BUILDERS = {
 }
 
 
-def update_page_json(page_id, frames, fps, cols, fw, fh):
+def update_page_json(page_id, frames, fps, cols, fw, fh, end_pause=None):
     path = os.path.join(PAGES_DIR, page_id + ".json")
     if not os.path.isfile(path):
         raise FileNotFoundError(f"Page JSON not found: {path}")
@@ -434,6 +441,10 @@ def update_page_json(page_id, frames, fps, cols, fw, fh):
     data["cols"] = cols
     data["frame_w"] = fw
     data["frame_h"] = fh
+    if end_pause is None:
+        data.pop("end_pause", None)
+    else:
+        data["end_pause"] = end_pause
     write_json(path, data)
     return data.get("clip", page_id)
 
@@ -518,6 +529,49 @@ def read_frames_video(path, start_s, end_s, target_fps):
     return out
 
 
+def read_frames_folder(path, start_s, end_s, src_fps, target_fps):
+    names = sorted(n for n in os.listdir(path) if n.lower().endswith(".png"))
+    raw = [(i / src_fps, os.path.join(path, n)) for i, n in enumerate(names)]
+    raw = [(t, f) for t, f in raw if t + 1e-6 >= start_s and (end_s is None or t < end_s - 1e-6)]
+    if not raw:
+        return []
+    step = src_fps / target_fps
+    out = []
+    pos = 0.0
+    while int(round(pos)) < len(raw):
+        out.append(Image.open(raw[int(round(pos))][1]).convert("RGBA"))
+        pos += step
+    return out
+
+
+def loop_fade(frames, n):
+    """Blends the last n frames into the first n and drops them, so the last frame flows into the first."""
+    if n <= 0 or len(frames) <= 2 * n:
+        return frames
+    body = frames[:len(frames) - n]
+    tail = frames[len(frames) - n:]
+    for i in range(n):
+        a = (i + 1) / (n + 1)   # weight of the head frame
+        body[i] = Image.blend(tail[i], body[i], a)
+    return body
+
+
+def loop_dip(frames, n):
+    """Fades the last n frames to dark and the first few back up, for clips whose end must not blend into the start
+    (a sale would look like coins turning back into finds)."""
+    if n <= 0 or len(frames) <= 2 * n:
+        return frames
+    out = list(frames)
+    black = Image.new("RGBA", out[0].size, (0, 0, 0, 255))
+    for i in range(n):
+        k = len(out) - n + i
+        out[k] = Image.blend(out[k], black, (i + 1) / n * 0.85)
+    head = max(2, n // 2)
+    for i in range(head):
+        out[i] = Image.blend(out[i], black, 0.85 * (head - i) / (head + 1))
+    return out
+
+
 def choose_grid(n_frames, fw, fh):
     max_cols = max(1, MAX_SHEET // fw)
     max_rows = max(1, MAX_SHEET // fh)
@@ -532,10 +586,13 @@ def choose_grid(n_frames, fw, fh):
     return cols, rows
 
 
-def convert_clip(input_path, page_id, start_s=0.0, end_s=None, crop=None, fps=10, size=(DEFAULT_W, DEFAULT_H)):
+def convert_clip(input_path, page_id, start_s=0.0, end_s=None, crop=None, fps=10, size=(DEFAULT_W, DEFAULT_H),
+                 src_fps=None, fade=0, colors=0, loop="fade"):
     fw, fh = size
     ext = os.path.splitext(input_path)[1].lower()
-    if ext == ".gif":
+    if os.path.isdir(input_path):
+        frames = read_frames_folder(input_path, start_s, end_s, src_fps or fps, fps)
+    elif ext == ".gif":
         frames = read_frames_gif(input_path, start_s, end_s, fps)
     elif ext in (".mp4", ".mov", ".mkv", ".webm", ".avi"):
         frames = read_frames_video(input_path, start_s, end_s, fps)
@@ -560,6 +617,7 @@ def convert_clip(input_path, page_id, start_s=0.0, end_s=None, crop=None, fps=10
         if fr.size != (fw, fh):
             fr = fr.resize((fw, fh), Image.LANCZOS)
         processed.append(fr)
+    processed = loop_dip(processed, fade) if loop == "dip" else loop_fade(processed, fade)
 
     cols, rows = choose_grid(len(processed), fw, fh)
     sheet_w, sheet_h = cols * fw, rows * fh
@@ -571,17 +629,20 @@ def convert_clip(input_path, page_id, start_s=0.0, end_s=None, crop=None, fps=10
         c = idx % cols
         r = idx // cols
         sheet.paste(fr, (c * fw, r * fh))
+    if colors:
+        # one palette for the whole sheet keeps the colours steady from frame to frame
+        sheet = sheet.convert("RGB").quantize(colors=colors, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
 
     page_json_path = os.path.join(PAGES_DIR, page_id + ".json")
     clip_name = page_id
     if os.path.isfile(page_json_path):
         with open(page_json_path, "r", encoding="utf-8") as f:
             clip_name = json.load(f).get("clip", page_id)
-        update_page_json(page_id, len(processed), fps, cols, fw, fh)
+        update_page_json(page_id, len(processed), fps, cols, fw, fh, 0 if fade > 0 else None)
 
     os.makedirs(CLIPS_DIR, exist_ok=True)
     out_path = os.path.join(CLIPS_DIR, clip_name + ".png")
-    sheet.save(out_path)
+    sheet.save(out_path, optimize=True)
     print(f"wrote {out_path}: {len(processed)} frames ({cols}x{rows} grid, {sheet_w}x{sheet_h} px) at {fps} fps")
     return out_path
 
@@ -604,7 +665,7 @@ def parse_size(s):
 
 def main():
     parser = argparse.ArgumentParser(description="Build Field Guide frame sheets from GIF/MP4/MOV or generate built-in stills.")
-    parser.add_argument("input", nargs="?", help="Input GIF, MP4, MOV or image file")
+    parser.add_argument("input", nargs="?", help="Input GIF, MP4, MOV, image file, or folder of PNG frames")
     parser.add_argument("page", nargs="?", help="Page id (e.g. dig_and_pan, sell, buy, first_line, belts, metal, land_plots, ledger)")
     parser.add_argument("--stills", action="store_true", help="Generate the built-in still frame for each page and the item texture")
     parser.add_argument("--start", type=float, default=0.0, help="Start time in seconds (default: 0)")
@@ -612,6 +673,11 @@ def main():
     parser.add_argument("--crop", type=parse_crop, default=None, help="Crop rectangle X,Y,W,H before resizing")
     parser.add_argument("--fps", type=int, default=10, help="Frames per second (default: 10)")
     parser.add_argument("--size", type=parse_size, default=(DEFAULT_W, DEFAULT_H), help="Frame size WxH (default: 320x180)")
+    parser.add_argument("--src-fps", type=float, default=None, help="Frame rate a frame folder was shot at (default: --fps)")
+    parser.add_argument("--fade", type=int, default=0, help="Cross-fade this many end frames into the start for a clean loop")
+    parser.add_argument("--loop", choices=["fade", "dip"], default="fade",
+                        help="fade: blend the end into the start; dip: fade the end to dark and the start back up")
+    parser.add_argument("--colors", type=int, default=0, help="Store the sheet with one shared palette of this many colours")
     args = parser.parse_args()
 
     if args.stills:
@@ -622,10 +688,11 @@ def main():
         parser.error("Provide <input> and <page>, or use --stills")
 
     in_arg, page_arg = args.input, args.page
-    if not os.path.isfile(in_arg) and os.path.isfile(page_arg):
+    if not os.path.exists(in_arg) and os.path.exists(page_arg):
         in_arg, page_arg = page_arg, in_arg
 
-    convert_clip(in_arg, page_arg, start_s=args.start, end_s=args.end, crop=args.crop, fps=args.fps, size=args.size)
+    convert_clip(in_arg, page_arg, start_s=args.start, end_s=args.end, crop=args.crop, fps=args.fps, size=args.size,
+                 src_fps=args.src_fps, fade=args.fade, colors=args.colors, loop=args.loop)
 
 
 if __name__ == "__main__":

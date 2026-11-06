@@ -26,8 +26,8 @@ public final class ContractCommands {
     private ContractCommands() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("contract")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("contract").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("list")
                                 .executes(c -> list(c, c.getSource().getPlayerOrException()))
                                 .then(Commands.argument("player", EntityArgument.player())

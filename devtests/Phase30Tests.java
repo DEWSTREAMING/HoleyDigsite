@@ -116,7 +116,7 @@ public class Phase30Tests {
     }
 
     private static boolean isLockedProspector(ItemStack s) {
-        return s.is(ModItems.PROSPECTOR_CRATE.get()) && CrateBlock.isLocked(s);
+        return (s.is(ModItems.PROSPECTOR_CRATE.get()) || s.is(ModItems.GOLDFIELDS_CRATE.get())) && CrateBlock.isLocked(s);
     }
 
     private static int lockedOnGround(GameTestHelper h) {
@@ -170,7 +170,7 @@ public class Phase30Tests {
         }
         check(h, skins.equals(List.of("common:rustic", "common:rustic_weathered", "rare:brass", "rare:frosted", "epic:obsidian")), "skins " + skins);
         check(h, p.pool("legendary").size() == 2 && p.pool("legendary").get(0).id().equals("jackpot")
-                && p.pool("legendary").get(1).id().equals("holeydigsite:golden_drill_statue"), "legendary is the Jackpot title and the statue");
+                && p.pool("legendary").get(1).id().equals("holeydigsite:golden_drill_statue"), "legendary is the Legendary title and the statue");
         check(h, p.pool("common").size() == 4 && p.pool("rare").size() == 4 && p.pool("epic").size() == 3, "pool sizes");
 
         CrateDefs.CrateTier o = CrateDefs.tier("outback_crate");
@@ -224,7 +224,7 @@ public class Phase30Tests {
         check(h, lockedN == 2 && plainN == 3, "2 locked and 3 plain: " + lockedN + "/" + plainN);
         int odds;
         try {
-            odds = cmds.getDispatcher().execute("holeydigsite crate odds prospector_crate", src);
+            odds = cmds.getDispatcher().execute("holeydigsite crate chances prospector_crate", src);
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
             odds = -1;
         }
@@ -730,7 +730,7 @@ public class Phase30Tests {
     }
 
     @GameTest(template = "empty_long", timeoutTicks = 300)
-    public static void withTheSwitchOffACrateYouHaveStillOpens(GameTestHelper h) {
+    public static void withTheSwitchOffACrateOpeningIsRefused(GameTestHelper h) {
         clear(h);
         ServerPlayer p = player(h);
         LedgerData.get(p).setCratesOn(false);
@@ -739,7 +739,12 @@ public class Phase30Tests {
         ItemStack cutters = new ItemStack(ModItems.BOLT_CUTTERS.get());
         p.setItemInHand(InteractionHand.MAIN_HAND, cutters);
         h.getBlockState(pos).useItemOn(cutters, h.getLevel(), p, InteractionHand.MAIN_HAND, hit(h, pos, Direction.UP));
-        check(h, h.getBlockState(pos).getValue(CrateBlock.OPEN) && cutters.isEmpty(), "a crate and cutters you hold still work with the switch off");
+        check(h, !h.getBlockState(pos).getValue(CrateBlock.OPEN) && !cutters.isEmpty(), "cutters refuse to open with switch off");
+
+        // Turn switch on and verify it opens
+        LedgerData.get(p).setCratesOn(true);
+        h.getBlockState(pos).useItemOn(cutters, h.getLevel(), p, InteractionHand.MAIN_HAND, hit(h, pos, Direction.UP));
+        check(h, h.getBlockState(pos).getValue(CrateBlock.OPEN) && cutters.isEmpty(), "crate opens with switch on");
         h.runAfterDelay(CrateBlock.OPEN_TICKS + 5, () -> {
             check(h, h.getBlockState(pos).isAir(), "the crate is used up");
             h.succeed();

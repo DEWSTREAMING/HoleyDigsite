@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>No ticking and no storage, pass-through only. If the target below cannot take the item right now, or is missing or invalid
  * (chests, hoppers, air, locked plots), the chute refuses the item, making the feeding belt wait so nothing is ever lost.</p>
  */
-public class DropChuteBlock extends Block implements ItemTarget {
+public class DropChuteBlock extends Block implements ItemTarget, net.minecraft.world.level.block.EntityBlock {
 
     /** Hollow square tube with 2-block-pixel thick walls. */
     private static final VoxelShape SHAPE = Shapes.or(
@@ -41,6 +41,41 @@ public class DropChuteBlock extends Block implements ItemTarget {
 
     public DropChuteBlock(Properties properties) {
         super(properties);
+    }
+
+    @Nullable
+    @Override
+    public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new DropChuteBlockEntity(pos, state);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (skin != null && !skin.isEmpty()) {
+            if (level.getBlockEntity(pos) instanceof DropChuteBlockEntity chute) {
+                chute.setSkin(skin, com.holeydigsite.skin.SkinWear.of(stack));
+            }
+        }
+    }
+
+    @Override
+    protected java.util.List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<ItemStack> drops = new java.util.ArrayList<>(super.getDrops(state, params));
+        net.minecraft.world.level.block.entity.BlockEntity be = params.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof DropChuteBlockEntity chute) {
+            String skin = chute.getSkin();
+            if (skin != null && !skin.isEmpty() && !skin.equals("default")) {
+                for (ItemStack drop : drops) {
+                    if (drop.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof DropChuteBlock) {
+                        drop.set(com.holeydigsite.registry.ModDataComponents.SKIN.get(), skin);
+                        com.holeydigsite.skin.SkinWear.set(drop, chute.getWear());
+                    }
+                }
+            }
+        }
+        return drops;
     }
 
     @Override

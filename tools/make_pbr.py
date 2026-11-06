@@ -26,7 +26,8 @@ MACHINE = re.compile(r'^block/(skin/.*|mining_drill.*|sluice_(?!water|dirt).*|cr
                      r'|gem_cutter.*|water_pipe.*|water_intake.*|lava_pipe.*|lava_intake.*|smithing_anvil.*|windpump_steel'
                      r'|corrugated_iron|ore_cart|ute_.*|brass_plaque|golden_pan_trophy|money_pan.*|pan|large_pan_trim'
                      r'|iron_crate.*|gold_crate.*|prospector_crate.*|prospector_padlock|outback_crate.*|outback_padlock|shop_button.*|sell_pad.*|buy_pad.*|event_sell_pad.*|skin_bench.*|tool_rack'
-                     r'|drop_chute|gem_display_case|rusty_mine_bell|miners_helmet|little_windmill_fan|golden_drill.*)$')
+                     r'|drop_chute|gem_display_case|rusty_mine_bell|miners_helmet|little_windmill_fan|golden_drill.*'
+                     r'|threshing_drum.*|rope_machine.*|sawmill.*)$')
 ALL_METAL = re.compile(r'^(block/(metal_|chunks_|coin_pile_).*|item/(ingot|lump|chunk)/.*|item/\w+_coin|item/welcome_stranger)$')
 GEM = re.compile(r'^item/(black_opal|boulder_opal|fire_opal|pink_diamond|potch|ruby_\w+|sapphire_\w+|topaz_\w+|smith_\w+_gem)$')
 UNCUT = re.compile(r'^item/uncut_\w+$')

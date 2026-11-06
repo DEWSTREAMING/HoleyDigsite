@@ -31,7 +31,7 @@ HELPER_PROJECT = 1762726
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PACK_ROOT = os.path.join(os.path.dirname(ROOT), "Holey Digsite Pack")
 GAME_VERSIONS = ["1.21.1", "NeoForge", "Java 21", "Client", "Server"]
-OPTIONAL = ["curios", "jei", "skyblock-builder", "ftb-teams-forge", "jade"]
+OPTIONAL = ["curios", "jei", "skyblock-builder", "ftb-teams-forge", "ftb-chunks-forge", "jade"]
 
 
 def token():

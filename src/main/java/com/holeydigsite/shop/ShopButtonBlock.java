@@ -185,6 +185,7 @@ public class ShopButtonBlock extends Block {
         long sold = 0;
         long maxSingle = 0;
         int itemsSold = 0;
+        List<ItemStack> soldItems = new ArrayList<>();
         for (PadBlockEntity pad : sells) {
             for (ItemStack s : pad.contents()) {
                 long v = com.holeydigsite.shop.custom.CustomShops.stackValue(level, pad.getBlockPos(), s);
@@ -192,6 +193,7 @@ public class ShopButtonBlock extends Block {
                     sold += v;
                     maxSingle = Math.max(maxSingle, com.holeydigsite.shop.custom.CustomShops.unitValue(level, pad.getBlockPos(), s));
                     itemsSold += s.getCount();
+                    soldItems.add(s.copy());
                 }
             }
         }
@@ -200,12 +202,15 @@ public class ShopButtonBlock extends Block {
                 pad.takeAll();
             }
             pan.deposit(sold);
-            if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
-                com.holeydigsite.ledger.LedgerManager.recordSale(sp, sold, maxSingle);
-            }
             cashSound(level, pos);
             player.displayClientMessage(Component.translatable("message.holeydigsite.button.sold", itemsSold,
                     Selling.format(sold, 34)).withStyle(ChatFormatting.GOLD), true);
+            if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                for (ItemStack s : soldItems) {
+                    com.holeydigsite.ledger.LedgerManager.recordSaleItem(sp, s);
+                }
+                com.holeydigsite.ledger.LedgerManager.recordSale(sp, sold, maxSingle);
+            }
         }
 
         // Buy all adjacent buy pads at once.

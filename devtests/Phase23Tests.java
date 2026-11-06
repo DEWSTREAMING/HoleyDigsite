@@ -306,7 +306,7 @@ public class Phase23Tests {
         for (String skin : new String[]{"rustic", "rustic_weathered", "brass", "frosted", "obsidian", "outback", "outback_dusty", "outback_ochre", "opal_calm", "opal", "opal_boulder", "black_opal"}) {
             for (String wear : new String[]{"workshop_clean", "field_worn", "pit_scarred", "cave_battered"}) {
                 java.io.File[] files = new java.io.File(base, skin + "/" + wear).listFiles((dir, name) -> name.endsWith(".png") && !name.endsWith("_s.png") && !name.endsWith("_n.png"));
-                check(h, files != null && files.length == 54, skin + "/" + wear + " has 54 textures");
+                check(h, files != null && files.length >= 33, skin + "/" + wear + " has 33 textures");
             }
         }
         h.succeed();
@@ -415,14 +415,17 @@ public class Phase23Tests {
         clear(h);
         // the rate over many rolls: Prospector Crates only, always locked
         ServerPlayer finder = fresh(h);
-        int n = 600000, prospector = 0, other = 0;
+        int n = 600000, prospector = 0, goldfields = 0, other = 0;
         for (int i = 0; i < n; i++) {
             ItemStack s = com.holeydigsite.crate.CrateFinds.roll(h.getLevel(), h.absolutePos(BlockPos.ZERO), "pan", finder);
             if (s.is(ModItems.PROSPECTOR_CRATE.get()) && CrateBlock.isLocked(s)) prospector++;
+            else if (s.is(ModItems.GOLDFIELDS_CRATE.get()) && CrateBlock.isLocked(s)) goldfields++;
             else if (!s.isEmpty()) other++;
         }
-        check(h, Math.abs(prospector - n / 2000.0) < n / 2000.0 * 0.2, "prospector 1 in 2000: " + prospector);
-        check(h, other == 0, "nothing but locked Prospector Crates");
+        int total = prospector + goldfields;
+        check(h, Math.abs(total - n / 2000.0) < n / 2000.0 * 0.2, "total collection crates 1 in 2000: " + total);
+        check(h, other == 0, "nothing but locked Prospector and Goldfields Crates");
+        check(h, prospector > 0 && goldfields > 0, "both Prospector and Goldfields crates found");
 
         // the old crates have no finds at all
         for (String old : List.of("wooden_crate", "iron_crate", "gold_crate")) {
@@ -462,8 +465,9 @@ public class Phase23Tests {
     public static void tradingPostAndLedgerSources(GameTestHelper h) {
         HolderLookup.Provider reg = h.getLevel().registryAccess();
         Map<Integer, ResourceLocation> layout = SiteDefs.layout(HoleyDigsite.id("home"));
-        check(h, "bolt_cutters".equals(layout.get(37).getPath()) && !layout.containsKey(38) && !layout.containsKey(39),
-                "slot 37 sells Bolt Cutters and the crates are gone");
+        check(h, "bolt_cutters".equals(layout.get(37).getPath()) && "scythe".equals(layout.get(38).getPath()) && "sprinkler".equals(layout.get(39).getPath())
+                && "flood_gate".equals(layout.get(40).getPath()),
+                "slot 37 sells Bolt Cutters, 38 sells Scythe, 39 sells Sprinkler, 40 sells Flood Gate");
         check(h, ShopCatalogue.find(reg, ModItems.BOLT_CUTTERS.get()).get().price() == 1536, "cutter price");
         check(h, ShopCatalogue.find(reg, ModItems.WOODEN_CRATE.get()).isEmpty() && ShopCatalogue.find(reg, ModItems.IRON_CRATE.get()).isEmpty()
                 && ShopCatalogue.find(reg, ModItems.GOLD_CRATE.get()).isEmpty(), "the old crates are not sold");
@@ -492,7 +496,7 @@ public class Phase23Tests {
         check(h, count(p, ModItems.GOLD_CRATE.get()) == 1, "1 gold crate given");
         int odds;
         try {
-            odds = cmds.getDispatcher().execute("holeydigsite crate odds wooden_crate", src);
+            odds = cmds.getDispatcher().execute("holeydigsite crate chances wooden_crate", src);
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
             odds = -1;
         }

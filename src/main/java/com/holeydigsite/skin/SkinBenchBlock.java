@@ -94,13 +94,30 @@ public class SkinBenchBlock extends BaseEntityBlock {
             String family = SkinDefs.getMachineFamily(held);
             if (family != null) {
                 if (!level.isClientSide) {
-                    ItemStack toInsert = held.split(1);
+                    ItemStack toInsert = SkinDefs.CONVEYOR.equals(family) ? held.copy() : held.split(1);
+                    if (SkinDefs.CONVEYOR.equals(family)) {
+                        held.setCount(0);
+                    }
                     bench.setItem(toInsert);
                     level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
                 }
                 return ItemInteractionResult.sidedSuccess(level.isClientSide);
             }
         } else {
+            String family = SkinDefs.getMachineFamily(held);
+            if (family != null && SkinDefs.CONVEYOR.equals(family) && ItemStack.isSameItemSameComponents(held, bench.getItem())) {
+                int space = bench.getItem().getMaxStackSize() - bench.getItem().getCount();
+                if (space > 0) {
+                    if (!level.isClientSide) {
+                        int move = Math.min(space, held.getCount());
+                        bench.getItem().grow(move);
+                        held.shrink(move);
+                        bench.setChanged();
+                        level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    }
+                    return ItemInteractionResult.sidedSuccess(level.isClientSide);
+                }
+            }
             if (held.isEmpty()) {
                 if (!level.isClientSide) {
                     ItemStack item = bench.takeItem();

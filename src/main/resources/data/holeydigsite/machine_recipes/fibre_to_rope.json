@@ -1,0 +1,12 @@
+{
+  "machine": "holeydigsite:rope_machine",
+  "ingredient": {
+    "item": "holeydigsite:fibre",
+    "count": 2
+  },
+  "result": {
+    "item": "holeydigsite:rope",
+    "count": 1
+  },
+  "ticks": 20
+}

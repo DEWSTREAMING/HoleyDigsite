@@ -1,0 +1,225 @@
+{
+  "shots": [
+    {
+      "id": "first_line",
+      "scene": "first_line",
+      "eye": [0.2, 0.9, -2.8],
+      "target": [2.4, 0.8, 1.0],
+      "time": 6500,
+      "settle": 40,
+      "fov": 70,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "trading_post",
+      "scene": "island",
+      "eye": [27.4, 12.3, 13.6],
+      "target": [26.2, 11.4, 9.8],
+      "time": 6000,
+      "settle": 50,
+      "fov": 58,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "forge_pour",
+      "scene": "forge",
+      "eye": [5.8, 2.5, 4.2],
+      "target": [3.5, 1.0, 1.2],
+      "time": 13500,
+      "settle": 10,
+      "fov": 55,
+      "action": "pour",
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "long_sluice",
+      "scene": "long_sluice",
+      "eye": [9.8, 1.7, -4.2],
+      "target": [4.8, 1.0, 1.0],
+      "time": 6500,
+      "settle": 40,
+      "fov": 66,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "derrick_skins",
+      "scene": "derrick_skins",
+      "eye": [6.5, 2.9, 5.8],
+      "target": [6.5, 1.2, 0.5],
+      "time": 6000,
+      "settle": 40,
+      "fov": 55,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "outback_island",
+      "scene": "outback",
+      "eye": [11.6, 11.3, -23.4],
+      "target": [9.3, 11.0, -27.0],
+      "time": 5000,
+      "settle": 80,
+      "fov": 62,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "island_overview",
+      "scene": "island",
+      "eye": [-10.0, 32.0, -8.0],
+      "target": [24.0, 8.0, 20.0],
+      "time": 5000,
+      "settle": 100,
+      "fov": 65,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "ledger_screen",
+      "scene": "first_line",
+      "eye": [5.8, 3.6, -3.4],
+      "target": [3.2, 0.9, 1.2],
+      "time": 4500,
+      "settle": 25,
+      "fov": 60,
+      "action": "open_ledger",
+      "gui": true,
+      "sizes": [[1920, 1080]]
+    },
+    {
+      "id": "guide_first_line",
+      "scene": "first_line",
+      "eye": [6.6, 2.2, -2.3],
+      "target": [3.8, 0.2, 1.0],
+      "time": 6500,
+      "settle": 40,
+      "fov": 45,
+      "particles": "all",
+      "sizes": [[640, 360]],
+      "burst": {
+        "frames": 56,
+        "every": 2
+      },
+      "guide": {
+        "page": "first_line",
+        "fade": 10,
+        "colors": 256
+      }
+    },
+    {
+      "id": "guide_belts",
+      "scene": "belts",
+      "eye": [7.4, 4.6, 8.0],
+      "target": [4.0, 0.0, 2.0],
+      "time": 6500,
+      "settle": 40,
+      "fov": 42,
+      "particles": "all",
+      "sizes": [[640, 360]],
+      "burst": {
+        "frames": 56,
+        "every": 2
+      },
+      "guide": {
+        "page": "belts",
+        "fade": 10,
+        "colors": 256
+      }
+    },
+    {
+      "id": "guide_metal",
+      "scene": "forge",
+      "eye": [5.4, 2.3, 5.0],
+      "target": [3.0, 0.8, 1.4],
+      "time": 13500,
+      "settle": 30,
+      "fov": 50,
+      "particles": "all",
+      "action": "pour_setup",
+      "sizes": [[640, 360]],
+      "burst": {
+        "frames": 52,
+        "every": 2,
+        "at": {
+          "8": "pour_now"
+        }
+      },
+      "guide": {
+        "page": "metal",
+        "fade": 8,
+        "colors": 256
+      }
+    },
+    {
+      "id": "guide_sell",
+      "scene": "island",
+      "eye": [26.0, 12.4, 11.9],
+      "target": [26.0, 11.1, 9.7],
+      "time": 6000,
+      "settle": 40,
+      "fov": 50,
+      "particles": "all",
+      "action": "sell_setup",
+      "sizes": [[640, 360]],
+      "burst": {
+        "frames": 50,
+        "every": 2,
+        "at": {
+          "14": "press"
+        }
+      },
+      "guide": {
+        "page": "sell",
+        "fade": 6,
+        "loop": "dip",
+        "colors": 256
+      }
+    },
+    {
+      "id": "guide_buy",
+      "scene": "island",
+      "eye": [26.8, 12.4, 11.9],
+      "target": [26.8, 11.1, 9.7],
+      "time": 6000,
+      "settle": 40,
+      "fov": 50,
+      "particles": "all",
+      "action": "buy_setup",
+      "sizes": [[640, 360]],
+      "burst": {
+        "frames": 46,
+        "every": 2,
+        "at": {
+          "12": "press"
+        }
+      },
+      "guide": {
+        "page": "buy",
+        "fade": 6,
+        "colors": 256
+      }
+    },
+    {
+      "id": "guide_land_plots",
+      "scene": "island",
+      "anchor": "plot:deep_dig",
+      "eye": [0.5, 3.2, -5.0],
+      "target": [0.5, 0.5, 4.0],
+      "time": 6000,
+      "settle": 60,
+      "fov": 62,
+      "particles": "all",
+      "action": "plot_reset",
+      "sizes": [[640, 360]],
+      "burst": {
+        "frames": 46,
+        "every": 2,
+        "at": {
+          "10": "plot_claim"
+        }
+      },
+      "guide": {
+        "page": "land_plots",
+        "fade": 6,
+        "colors": 256
+      }
+    }
+  ]
+}

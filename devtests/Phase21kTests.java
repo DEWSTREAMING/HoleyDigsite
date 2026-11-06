@@ -21,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -144,7 +145,8 @@ public class Phase21kTests {
             Sites.checkAll(l);
             Map<Integer, Item> shown = displays(l, z);
             check(h, shown.get(37) == ModItems.BOLT_CUTTERS.get(), "slot 37 shows Bolt Cutters");
-            check(h, shown.get(38) == null && shown.get(39) == null, "slots 38 and 39 are empty");
+            check(h, shown.get(38) == ModItems.SCYTHE.get() && shown.get(39) == ModItems.SPRINKLER.get(), "slots 38 and 39 show scythe and sprinkler");
+            check(h, shown.get(40) == ModItems.FLOOD_GATE.get(), "slot 40 shows the Flood Gate");
             for (Item item : shown.values()) {
                 check(h, item != ModItems.WOODEN_CRATE.get() && item != ModItems.IRON_CRATE.get() && item != ModItems.GOLD_CRATE.get(), "no crate is on sale");
             }
@@ -190,6 +192,14 @@ public class Phase21kTests {
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.DROP_CHUTE.get()).toString());
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.SKIN_BENCH.get()).toString());
             pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.BOLT_CUTTERS.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.SCYTHE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.SPRINKLER.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.FLOOD_GATE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.THRESHING_DRUM.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.ROPE_MACHINE.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.SAWMILL.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(ModItems.HEMP_SEEDS.get()).toString());
+            pre21iShown.remove(BuiltInRegistries.ITEM.getKey(Items.OAK_SAPLING).toString());
             check(h, pre21iShown.size() == 33, "pre-21i shown has 33 items: " + pre21iShown.size());
             data.put(new SiteData.Site(oldSite.id(), oldSite.anchor(), oldSite.zone(), oldSite.version(), pre21iShown, oldSite.parent()));
 
@@ -228,9 +238,9 @@ public class Phase21kTests {
             check(h, shown.get(36) == ModItems.SKIN_BENCH.get(), "slot 36 shows skin bench");
             check(h, l.getBlockState(litter).is(Blocks.GLASS), "player litter glass untouched (no rebuild)");
 
-            // Verify SiteData updated to 36 items
+            // Verify SiteData updated to 40 items
             SiteData.Site updatedSite = data.get(d.id(), a);
-            check(h, updatedSite != null && updatedSite.shown().size() == 37, "updated site records 37 shown items");
+            check(h, updatedSite != null && updatedSite.shown().size() == 45, "updated site records 45 shown items");
 
             // Verify custom display preserved
             ShopDisplayBlockEntity postCustom = (ShopDisplayBlockEntity) l.getBlockEntity(customPos);

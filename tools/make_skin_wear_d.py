@@ -21,7 +21,7 @@ INPUT_DIR = "src/main/resources/assets/holeydigsite/textures/block/skin"
 PREVIEW_DIR = "tools/skin_previews"
 
 # Samples to preview
-SAMPLES = ['mining_drill_front', 'mining_drill_t2_front', 'mining_drill_t3_front', 'sluice_wood', 'sluice_t2_wood']
+SAMPLES = ['mining_drill_lower_front', 'mining_drill_t2_lower_front', 'mining_drill_t3_lower_front', 'sluice_wood', 'sluice_t2_wood']
 
 # Wear level definitions
 WEAR_LEVELS = [

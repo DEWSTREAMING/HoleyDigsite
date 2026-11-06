@@ -227,7 +227,12 @@ public class PhaseEightTests {
                 {ModItems.LAND_DEED_EVENT_T1.get(), 1, 400L * 64}, {ModItems.LAND_DEED_EVENT_T2.get(), 1, 2000L * 64},
                 {ModItems.LAND_DEED_EVENT_T3.get(), 1, 3600L * 64}, {ModItems.OUTBACK_CRATE.get(), 1, 0L},
                 {ModItems.CORRUGATED_IRON_SHEET.get(), 1, 0L}, {ModItems.SOUTHERN_CROSS_BANNER.get(), 1, 0L},
-                {ModItems.LITTLE_WINDMILL.get(), 1, 0L}, {ModItems.UTE_ORE_CART.get(), 1, 0L}, {ModItems.WELCOME_STRANGER_STAND.get(), 1, 0L}};
+                {ModItems.LITTLE_WINDMILL.get(), 1, 0L}, {ModItems.UTE_ORE_CART.get(), 1, 0L}, {ModItems.WELCOME_STRANGER_STAND.get(), 1, 0L},
+                // Phase 35: Farming tools
+                {ModItems.SCYTHE.get(), 1, 256L}, {ModItems.SPRINKLER.get(), 1, 768L}, {ModItems.FLOOD_GATE.get(), 1, 1024L},
+                // Phase 36: Hemp and timber
+                {ModItems.THRESHING_DRUM.get(), 1, 768L}, {ModItems.ROPE_MACHINE.get(), 1, 768L}, {ModItems.SAWMILL.get(), 1, 768L},
+                {ModItems.HEMP_SEEDS.get(), 1, 8L}, {Items.OAK_SAPLING, 1, 8L}};
         for (Object[] e : expected) {
             var entry = ShopCatalogue.find(reg, (Item) e[0]);
             check(h, entry.isPresent(), "catalogue has " + e[0]);

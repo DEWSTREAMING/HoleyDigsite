@@ -2,7 +2,8 @@
   "rarity": "rare",
   "families": [
     "mining_drill",
-    "sluice_box"
+    "sluice_box",
+    "conveyor"
   ],
   "name": "skin.holeydigsite.brass"
 }

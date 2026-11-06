@@ -343,7 +343,7 @@ public class Phase26Tests {
     public static void crateSkinRollsAreKitsWithAnEvenSplit(GameTestHelper h) {
         RandomSource random = RandomSource.create(2626L);
         CrateDefs.CrateTier iron = CrateDefs.tier("iron_crate");
-        int drill = 0, sluice = 0, skins = 0;
+        int drill = 0, sluice = 0, conveyor = 0, skins = 0;
         for (int i = 0; i < 60000; i++) {
             CrateRolls.Roll r = CrateRolls.roll(iron, random);
             if (r.entry().kind() != CrateDefs.Kind.SKIN) {
@@ -353,11 +353,12 @@ public class Phase26Tests {
             skins++;
             if (SkinDefs.DRILL.equals(r.family())) drill++;
             else if (SkinDefs.SLUICE.equals(r.family())) sluice++;
+            else if (SkinDefs.CONVEYOR.equals(r.family())) conveyor++;
             else h.fail("unknown family " + r.family());
         }
         double share = 100.0 * drill / skins;
-        check(h, skins > 10000 && Math.abs(share - 50) < 1.5, "drill share " + share + "% of " + skins);
-        check(h, drill + sluice == skins, "every skin roll has a family");
+        check(h, skins > 10000 && Math.abs(share - 33.3) < 2.0, "drill share " + share + "% of " + skins);
+        check(h, drill + sluice + conveyor == skins, "every skin roll has a family");
 
         // granting: always a kit at the rolled wear and family, never scrap, even for a skin already owned many times
         clear(h);
@@ -448,14 +449,14 @@ public class Phase26Tests {
         p.getInventory().setItem(0, onMachine);
 
         int given = SkinKitMigration.run(p);
-        check(h, given == 4, "two skins x two families = 4 kits, got " + given);
+        check(h, given == 6, "two skins x three families = 6 kits, got " + given);
         check(h, kits(p, "brass", SkinDefs.DRILL, "field_worn") == 1 && kits(p, "brass", SkinDefs.SLUICE, "field_worn") == 1, "brass kits at Field Worn");
         check(h, kits(p, "rustic", SkinDefs.DRILL, SkinWear.FRESH) == 1 && kits(p, "rustic", SkinDefs.SLUICE, SkinWear.FRESH) == 1, "rustic kits Fresh");
         check(h, data.unlockedSkins().isEmpty() && data.skinsMigrated(), "list cleared, marker set");
         check(h, "frosted".equals(p.getInventory().getItem(0).get(ModDataComponents.SKIN.get())), "skinned machine untouched");
 
         // next login: nothing again, and the marker survives saving and death
-        check(h, SkinKitMigration.run(p) == 0 && allKits(p) == 4, "second run gives nothing");
+        check(h, SkinKitMigration.run(p) == 0 && allKits(p) == 6, "second run gives nothing");
         LedgerData saved = new LedgerData();
         saved.deserializeNBT(reg, data.serializeNBT(reg));
         check(h, saved.skinsMigrated() && saved.unlockedSkins().isEmpty(), "marker saved");
@@ -481,8 +482,8 @@ public class Phase26Tests {
         check(h, kits(p, "brass", SkinDefs.DRILL, "pit_scarred") == 3, "3 worn brass drill kits");
         cmds.performPrefixedCommand(src, "holeydigsite skin give @s frosted sluice_box");
         check(h, kits(p, "frosted", SkinDefs.SLUICE, SkinWear.FRESH) == 1, "Fresh by default");
-        cmds.performPrefixedCommand(src, "holeydigsite skin give @s all all");
-        check(h, allKits(p) == 4 + SkinDefs.skins().size() * 2, "all skins x both families, got " + allKits(p));
+        cmds.performPrefixedCommand(src, "holeydigsite skin give @s all mining_drill");
+        check(h, allKits(p) == 4 + SkinDefs.skins().size(), "all skins x drill, got " + allKits(p));
         int before = allKits(p);
         cmds.performPrefixedCommand(src, "holeydigsite skin give @s brass drill");
         cmds.performPrefixedCommand(src, "holeydigsite skin give @s brass mining_drill nonsense");
@@ -548,8 +549,9 @@ public class Phase26Tests {
                         continue;
                     }
                     sawSkin = true;
-                    check(h, r.variants().size() == 2 && SkinKitItem.matches(r.variants().get(0), r.id(), SkinDefs.DRILL, SkinWear.FRESH)
-                            && SkinKitItem.matches(r.variants().get(1), r.id(), SkinDefs.SLUICE, SkinWear.FRESH), "drill and sluice kit for " + r.id());
+                    check(h, r.variants().size() == 3 && SkinKitItem.matches(r.variants().get(0), r.id(), SkinDefs.DRILL, SkinWear.FRESH)
+                            && SkinKitItem.matches(r.variants().get(1), r.id(), SkinDefs.SLUICE, SkinWear.FRESH)
+                            && SkinKitItem.matches(r.variants().get(2), r.id(), SkinDefs.CONVEYOR, SkinWear.FRESH), "drill, sluice and conveyor kit for " + r.id());
                     check(h, SkinKitItem.isKit(r.icon()), "icon is a kit");
                     check(h, r.label().getString().contains("Skin Kit"), "label says kit: " + r.label().getString());
                 }

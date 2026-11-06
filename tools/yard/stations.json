@@ -1,0 +1,645 @@
+{
+  "stations": [
+    {
+      "number": 1,
+      "id": "derrick_drill",
+      "title": "Derrick drill and skins",
+      "post_sign": [
+        "Station 1",
+        "Derrick drill"
+      ],
+      "sign_lines": [
+        "Auger turns",
+        "Clumps to belt",
+        "Rustic skin",
+        "Kits in chest"
+      ],
+      "checks": [
+        "The auger turns while it drills",
+        "Clumps go onto the belt",
+        "The second derrick has the Rustic skin",
+        "Look at a derrick: Jade shows its skin and wear"
+      ],
+      "chest_items": [],
+      "builder_key": "derrick_drill",
+      "main_block": "holeydigsite:mining_drill",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 2,
+      "id": "long_sluice",
+      "title": "Long Sluice (Tier 2)",
+      "post_sign": [
+        "Station 2",
+        "Long Sluice"
+      ],
+      "sign_lines": [
+        "Belt to chute",
+        "Riffle & mesh",
+        "Tray to belt",
+        "Clumps in chest"
+      ],
+      "checks": [
+        "The top belt feeds clumps into the chute",
+        "Both inserts show on the sluice",
+        "Finds leave the tray onto the front belt",
+        "More clumps in the chest"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:dirt_clump",
+          "count": 32
+        },
+        {
+          "item": "holeydigsite:gravel_clump",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:riffle_insert",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:fine_mesh_screen",
+          "count": 1
+        }
+      ],
+      "builder_key": "long_sluice",
+      "main_block": "holeydigsite:sluice_box_t2",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 3,
+      "id": "sluice_model",
+      "title": "Starter Sluice and Sluice Model",
+      "post_sign": [
+        "Station 3",
+        "Sluice Model"
+      ],
+      "sign_lines": [
+        "Starter Sluice",
+        "Sluice Model",
+        "Compare scale",
+        "Items in chest"
+      ],
+      "checks": [
+        "Starter Sluice and Sluice Model side by side",
+        "The model is a small copy of the sluice",
+        "Both can be placed from the chest"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:sluice_box",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:sluice_model",
+          "count": 1
+        }
+      ],
+      "builder_key": "sluice_model",
+      "main_block": "holeydigsite:sluice_model",
+      "main_block_offset": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 4,
+      "id": "crates",
+      "title": "Crates and Crate Switch",
+      "post_sign": [
+        "Station 4",
+        "Crates & Switch"
+      ],
+      "sign_lines": [
+        "Locked crates",
+        "Bolt Cutters",
+        "Crate Switch",
+        "Cutters in chest"
+      ],
+      "checks": [
+        "Both crates show a padlock",
+        "Bolt Cutters from the chest open them",
+        "The Crate Switch turns crate finds on and off",
+        "With the switch off, crates won't open"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:bolt_cutters",
+          "count": 4
+        },
+        {
+          "item": "holeydigsite:prospector_crate",
+          "count": 1,
+          "locked": true
+        },
+        {
+          "item": "holeydigsite:outback_crate",
+          "count": 1,
+          "locked": true
+        }
+      ],
+      "builder_key": "crates",
+      "main_block": "holeydigsite:crate_switch",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 5,
+      "id": "skin_bench",
+      "title": "Skin Bench and Black Opal",
+      "post_sign": [
+        "Station 5",
+        "Skin Bench"
+      ],
+      "sign_lines": [
+        "Skin Bench UI",
+        "Black Opal glow",
+        "Animated skin",
+        "Kits in chest"
+      ],
+      "checks": [
+        "Put the drill from the chest on the Skin Bench",
+        "Apply a kit, then take it off again",
+        "Same with the sluice and the Rustic kit",
+        "The derrick's Black Opal skin moves and glows",
+        "Skin Scrap in the chest shows Sells for"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:mining_drill",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:sluice_box_t2",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "count": 1,
+          "skin": "black_opal",
+          "family": "mining_drill"
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "count": 1,
+          "skin": "rustic",
+          "family": "sluice_box"
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "count": 1,
+          "skin": "obsidian",
+          "family": "mining_drill"
+        },
+        {
+          "item": "holeydigsite:skin_scrap",
+          "count": 8
+        }
+      ],
+      "builder_key": "skin_bench",
+      "main_block": "holeydigsite:skin_bench",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 6,
+      "id": "contracts",
+      "title": "Contracts board",
+      "post_sign": [
+        "Station 6",
+        "Contracts Board"
+      ],
+      "sign_lines": [
+        "Three cards",
+        "Right-click view",
+        "Sneak details",
+        "Items in chest"
+      ],
+      "checks": [
+        "Right-click a card to see what it wants",
+        "Sneak right-click shows the details",
+        "Hand in items from the chest",
+        "Missing item? Use /holeydigsite give"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:uncut_ruby_large",
+          "count": 4
+        },
+        {
+          "item": "holeydigsite:ruby_large",
+          "count": 4
+        },
+        {
+          "item": "holeydigsite:uncut_sapphire_large",
+          "count": 4
+        },
+        {
+          "item": "holeydigsite:folkiron_chunk_large",
+          "count": 8
+        },
+        {
+          "item": "holeydigsite:goldchro_chunk_large",
+          "count": 8
+        },
+        {
+          "item": "minecraft:carrot",
+          "count": 16
+        },
+        {
+          "item": "minecraft:potato",
+          "count": 16
+        },
+        {
+          "item": "minecraft:wheat",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:hemp",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:folkiron_ingot",
+          "count": 4,
+          "weight": 100
+        },
+        {
+          "item": "holeydigsite:goldchro_ingot",
+          "count": 4,
+          "weight": 100
+        },
+        {
+          "item": "holeydigsite:smith_dagger",
+          "count": 1,
+          "smithed": true
+        }
+      ],
+      "builder_key": "contracts",
+      "main_block": "holeydigsite:contract_board",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 7,
+      "id": "field_guide",
+      "title": "Field Guide",
+      "post_sign": [
+        "Station 7",
+        "Field Guide"
+      ],
+      "sign_lines": [
+        "Open guide",
+        "Check 6 clips",
+        "Animated pages",
+        "Book in chest"
+      ],
+      "checks": [
+        "Open the Field Guide from the chest",
+        "All 8 pages open, 6 clips play",
+        "The Close button shuts it"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:field_guide",
+          "count": 1
+        }
+      ],
+      "builder_key": "field_guide",
+      "main_block": "minecraft:bookshelf",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 8,
+      "id": "farming",
+      "title": "Farming and Flood Gate",
+      "post_sign": [
+        "Station 8",
+        "Farming & Flood"
+      ],
+      "sign_lines": [
+        "Sprinkler wets",
+        "Flood Gate shelf",
+        "Scythe harvest",
+        "Seeds in chest"
+      ],
+      "checks": [
+        "The Sprinkler is on and wets the field",
+        "The Flood Gate sits on its shelf",
+        "The Scythe cuts ripe crops 3x3"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:scythe",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:flood_gate",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:hemp_seeds",
+          "count": 8
+        },
+        {
+          "item": "minecraft:wheat_seeds",
+          "count": 8
+        }
+      ],
+      "builder_key": "farming",
+      "main_block": "holeydigsite:sprinkler",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 9,
+      "id": "hemp_line",
+      "title": "Hemp line and timber machines",
+      "post_sign": [
+        "Station 9",
+        "Hemp & Timber"
+      ],
+      "sign_lines": [
+        "Hemp on left",
+        "Logs on right",
+        "Sawmill beam",
+        "Items in chest"
+      ],
+      "checks": [
+        "Front line: hemp makes fibre, then rope",
+        "Back line: logs make beams or props",
+        "Sawmill holds a beam: empty hand takes it",
+        "Sneak empty hand switches the Sawmill mode",
+        "Machine wood, iron, and wheel match the mod"
+      ],
+      "chest_items": [
+        {
+          "item": "minecraft:oak_log",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:hemp",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:fibre",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:rope",
+          "count": 8
+        }
+      ],
+      "builder_key": "hemp_line",
+      "main_block": "holeydigsite:sawmill",
+      "main_block_offset": [
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "number": 10,
+      "id": "selling",
+      "title": "Selling and Flawless gems",
+      "post_sign": [
+        "Station 10",
+        "Selling & Ledger"
+      ],
+      "sign_lines": [
+        "Sell Pad button",
+        "Weight tooltips",
+        "Flawless gem",
+        "Ledger in chest"
+      ],
+      "checks": [
+        "Sell the chest items with the Shop Button",
+        "Tooltips show weight and Sells for",
+        "The flawless ruby has a gold name and shine",
+        "Two large Folkiron chunks, two weights",
+        "Records in the Ledger update after"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:smith_dagger",
+          "count": 1,
+          "smithed": true
+        },
+        {
+          "item": "holeydigsite:folkiron_chunk_large",
+          "count": 1,
+          "weight": 18
+        },
+        {
+          "item": "holeydigsite:folkiron_chunk_large",
+          "count": 1,
+          "weight": 28
+        },
+        {
+          "item": "holeydigsite:ruby_large",
+          "count": 1,
+          "flawless": true
+        },
+        {
+          "item": "holeydigsite:prospectors_ledger",
+          "count": 1
+        }
+      ],
+      "builder_key": "selling",
+      "main_block": "holeydigsite:sell_pad",
+      "main_block_offset": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 11,
+      "id": "ledger",
+      "title": "Prospector's Ledger and Decor",
+      "post_sign": [
+        "Station 11",
+        "Prospector Ledger"
+      ],
+      "sign_lines": [
+        "Open Ledger",
+        "Records tab",
+        "Coming Up tab",
+        "GUI scale 2 & 3"
+      ],
+      "checks": [
+        "Right-click the Ledger from the chest",
+        "Open the Records and Coming Up tabs",
+        "Check them at GUI scale 2 and 3",
+        "Trophy, carts, and lantern have clean chunks"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:prospectors_ledger",
+          "count": 1
+        }
+      ],
+      "builder_key": "ledger",
+      "main_block": "holeydigsite:lucky_lantern",
+      "main_block_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 12,
+      "id": "drill_statue_mold",
+      "title": "Golden Drill Statue and Casting Mold",
+      "post_sign": [
+        "Station 12",
+        "Statue & Mold"
+      ],
+      "sign_lines": [
+        "Lit forge lava",
+        "Pour crucible",
+        "Eject front/back",
+        "Statue on left"
+      ],
+      "checks": [
+        "The forge on lava heats the crucible",
+        "Empty hand on the crucible pours",
+        "The ingot goes onto the front belt",
+        "Front belt gone: it goes out the back",
+        "The Golden Drill Statue on the right"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:large_crucible",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:casting_mold_t2",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:folkiron_ingot",
+          "count": 4,
+          "weight": 100
+        },
+        {
+          "item": "holeydigsite:goldchro_ingot",
+          "count": 4,
+          "weight": 100
+        }
+      ],
+      "builder_key": "drill_statue_mold",
+      "main_block": "holeydigsite:golden_drill_statue",
+      "main_block_offset": [
+        -2,
+        0,
+        0
+      ]
+    },
+    {
+      "number": 13,
+      "id": "conveyor_skins",
+      "title": "Conveyor skins",
+      "post_sign": [
+        "Station 13",
+        "Conveyor skins"
+      ],
+      "sign_lines": [
+        "Straight & corner",
+        "Splitter & chute",
+        "Diff skins & glow",
+        "Bench & kits"
+      ],
+      "checks": [
+        "Belts, corners, split, chute run",
+        "7 skins show seamless animation",
+        "Black Opal section glows",
+        "Chest has crate, kits & plain belts"
+      ],
+      "chest_items": [
+        {
+          "item": "holeydigsite:goldfields_crate",
+          "count": 1
+        },
+        {
+          "item": "holeydigsite:clump_belt",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "patina",
+          "family": "conveyor",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "gunmetal",
+          "family": "conveyor",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "ironbark",
+          "family": "conveyor",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "enamel",
+          "family": "conveyor",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "quartz_reef",
+          "family": "conveyor",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "nugget",
+          "family": "conveyor",
+          "count": 16
+        },
+        {
+          "item": "holeydigsite:skin_kit",
+          "skin": "black_opal",
+          "family": "conveyor",
+          "count": 16
+        }
+      ],
+      "builder_key": "conveyor_skins",
+      "main_block": "holeydigsite:skin_bench",
+      "main_block_offset": [
+        2,
+        0,
+        -2
+      ]
+    }
+  ]
+}

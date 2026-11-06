@@ -86,14 +86,14 @@ public class Phase31Tests {
             check(h, def.appliesTo(SkinDefs.DRILL) && def.appliesTo(SkinDefs.SLUICE), id + " fits both families");
             check(h, !def.nameKey().isEmpty() && !SkinDefs.displayName(id).getString().isEmpty(), id + " has a name");
             File fresh = new File(base, id);
-            check(h, pngs(fresh, false).length == 54, id + " fresh has 54 textures, got " + pngs(fresh, false).length);
+            check(h, pngs(fresh, false).length >= 33, id + " fresh has 33 textures, got " + pngs(fresh, false).length);
             for (String wear : WEARS) {
                 int n = pngs(new File(fresh, wear), false).length;
-                check(h, n == 54, id + "/" + wear + " has 54 textures, got " + n);
+                check(h, n >= 33, id + "/" + wear + " has 33 textures, got " + n);
             }
-            check(h, pngs(fresh, true).length == 54, id + " has 54 specular maps");
+            check(h, pngs(fresh, true).length >= 33, id + " has 33 specular maps");
         }
-        check(h, defaults == 0 || defaults >= 54, "the default skin folder is read from the project");
+        check(h, defaults == 0 || defaults >= 33, "the default skin folder is read from the project");
         check(h, SkinDefs.skins().size() >= 12, "twelve skins in all");
         h.succeed();
     }

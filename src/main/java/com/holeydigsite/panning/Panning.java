@@ -202,9 +202,23 @@ public final class Panning {
             com.holeydigsite.ledger.LedgerManager.recordPan(sp, tier, 1);
         }
         boolean rare = false;
+        boolean flawlessFound = false;
+        ItemStack flawlessStack = ItemStack.EMPTY;
         for (ItemStack stack : loot) {
+            if (com.holeydigsite.economy.FlawlessDefs.isFlawless(stack)) {
+                flawlessFound = true;
+                flawlessStack = stack;
+            }
             rare |= stack.is(RARE_FINDS);
+            if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                com.holeydigsite.ledger.LedgerManager.recordFind(sp, stack);
+            }
             popOut(level, pos, stack, player);
+        }
+
+        if (flawlessFound) {
+            level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 1.4F, 1.5F);
+            player.displayClientMessage(Component.translatable("message.holeydigsite.flawless_find", flawlessStack.getItem().getName(flawlessStack)), true);
         }
 
         if (!loot.isEmpty()) {
@@ -258,7 +272,39 @@ public final class Panning {
                 .withOptionalParameter(LootContextParams.THIS_ENTITY, player)
                 .withLuck(player == null ? 0.0F : player.getLuck())
                 .create(LootContextParamSets.ARCHAEOLOGY);
-        return table.getRandomItems(params);
+        List<ItemStack> items = table.getRandomItems(params);
+        return postProcessLoot(items, player != null, level.random);
+    }
+
+    /**
+     * Post-processes rolled loot items: rolls individual weights for items with a weight range,
+     * and rolls flawless on gems (with higher odds for hand panning).
+     */
+    public static List<ItemStack> postProcessLoot(List<ItemStack> items, boolean isHand, RandomSource random) {
+        List<ItemStack> result = new java.util.ArrayList<>();
+        for (ItemStack s : items) {
+            if (s.isEmpty()) continue;
+            com.holeydigsite.economy.ResourceInfo info = com.holeydigsite.economy.Selling.resource(s);
+            if (info != null && info.hasRange()) {
+                int count = s.getCount();
+                for (int i = 0; i < count; i++) {
+                    ItemStack single = s.copyWithCount(1);
+                    if (!single.has(com.holeydigsite.registry.ModDataComponents.WEIGHT.get())) {
+                        single.set(com.holeydigsite.registry.ModDataComponents.WEIGHT.get(), info.rollWeight(random));
+                    }
+                    if (com.holeydigsite.economy.FlawlessDefs.isGem(single) && !single.has(com.holeydigsite.registry.ModDataComponents.FLAWLESS.get())) {
+                        com.holeydigsite.economy.FlawlessDefs.rollFlawless(single, isHand, random);
+                    }
+                    result.add(single);
+                }
+            } else {
+                if (com.holeydigsite.economy.FlawlessDefs.isGem(s) && !s.has(com.holeydigsite.registry.ModDataComponents.FLAWLESS.get())) {
+                    com.holeydigsite.economy.FlawlessDefs.rollFlawless(s, isHand, random);
+                }
+                result.add(s);
+            }
+        }
+        return result;
     }
 
     /**

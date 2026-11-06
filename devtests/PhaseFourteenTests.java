@@ -541,7 +541,7 @@ public class PhaseFourteenTests {
             // not allowed for a normal player (permission 0)
             ServerPlayer p = player(h, GameType.SURVIVAL);
             int res = l.getServer().getCommands().getDispatcher().getRoot().getChild("holeydigsite") == null ? -1
-                    : l.getServer().getCommands().getDispatcher().getRoot().getChild("holeydigsite").canUse(p.createCommandSourceStack().withPermission(0)) ? 1 : 0;
+                    : l.getServer().getCommands().getDispatcher().getRoot().getChild("holeydigsite").getChild("store").canUse(p.createCommandSourceStack().withPermission(0)) ? 1 : 0;
             check(h, res == 0, "non-op can't use /holeydigsite");
             check(h, l.getBlockState(litter).is(Blocks.GLASS), "untouched");
             // op: rebuild home
@@ -593,7 +593,7 @@ public class PhaseFourteenTests {
             n++;
         }
         check(h, n == 8, "8 sites (home, 3 plots, 3 kiosks, the event store): " + n);
-        check(h, SiteDefs.layout(HOME_LAYOUT).size() == 37, "home shows the 37 home catalogue items");
+        check(h, SiteDefs.layout(HOME_LAYOUT).size() == 45, "home shows the 45 home catalogue items");
         h.succeed();
     }
 }

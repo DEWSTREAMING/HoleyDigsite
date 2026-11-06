@@ -72,15 +72,17 @@ SPAWN = (10, G + 1, 12)          # template-relative, player feet; faces east (t
 # Display slot -> catalogue item. Changing these only (no version bump) updates the displays on the next world load.
 HOME_ROWS = {   # row name -> items in slot order (None = empty display, kept for future items)
     'checkout': ['holeydigsite:sell_pad', 'holeydigsite:shop_button', 'holeydigsite:buy_pad', 'holeydigsite:money_pan'],
-    'digging':  ['minecraft:dirt', 'minecraft:wooden_shovel', 'holeydigsite:pan', 'holeydigsite:brush', 'holeydigsite:dirt_clump'],
-    'drills':   ['holeydigsite:mining_drill', 'holeydigsite:water_intake', 'holeydigsite:water_pipe', 'holeydigsite:sluice_box', 'holeydigsite:seed_screen'],
+    'digging':  ['minecraft:dirt', 'minecraft:wooden_shovel', 'holeydigsite:pan', 'holeydigsite:brush', 'holeydigsite:dirt_clump',
+                 'holeydigsite:hemp_seeds', 'minecraft:oak_sapling'],
+    'drills':   ['holeydigsite:mining_drill', 'holeydigsite:water_intake', 'holeydigsite:water_pipe', 'holeydigsite:sluice_box', 'holeydigsite:seed_screen',
+                 'holeydigsite:flood_gate', 'holeydigsite:threshing_drum', 'holeydigsite:rope_machine', 'holeydigsite:sawmill'],
     'belts':    ['holeydigsite:clump_belt', 'holeydigsite:incline_belt', 'holeydigsite:filter_belt', 'holeydigsite:belt_splitter',
                  'holeydigsite:gem_cutter', 'holeydigsite:down_incline_belt', 'holeydigsite:drop_chute'],
     'forge':    ['minecraft:lava_bucket', 'holeydigsite:lava_intake', 'holeydigsite:lava_pipe', 'holeydigsite:forge',
                  'holeydigsite:crucible', 'holeydigsite:mold'],
     'crafting': ['minecraft:bread', 'holeydigsite:smithing_anvil', 'holeydigsite:crafting_forge', 'holeydigsite:blacksmith_hammer', 'holeydigsite:prospectors_ledger', 'holeydigsite:skin_bench'],
     'land':     ['holeydigsite:land_deed_deep_dig', 'holeydigsite:land_deed_gravel_flats', 'holeydigsite:land_deed_sand_dunes'],
-    'crates':   ['holeydigsite:bolt_cutters'],
+    'crates':   ['holeydigsite:bolt_cutters', 'holeydigsite:scythe', 'holeydigsite:sprinkler'],
 }
 # event kiosk display slots 1-12 (10-12 free for later)
 EVENT_KIOSK_ITEMS = ['holeydigsite:land_deed_event_t1', 'holeydigsite:land_deed_event_t2', 'holeydigsite:land_deed_event_t3',
@@ -927,6 +929,15 @@ def build_store():
     # Mining Crates in the gaps of the Crafting counter (the counter is already there in old worlds)
     for lz in (9, 11, 13):
         disp(22, lz, cz, 'crates')
+    # Flood Gate in a gap of the Drills & Water counter (old worlds get the display placed into air)
+    disp(14, 8, cx, 'drills')
+    # Phase 36: Threshing Drum, Rope Machine, Sawmill in remaining gaps of Drills & Water counter
+    disp(16, 8, cx, 'drills')
+    disp(18, 8, cx, 'drills')
+    disp(20, 8, cx, 'drills')
+    # Phase 36: Hemp Seeds and Oak Sapling on Digging counter
+    disp(14, 5, cx, 'digging')
+    disp(16, 5, cx, 'digging')
     # Contract Board on the west wall, right of the door (old worlds get it placed into air on load)
     L(6, FL + 2, 12, 'holeydigsite:contract_board{facing:east}')
     # World Leaderboard on the same wall, left of the door (old worlds get it the same way)

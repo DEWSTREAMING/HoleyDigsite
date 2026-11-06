@@ -73,8 +73,8 @@ public final class EconomyCommands {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("money")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("money").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("give")
                                 .then(Commands.argument("player", EntityArgument.players())
                                         .then(Commands.argument("amount", IntegerArgumentType.integer(1))
@@ -82,8 +82,9 @@ public final class EconomyCommands {
                 .then(Commands.literal("worth")
                         .executes(c -> worth(c, c.getSource().getPlayerOrException()))
                         .then(Commands.argument("player", EntityArgument.player())
+                                .requires(s -> s.hasPermission(2))
                                 .executes(c -> worth(c, EntityArgument.getPlayer(c, "player")))))
-                .then(Commands.literal("give")
+                .then(Commands.literal("give").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("ingot")
                                 .then(Commands.argument("player", EntityArgument.players())
                                         .then(Commands.argument("metal", StringArgumentType.word())

@@ -58,8 +58,8 @@ public final class LedgerCommands {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("ledger")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("ledger").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("info")
                                 .executes(c -> info(c, c.getSource().getPlayerOrException()))
                                 .then(Commands.argument("player", EntityArgument.player())

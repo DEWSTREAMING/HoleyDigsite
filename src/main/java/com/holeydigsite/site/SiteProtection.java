@@ -73,11 +73,11 @@ public final class SiteProtection {
         return zoneAt(level, pos, 0) != null;
     }
 
-    private static boolean restricted(Player player) {
+    public static boolean restricted(Player player) {
         return player != null && !player.getAbilities().instabuild && !player.isSpectator();
     }
 
-    private static void tell(Player player) {
+    public static void tell(Player player) {
         player.displayClientMessage(Component.translatable("message.holeydigsite.site.protected").withStyle(ChatFormatting.RED), true);
     }
 
@@ -108,6 +108,24 @@ public final class SiteProtection {
     public static void resync(Player p) {
         if (p instanceof net.minecraft.server.level.ServerPlayer sp) {
             sp.containerMenu.sendAllDataToRemote();
+        }
+    }
+
+    /**
+     * Last in line: when any mod (FTB Chunks for one) refused a placement, make sure the player's inventory is shown right.
+     * Their check may cancel before ours runs, or after, and does not resync on its own.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public static void onPlaceRefused(BlockEvent.EntityPlaceEvent event) {
+        if (event.isCanceled() && event.getEntity() instanceof Player p) {
+            resync(p);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public static void onPlaceUseRefused(PlayerInteractEvent.RightClickBlock event) {
+        if (event.isCanceled() && event.getItemStack().getItem() instanceof net.minecraft.world.item.BlockItem) {
+            resync(event.getEntity());
         }
     }
 

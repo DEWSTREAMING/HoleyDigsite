@@ -228,6 +228,9 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
         if (b.getBlock() instanceof SluiceBoxBlock sluice) {
             return b.getValue(SluiceBoxBlock.FACING) == dir && sluice.feedsForward(b);
         }
+        if (b.getBlock() instanceof com.holeydigsite.machine.WaterProcessingBlock) {
+            return b.getValue(com.holeydigsite.machine.WaterProcessingBlock.FACING) == dir;
+        }
         return false;
     }
 
@@ -418,6 +421,30 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
             belt.setOwner(p.getUUID());
             if (p instanceof net.minecraft.server.level.ServerPlayer sp) belt.setOwnerPlayer(sp);
         }
+        String skin = stack.get(com.holeydigsite.registry.ModDataComponents.SKIN.get());
+        if (skin != null && !skin.isEmpty()) {
+            if (level.getBlockEntity(pos) instanceof ClumpBeltBlockEntity belt) {
+                belt.setSkin(skin, com.holeydigsite.skin.SkinWear.of(stack));
+            }
+        }
+    }
+
+    @Override
+    protected java.util.List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<ItemStack> drops = new java.util.ArrayList<>(super.getDrops(state, params));
+        BlockEntity be = params.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY);
+        if (be instanceof ClumpBeltBlockEntity belt) {
+            String skin = belt.getSkin();
+            if (skin != null && !skin.isEmpty() && !skin.equals("default")) {
+                for (ItemStack drop : drops) {
+                    if (drop.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof ClumpBeltBlock) {
+                        drop.set(com.holeydigsite.registry.ModDataComponents.SKIN.get(), skin);
+                        com.holeydigsite.skin.SkinWear.set(drop, belt.getWear());
+                    }
+                }
+            }
+        }
+        return drops;
     }
 
     @Override
@@ -480,7 +507,9 @@ public class ClumpBeltBlock extends BaseEntityBlock implements ItemTarget, Water
     // ------------------------------------------------------------------------------------------------
 
     public static boolean playerInsertable(ItemStack stack) {
-        return !stack.isEmpty() && !(stack.getItem() instanceof BlockItem);
+        // Blocks are placed as usual, except ones a machine takes (logs for the Sawmill), which have no other way onto a belt.
+        return !stack.isEmpty() && (!(stack.getItem() instanceof BlockItem)
+                || com.holeydigsite.machine.MachineRecipeManager.isAnyIngredient(stack));
     }
 
     @Override

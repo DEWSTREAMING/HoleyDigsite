@@ -74,6 +74,26 @@ public final class SkinBenchActions {
             say(p, Component.translatable("message.holeydigsite.skin_bench.same"));
             return Outcome.SAME_SKIN;
         }
+        if (SkinDefs.CONVEYOR.equals(family)) {
+            ItemStack skinned = machine.copyWithCount(1);
+            skinned.set(ModDataComponents.SKIN.get(), skin);
+            SkinWear.set(skinned, wear);
+            kit.shrink(1);
+            machine.shrink(1);
+            bench.setItem(machine.isEmpty() ? ItemStack.EMPTY : machine);
+            LedgerManager.giveOrDrop(p, skinned);
+            if (oldSkin != null) {
+                LedgerManager.giveOrDrop(p, SkinKitItem.of(oldSkin, family, oldWear, 1));
+            }
+            Component name = SkinDefs.displayName(skin);
+            if (oldSkin != null) {
+                say(p, Component.translatable("message.holeydigsite.skin_bench.swapped", name));
+            } else {
+                say(p, Component.translatable("message.holeydigsite.skin_bench.applied", name, SkinWear.displayName(wear)));
+            }
+            p.level().playSound(null, bench.getBlockPos(), SoundEvents.UI_BUTTON_CLICK.value(), SoundSource.BLOCKS, 0.6F, 1.2F);
+            return oldSkin != null ? Outcome.SWAPPED : Outcome.APPLIED;
+        }
         ItemStack updated = machine.copy();
         updated.set(ModDataComponents.SKIN.get(), skin);
         SkinWear.set(updated, wear);
@@ -104,6 +124,18 @@ public final class SkinBenchActions {
             return Outcome.NO_SKIN;
         }
         String oldWear = SkinWear.normalize(SkinWear.of(machine));
+        if (SkinDefs.CONVEYOR.equals(family)) {
+            ItemStack unskinned = machine.copyWithCount(1);
+            unskinned.remove(ModDataComponents.SKIN.get());
+            unskinned.remove(ModDataComponents.SKIN_WEAR.get());
+            machine.shrink(1);
+            bench.setItem(machine.isEmpty() ? ItemStack.EMPTY : machine);
+            LedgerManager.giveOrDrop(p, unskinned);
+            LedgerManager.giveOrDrop(p, SkinKitItem.of(oldSkin, family, oldWear, 1));
+            say(p, Component.translatable("message.holeydigsite.skin_bench.removed"));
+            p.level().playSound(null, bench.getBlockPos(), SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.8F, 1.0F);
+            return Outcome.REMOVED;
+        }
         ItemStack updated = machine.copy();
         updated.remove(ModDataComponents.SKIN.get());
         updated.remove(ModDataComponents.SKIN_WEAR.get());

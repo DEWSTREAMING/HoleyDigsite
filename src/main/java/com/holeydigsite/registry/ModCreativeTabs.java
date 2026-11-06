@@ -164,9 +164,9 @@ public final class ModCreativeTabs {
                         }));
                         slots.add(new Slot(765, () -> {
                             // Seed Screen, seeds and foods
-                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.SEED_SCREEN, ModItems.GLOWROOT_SEEDS, ModItems.GLOWROOT,
+                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.SEED_SCREEN, ModItems.SCYTHE, ModItems.SPRINKLER, ModItems.FLOOD_GATE, ModItems.GLOWROOT_SEEDS, ModItems.GLOWROOT,
                                     ModItems.ROASTED_GLOWROOT, ModItems.RIVERBEAN_SEEDS, ModItems.RIVERBEAN, ModItems.RIVERBEAN_STEW,
-                                    ModItems.DUNE_MELON_SEEDS, ModItems.DUNE_MELON_SLICE, ModItems.DUNE_MELON_JUICE}) {
+                                    ModItems.DUNE_MELON_SEEDS, ModItems.DUNE_MELON_SLICE, ModItems.DUNE_MELON_JUICE, ModItems.HEMP_SEEDS, ModItems.HEMP, ModItems.FIBRE, ModItems.ROPE, ModItems.BEAM, ModItems.PIT_PROP, ModItems.THRESHING_DRUM, ModItems.ROPE_MACHINE, ModItems.SAWMILL}) {
                                 output.accept(it.get());
                             }
                         }));
@@ -210,7 +210,7 @@ public final class ModCreativeTabs {
                             }
                         }));
                         slots.add(new Slot(776, () -> {
-                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.PROSPECTOR_CRATE, ModItems.BOLT_CUTTERS,
+                            for (var it : new net.neoforged.neoforge.registries.DeferredItem<?>[]{ModItems.PROSPECTOR_CRATE, ModItems.GOLDFIELDS_CRATE, ModItems.BOLT_CUTTERS,
                                     ModItems.CRATE_SWITCH, ModItems.WOODEN_CRATE, ModItems.IRON_CRATE,
                                     ModItems.GOLD_CRATE, ModItems.SKIN_SCRAP, ModItems.MINERS_HELMET_STAND, ModItems.RUSTY_MINE_BELL,
                                     ModItems.SLUICE_MODEL, ModItems.GOLDEN_DRILL_STATUE}) {

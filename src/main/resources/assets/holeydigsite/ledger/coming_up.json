@@ -1,0 +1,19 @@
+{
+  "entries": [
+    {
+      "name": "ledger.holeydigsite.coming_up.workshop",
+      "description": "ledger.holeydigsite.coming_up.workshop.desc",
+      "status": "in_the_works"
+    },
+    {
+      "name": "ledger.holeydigsite.coming_up.great_shaft",
+      "description": "ledger.holeydigsite.coming_up.great_shaft.desc",
+      "status": "planned"
+    },
+    {
+      "name": "ledger.holeydigsite.coming_up.expeditions",
+      "description": "ledger.holeydigsite.coming_up.expeditions.desc",
+      "status": "planned"
+    }
+  ]
+}

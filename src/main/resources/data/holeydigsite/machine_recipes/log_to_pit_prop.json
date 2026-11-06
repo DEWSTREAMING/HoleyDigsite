@@ -1,0 +1,13 @@
+{
+  "machine": "holeydigsite:sawmill",
+  "mode": "pit_prop",
+  "ingredient": {
+    "tag": "minecraft:logs",
+    "count": 1
+  },
+  "result": {
+    "item": "holeydigsite:pit_prop",
+    "count": 2
+  },
+  "ticks": 20
+}

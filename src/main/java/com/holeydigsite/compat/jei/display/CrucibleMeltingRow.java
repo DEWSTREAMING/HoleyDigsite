@@ -106,7 +106,9 @@ public record CrucibleMeltingRow(
                 int grams = val.get("grams").getAsInt();
                 String form = val.has("form") ? val.get("form").getAsString() : ResourceInfo.RAW;
                 boolean meltable = !val.has("meltable") || val.get("meltable").getAsBoolean();
-                out.put(item, new ResourceInfo(material, grams, form, meltable));
+                int min = val.has("min") ? val.get("min").getAsInt() : grams;
+                int max = val.has("max") ? val.get("max").getAsInt() : grams;
+                out.put(item, new ResourceInfo(material, grams, form, meltable, min, max));
             }
         } catch (Exception e) {
             HoleyDigsite.LOGGER.warn("Failed to read builtin resource_weights.json: {}", e.toString());

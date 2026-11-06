@@ -33,7 +33,13 @@ public final class BeltEvents {
             event.setUseBlock(TriState.TRUE); // pads/pan take everything, display sets its item
             return;
         }
-        if (block instanceof ClumpBeltBlock && ClumpBeltBlock.playerInsertable(event.getItemStack())) {
+        if (block instanceof com.holeydigsite.machine.WaterProcessingBlock mb) {
+            if (com.holeydigsite.machine.MachineRecipeManager.isIngredient(mb.machineId(), event.getItemStack())) {
+                event.setUseBlock(TriState.TRUE);
+            }
+            return;
+        }
+        if ((block instanceof ClumpBeltBlock || block instanceof com.holeydigsite.transport.DropChuteBlock) && ClumpBeltBlock.playerInsertable(event.getItemStack())) {
             event.setUseBlock(TriState.TRUE); // sneak puts the whole stack on, or sets the filter for a Filter Belt
             return;
         }

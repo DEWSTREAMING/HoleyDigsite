@@ -55,13 +55,29 @@ public final class CrateFinds {
             if (!t.old() && (testOneIn > 0 ? t.found() : t.findOneIn(source) > 0)) tiers.add(t);
         }
         tiers.sort((a, b) -> Integer.compare(b.findOneIn(source), a.findOneIn(source)));
+        List<CrateDefs.CrateTier> eligible = new ArrayList<>();
         for (CrateDefs.CrateTier t : tiers) {
-            int oneIn = testOneIn > 0 ? testOneIn : t.findOneIn(source);
-            if (!t.site().isEmpty() && !inSite(level, pos, t.site())) continue;
-            if (level.random.nextInt(oneIn) == 0) {
+            if (t.site().isEmpty() || inSite(level, pos, t.site())) {
+                eligible.add(t);
+            }
+        }
+        if (eligible.isEmpty()) return ItemStack.EMPTY;
+        if (testOneIn > 0) {
+            if (level.random.nextInt(testOneIn) == 0) {
+                List<CrateDefs.CrateTier> siteSpecific = eligible.stream().filter(e -> !e.site().isEmpty()).toList();
+                CrateDefs.CrateTier t = siteSpecific.isEmpty() ? eligible.get(0) : siteSpecific.get(0);
                 Item item = BuiltInRegistries.ITEM.get(HoleyDigsite.id(t.id()));
                 if (item != Items.AIR) return CrateBlock.stack(item, true);
             }
+            return ItemStack.EMPTY;
+        }
+        List<CrateDefs.CrateTier> siteSpecific = eligible.stream().filter(e -> !e.site().isEmpty()).toList();
+        List<CrateDefs.CrateTier> toRoll = siteSpecific.isEmpty() ? eligible : siteSpecific;
+        int oneIn = toRoll.get(0).findOneIn(source);
+        if (oneIn > 0 && level.random.nextInt(oneIn) == 0) {
+            CrateDefs.CrateTier chosen = toRoll.get(level.random.nextInt(toRoll.size()));
+            Item item = BuiltInRegistries.ITEM.get(HoleyDigsite.id(chosen.id()));
+            if (item != Items.AIR) return CrateBlock.stack(item, true);
         }
         return ItemStack.EMPTY;
     }

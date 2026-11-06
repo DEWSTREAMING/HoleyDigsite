@@ -7,9 +7,10 @@
     "field_guide.holeydigsite.page.metal.line3"
   ],
   "clip": "metal",
-  "frames": 1,
+  "frames": 44,
   "fps": 10,
-  "cols": 1,
+  "cols": 7,
   "frame_w": 320,
-  "frame_h": 180
+  "frame_h": 180,
+  "end_pause": 0
 }

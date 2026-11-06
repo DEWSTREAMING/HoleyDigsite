@@ -120,12 +120,34 @@ def tile_glass(tint, inner_alpha, edge_alpha):
     return im
 
 
+ROCK_BLOTCHES = {(58, 53, 49), (69, 62, 58), (88, 80, 74), (121, 111, 85), (105, 97, 92)}
+
+
+def fill_opaque(im, strip_rock=False):
+    """Fills every see-through pixel (and rock blotches on metal chunks) from its nearest opaque neighbour."""
+    out = im.copy()
+    valid = []
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = im.getpixel((x, y))
+            if a == 255 and not (strip_rock and (r, g, b) in ROCK_BLOTCHES):
+                valid.append((x, y, (r, g, b, 255)))
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = im.getpixel((x, y))
+            if a < 255 or (strip_rock and (r, g, b) in ROCK_BLOTCHES):
+                _, _, col = min(valid, key=lambda p: (p[0] - x) ** 2 + (p[1] - y) ** 2)
+                out.putpixel((x, y), col)
+    return out
+
+
 def tile_dirt_ore():
     """Our Dirtrock + Dirt Clump look with small Folkiron and Goldchro chunks mixed in."""
-    base = composite_on(load_tex(TEX, 'dirtrock'), load_tex(ITEM_TEX, 'dirt_clump'), -2, -2)
-    base = composite_on(base, load_tex(ITEM_TEX, 'dirt_clump'), 4, 3)
-    base = composite_on(base, load_tex(ITEM_TEX, 'folkiron_chunk_small'), -3, 4)
-    base = composite_on(base, load_tex(ITEM_TEX, 'goldchro_chunk_small'), 4, -3)
+    clump = fill_opaque(load_tex(os.path.join(ITEM_TEX, 'lump'), 'dirt'))
+    base = composite_on(load_tex(TEX, 'dirtrock'), clump, -2, -2)
+    base = composite_on(base, clump, 4, 3)
+    base = composite_on(base, fill_opaque(load_tex(os.path.join(ITEM_TEX, 'chunk'), 'folkiron'), strip_rock=True), -3, 4)
+    base = composite_on(base, fill_opaque(load_tex(os.path.join(ITEM_TEX, 'chunk'), 'goldchro'), strip_rock=True), 4, -3)
     return base
 
 
@@ -158,17 +180,14 @@ def make_tile(rng, name):
     if name == 'dirt_ore':
         return tile_dirt_ore()
     if name == 'dirt_clump':
-        return composite_on(load_tex(TEX, 'dirtrock'), load_tex(ITEM_TEX, 'dirt_clump'))
-    if name == 'goldchro_chunk_large':
-        return composite_on(load_tex(TEX, 'chunks_goldchro'), load_tex(ITEM_TEX, 'goldchro_chunk_large'))
-    if name == 'goldchro_chunk_medium':
-        return composite_on(load_tex(TEX, 'chunks_goldchro'), load_tex(ITEM_TEX, 'goldchro_chunk_medium'))
+        return fill_opaque(load_tex(os.path.join(ITEM_TEX, 'lump'), 'dirt'))
+    if name in ('goldchro_chunk_large', 'goldchro_chunk_medium'):
+        return fill_opaque(load_tex(os.path.join(ITEM_TEX, 'chunk'), 'goldchro'), strip_rock=True)
     if name == 'goldchro_chunk_bright':
-        bg = brighten(load_tex(TEX, 'chunks_goldchro'), 1.2)
-        fg = brighten(load_tex(ITEM_TEX, 'goldchro_chunk_large'), 1.15)
-        return composite_on(bg, fg)
+        im = fill_opaque(load_tex(os.path.join(ITEM_TEX, 'chunk'), 'goldchro'), strip_rock=True)
+        return brighten(im, 1.25)
     if name == 'folkiron_chunk_large':
-        return composite_on(load_tex(TEX, 'chunks_folkiron'), load_tex(ITEM_TEX, 'folkiron_chunk_large'))
+        return fill_opaque(load_tex(os.path.join(ITEM_TEX, 'chunk'), 'folkiron'), strip_rock=True)
     if name in ('ruby_large', 'sapphire_large', 'topaz_large'):
         fg = load_tex(ITEM_TEX, name)
         border = fg.getpixel((4, 2))
@@ -285,17 +304,27 @@ def golden_pan_trophy_elements():
             faces, per_tile = ('north', 'east', 'south', 'west', 'up'), {'up': 2}
         els.append(elem((x0, y0 + 7, z0), (x1, y1 + 7, z1), 1, faces=faces, per_tile=per_tile))
 
-    # Goldchro chunks sitting inside the pan basin (using our real goldchro_chunk_large / medium textures)
-    lg_uv = (2, 4, 15, 14)
-    md_uv = (3, 5, 13, 13)
+    # Goldchro chunks sitting inside the pan basin (faceted chunks from make_lump_models.py shapes)
     top_faces = ('north', 'east', 'south', 'west', 'up')
-    els.extend([
-        elem((3.2, 8, 3.8), (8.2, 10.6, 8.2), 3, faces=top_faces, sub_uv=lg_uv),
-        elem((7.6, 8, 7.6), (12.4, 10.4, 12.2), 3, faces=top_faces, sub_uv=lg_uv),
-        elem((8.8, 8, 3.4), (12.4, 9.8, 6.8), 4, faces=top_faces, sub_uv=md_uv),
-        elem((3.6, 8, 8.8), (7.0, 9.6, 12.0), 4, faces=top_faces, sub_uv=md_uv),
-        elem((5.6, 10.6, 5.6), (9.8, 11.8, 9.6), 3, faces=top_faces, sub_uv=lg_uv),
-    ])
+    chunks = [
+        ((3.8, 8.02, 4.2), (7.4, 9.6, 7.8), 3),
+        ((4.3, 9.62, 4.7), (6.9, 10.7, 7.5), 3),
+        ((6.2, 8.02, 3.2), (7.7, 9.1, 4.15), 4),
+        ((8.9, 8.02, 8.5), (12.2, 9.3, 11.9), 3),
+        ((9.5, 9.32, 9.0), (11.7, 10.4, 11.4), 3),
+        ((11.4, 8.02, 10.2), (12.6, 9.0, 11.8), 4),
+        ((8.8, 8.02, 3.8), (11.8, 9.2, 6.7), 4),
+        ((9.4, 9.22, 4.2), (11.4, 10.1, 6.2), 3),
+        ((3.6, 8.02, 8.6), (6.8, 9.1, 11.6), 4),
+        ((4.2, 9.12, 9.0), (6.3, 10.0, 11.1), 3),
+        # centre pile under the top chunk, so it doesn't float
+        ((6.0, 8.02, 6.0), (9.8, 9.5, 9.8), 4),
+        ((6.4, 9.52, 6.4), (9.2, 10.73, 9.2), 3),
+        ((5.8, 10.75, 5.8), (9.4, 11.9, 9.4), 3),
+        ((6.4, 11.92, 6.4), (8.8, 12.8, 8.8), 3),
+    ]
+    for (frm, to, tile) in chunks:
+        els.append(elem(frm, to, tile, faces=top_faces))
     return els
 
 
@@ -469,17 +498,24 @@ def ore_cart_elements():
         elem((14, 4, 4), (15, 9, 12), 0, faces=('east', 'west', 'up')),
         elem((0.5, 9, 2.5), (15.5, 9.8, 4.0), 2),
         elem((0.5, 9, 12.0), (15.5, 9.8, 13.5), 2),
-        # Dirtrock + Dirt Clump bed & heaped dirt mounds
-        elem((2, 4, 4), (14, 8.2, 12), 1, faces=('up',)),
-        elem((2.5, 8.2, 4.5), (9.0, 9.5, 11.2), 3, faces=top_faces, sub_uv=clump_uv),
-        elem((9.1, 8.2, 4.8), (13.5, 9.3, 11.4), 1, faces=top_faces),
-        elem((5.2, 9.5, 5.6), (10.2, 10.3, 10.2), 3, faces=top_faces, sub_uv=clump_uv),
-        # Folkiron & Goldchro chunks mixed in on top of the dirt
-        elem((3.0, 9.5, 4.8), (6.2, 11.3, 7.8), 4, faces=top_faces, sub_uv=gold_uv),
-        elem((6.6, 10.3, 6.2), (9.4, 12.0, 9.4), 5, faces=top_faces, sub_uv=folk_uv),
-        elem((9.5, 9.3, 7.8), (12.7, 11.1, 10.8), 4, faces=top_faces, sub_uv=gold_uv),
-        elem((9.8, 9.3, 4.6), (12.6, 10.9, 7.2), 5, faces=top_faces, sub_uv=folk_uv),
-        elem((3.6, 9.5, 8.2), (6.3, 11.0, 10.8), 5, faces=top_faces, sub_uv=folk_uv),
+        # Dirt Clumps filling the cart tub (from 5-box clump shapes in make_lump_models.py)
+        elem((2.2, 4.02, 4.2), (8.2, 6.3, 10.8), 3, faces=top_faces),
+        elem((3.2, 6.32, 5.2), (7.2, 8.1, 9.8), 3, faces=top_faces),
+        elem((5.8, 6.32, 7.8), (8.2, 7.6, 10.2), 3, faces=top_faces),
+        elem((2.8, 6.32, 8.2), (4.6, 7.6, 10.2), 3, faces=top_faces),
+        elem((3.6, 4.02, 4.15), (6.4, 5.6, 5.15), 3, faces=top_faces),
+        elem((8.22, 4.02, 4.22), (13.8, 6.3, 10.8), 3, faces=top_faces),
+        elem((9.0, 6.32, 5.2), (12.8, 8.1, 9.8), 3, faces=top_faces),
+        elem((11.4, 6.32, 7.8), (13.6, 7.6, 10.2), 3, faces=top_faces),
+        elem((8.4, 6.32, 8.2), (10.2, 7.6, 10.2), 3, faces=top_faces),
+        elem((9.2, 4.02, 4.15), (12.2, 5.6, 5.15), 3, faces=top_faces),
+        elem((4.8, 8.12, 5.6), (11.2, 9.6, 10.4), 3, faces=top_faces),
+        # Goldchro & Folkiron chunks resting on top of the dirt clumps
+        elem((3.2, 8.15, 5.0), (6.4, 9.5, 7.8), 4, faces=top_faces),
+        elem((3.7, 9.52, 5.5), (5.9, 10.4, 7.2), 4, faces=top_faces),
+        elem((9.4, 8.15, 7.8), (12.6, 9.5, 10.6), 4, faces=top_faces),
+        elem((9.9, 9.52, 8.3), (12.1, 10.4, 10.0), 4, faces=top_faces),
+        elem((6.6, 9.62, 6.8), (9.4, 11.2, 9.4), 5, faces=top_faces),
         # Axles & wheels
         elem((3, 1, 3), (4, 3, 13), 2, faces=('east', 'west', 'down')),
         elem((12, 1, 3), (13, 3, 13), 2, faces=('east', 'west', 'down')),
@@ -506,13 +542,11 @@ def lucky_lantern_elements():
         elem((10, 2, 5), (11, 10, 6), 0, faces=('north', 'east', 'south', 'west')),
         elem((5, 2, 10), (6, 10, 11), 0, faces=('north', 'east', 'south', 'west')),
         elem((10, 2, 10), (11, 10, 11), 0, faces=('north', 'east', 'south', 'west')),
-        # Large, bright, full-bright glowing Goldchro nugget filling the lantern interior
-        elem((6.4, 2.0, 6.4), (9.6, 3.2, 9.6), 2, faces=('north', 'east', 'south', 'west'),
-             sub_uv=gold_uv, glow=True, shade_el=False),
-        elem((6.1, 3.2, 6.1), (9.9, 7.6, 9.9), 2, faces=FACES,
-             sub_uv=gold_uv, glow=True, shade_el=False),
-        elem((6.6, 7.6, 6.6), (9.4, 8.8, 9.4), 2, faces=top_faces,
-             sub_uv=gold_uv, glow=True, shade_el=False),
+        # Large, bright, glowing Goldchro metal chunk inside (4 faceted cuboids from CHUNKS['medium'])
+        elem((6.3, 2.2, 6.8), (9.4, 5.3, 9.3), 2, faces=FACES, glow=True, shade_el=False),
+        elem((6.7, 5.35, 7.2), (9.0, 7.6, 9.0), 2, faces=FACES, glow=True, shade_el=False),
+        elem((8.4, 2.2, 5.7), (9.7, 4.3, 6.75), 2, faces=FACES, glow=True, shade_el=False),
+        elem((5.9, 5.38, 8.2), (6.9, 7.1, 9.5), 2, faces=FACES, glow=True, shade_el=False),
         # Clear single-face glass panes on the 4 sides so the Goldchro nugget is unobstructed
         elem((6, 2, 5.5), (10, 10, 5.8), 1, faces=('north',), sub_uv=(0, 0, 16, 16)),
         elem((6, 2, 10.2), (10, 10, 10.5), 1, faces=('south',), sub_uv=(0, 0, 16, 16)),

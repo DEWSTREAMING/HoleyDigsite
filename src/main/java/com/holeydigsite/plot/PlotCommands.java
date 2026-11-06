@@ -30,8 +30,8 @@ public final class PlotCommands {
     private PlotCommands() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("holeydigsite").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("plot")
+        d.register(Commands.literal("holeydigsite")
+                .then(Commands.literal("plot").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("list").executes(PlotCommands::list))
                         .then(Commands.literal("own")
                                 .then(Commands.argument("plot", StringArgumentType.word())

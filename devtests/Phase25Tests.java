@@ -262,7 +262,7 @@ public class Phase25Tests {
     @GameTest(template = "empty")
     public static void miningCrates_everyTierProducesRow(GameTestHelper h) {
         List<CrateOddsRow> rows = CrateOddsRow.loadAll();
-        check(h, rows.size() == 5, "expected 5 crate tiers (Prospector, Outback and the 3 old Mining Crates), got " + rows.size());
+        check(h, rows.size() == 6, "expected 5 crate tiers (Prospector, Outback and the 3 old Mining Crates), got " + rows.size());
 
         for (CrateOddsRow r : rows) {
             check(h, !r.crateStack().isEmpty(), "crate stack empty in " + r.tierId());

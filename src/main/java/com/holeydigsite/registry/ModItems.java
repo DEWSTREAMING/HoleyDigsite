@@ -203,6 +203,25 @@ public final class ModItems {
             new Item.Properties().stacksTo(16).food(food(5, 0.6F).effect(() -> buff(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED, 90), 1.0F)
                     .usingConvertsTo(net.minecraft.world.item.Items.GLASS_BOTTLE).build()),
             "tooltip.holeydigsite.food.speed", true));
+
+    /** {@code holeydigsite:scythe}, hand tool that harvests ripe crops in 3x3 and replants. */
+    public static final DeferredItem<com.holeydigsite.item.ScytheItem> SCYTHE = ITEMS.register("scythe",
+            () -> new com.holeydigsite.item.ScytheItem(new Item.Properties().stacksTo(1)));
+
+    /** {@code holeydigsite:sprinkler}, small water network machine block. */
+    public static final DeferredItem<BlockItem> SPRINKLER = ITEMS.registerSimpleBlockItem(ModBlocks.SPRINKLER);
+    /** {@code holeydigsite:flood_gate}, water-powered crop row wash machine block. */
+    public static final DeferredItem<BlockItem> FLOOD_GATE = ITEMS.registerSimpleBlockItem(ModBlocks.FLOOD_GATE);
+    public static final DeferredItem<Item> HEMP_SEEDS = ITEMS.register("hemp_seeds", () -> new com.holeydigsite.item.FarmItems.Seeds(
+            ModBlocks.HEMP_CROP.get(), new Item.Properties(), "tooltip.holeydigsite.seeds.where_hemp"));
+    public static final DeferredItem<Item> HEMP = ITEMS.register("hemp", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> FIBRE = ITEMS.register("fibre", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> ROPE = ITEMS.register("rope", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> BEAM = ITEMS.register("beam", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> PIT_PROP = ITEMS.register("pit_prop", () -> new Item(new Item.Properties()));
+    public static final DeferredItem<BlockItem> THRESHING_DRUM = ITEMS.registerSimpleBlockItem(ModBlocks.THRESHING_DRUM);
+    public static final DeferredItem<BlockItem> ROPE_MACHINE = ITEMS.registerSimpleBlockItem(ModBlocks.ROPE_MACHINE);
+    public static final DeferredItem<BlockItem> SAWMILL = ITEMS.registerSimpleBlockItem(ModBlocks.SAWMILL);
     public static final DeferredItem<BlockItem> MINERS_LANTERN = ITEMS.registerSimpleBlockItem(ModBlocks.MINERS_LANTERN);
     public static final DeferredItem<BlockItem> RIVER_STONE_LAMP = ITEMS.registerSimpleBlockItem(ModBlocks.RIVER_STONE_LAMP);
     public static final DeferredItem<BlockItem> SANDSTONE_LAMP = ITEMS.registerSimpleBlockItem(ModBlocks.SANDSTONE_LAMP);
@@ -315,6 +334,8 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> GOLD_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.GOLD_CRATE,
             new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
     public static final DeferredItem<BlockItem> PROSPECTOR_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.PROSPECTOR_CRATE,
+            new Item.Properties().stacksTo(16));
+    public static final DeferredItem<BlockItem> GOLDFIELDS_CRATE = ITEMS.registerSimpleBlockItem(ModBlocks.GOLDFIELDS_CRATE,
             new Item.Properties().stacksTo(16));
     /** {@code holeydigsite:bolt_cutters}, used up to open one locked crate. Bought at the Trading Post, never found or crafted. */
     public static final DeferredItem<Item> BOLT_CUTTERS = ITEMS.registerSimpleItem("bolt_cutters", new Item.Properties().stacksTo(16));

@@ -147,6 +147,18 @@ public class Phase32Tests {
         check(h, FieldGuideDefs.frameAt(animPage, 1500L) == 9, "Anim during 1s end pause should hold frame 9");
         check(h, FieldGuideDefs.frameAt(animPage, 2000L) == 0, "Anim after 1s end pause should loop to frame 0");
 
+        // Clips cut as clean loops (end_pause 0) go straight from the last frame to the first
+        FieldGuideDefs.Page loopPage = new FieldGuideDefs.Page(
+                "test_loop", 1, "t", List.of("l"), "c", 10, 10, 4, 320, 180, 0L);
+        check(h, FieldGuideDefs.frameAt(loopPage, 950L) == 9, "Loop at 950ms should be frame 9");
+        check(h, FieldGuideDefs.frameAt(loopPage, 1000L) == 0, "Loop at 1000ms should be back at frame 0");
+        for (String id : List.of("first_line", "belts", "metal", "sell", "buy", "land_plots")) {
+            FieldGuideDefs.Page p = FieldGuideDefs.pageById(id);
+            check(h, p != null && p.frames() >= 30 && p.frames() <= 60 && p.fps() == 10,
+                    "Studio clip " + id + " should be 3 to 6 s at 10 fps, got " + (p == null ? "no page" : p.frames() + " frames"));
+            check(h, p.endPauseMs() == 0, "Studio clip " + id + " loops without an end pause");
+        }
+
         h.succeed();
     }
 

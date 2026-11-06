@@ -41,6 +41,9 @@ final class FtbTeamSync {
     /** Set while this class changes teams itself, so the events that causes are not acted on again. */
     private static boolean busy;
 
+    /** Islands that gained or lost people while applying, to be looked at for claims afterwards. */
+    private static final Set<UUID> touched = new java.util.LinkedHashSet<>();
+
     static void register() {
         TeamEvent.PLAYER_CHANGED.register(FtbTeamSync::onPlayerChanged);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, FtbTeamSync::onLogin);
@@ -133,6 +136,12 @@ final class FtbTeamSync {
         } finally {
             busy = was;
         }
+        if (!was && !touched.isEmpty()) {
+            if (TeamsCompat.ftbChunks()) {
+                IslandClaims.later(server, touched);
+            }
+            touched.clear();
+        }
     }
 
     private static void move(MinecraftServer server, UUID player, UUID island, String message) {
@@ -146,6 +155,7 @@ final class FtbTeamSync {
             TeamMoves.get(server).rememberOldIsland(player, from);
         }
         data.removePlayerFromTeam(player);
+        touched.add(target.getId());
         if (!target.hasPlayer(player)) {
             data.addPlayerToTeam(target, player);
         }
@@ -189,6 +199,7 @@ final class FtbTeamSync {
         }
         try {
             FTBTeamsAPI.api().getManager().createPartyTeam(sp, team.getName(), "", Color4I.rgb(0xC8A040));
+            touched.add(island);
             sp.sendSystemMessage(Component.translatable("message.holeydigsite.team.party_made", team.getName()).withStyle(ChatFormatting.GOLD));
         } catch (CommandSyntaxException e) {
             HoleyDigsite.LOGGER.warn("Team sync: no party for {}: {}", sp.getGameProfile().getName(), e.getMessage());

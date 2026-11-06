@@ -1,0 +1,12 @@
+{
+  "machine": "holeydigsite:threshing_drum",
+  "ingredient": {
+    "item": "holeydigsite:hemp",
+    "count": 1
+  },
+  "result": {
+    "item": "holeydigsite:fibre",
+    "count": 1
+  },
+  "ticks": 20
+}

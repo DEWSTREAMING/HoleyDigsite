@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "holeydigsite:block/flood_gate_front",
+    "north": "holeydigsite:block/flood_gate_front",
+    "south": "holeydigsite:block/flood_gate_side",
+    "east": "holeydigsite:block/flood_gate_side",
+    "west": "holeydigsite:block/flood_gate_side",
+    "up": "holeydigsite:block/flood_gate_top",
+    "down": "holeydigsite:block/flood_gate_bottom"
+  }
+}

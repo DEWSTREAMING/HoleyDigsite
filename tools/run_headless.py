@@ -4,7 +4,8 @@ JDK21 = r"C:\Users\Dewey\.gradle\jdks\eclipse_adoptium-21-amd64-windows.2\bin"
 JAVAC = os.path.join(JDK21, "javac.exe")
 JAR = os.path.join(JDK21, "jar.exe")
 
-MOD = r"E:\Minecraft Mods\Holey Digsite"
+HERE = os.path.dirname(os.path.abspath(__file__))
+MOD = os.path.dirname(HERE)
 PACK = r"E:\Minecraft Mods\Holey Digsite Pack"
 HOLD = r"C:\Users\Dewey\curseforge\minecraft\Instances\Test1\mods"
 
@@ -28,11 +29,11 @@ for root, dirs, files in os.walk(cache_dir):
 
 cp_str = os.pathsep.join(cp_jars)
 
-holey_test_java = os.path.join(PACK, "_source", "headless-test", "HoleyTest.java")
+test_javas = glob.glob(os.path.join(PACK, "_source", "headless-test", "*.java"))
 classes_dir = os.path.join(WORK, "classes")
 
-print("Compiling HoleyTest.java with JDK 21...")
-subprocess.check_call([JAVAC, "-proc:none", "-nowarn", "-implicit:none", "-d", classes_dir, "-cp", cp_str, holey_test_java])
+print(f"Compiling {len(test_javas)} test files with JDK 21...")
+subprocess.check_call([JAVAC, "-proc:none", "-nowarn", "-implicit:none", "-d", classes_dir, "-cp", cp_str] + test_javas)
 
 shutil.copy(os.path.join(PACK, "_source", "headless-test", "neoforge.mods.toml"), os.path.join(classes_dir, "META-INF"))
 

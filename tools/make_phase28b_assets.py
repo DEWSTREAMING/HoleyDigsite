@@ -68,23 +68,7 @@ wj(os.path.join(BS, 'event_sell_pad.json'), {'variants': {'locked=false': {'mode
                                                           'locked=true': {'model': 'holeydigsite:block/event_sell_pad'}}})
 wj(os.path.join(MI, 'event_sell_pad.json'), {'parent': 'holeydigsite:block/event_sell_pad'})
 
-# ---- Outback Crate: the wooden crate, sun-bleached red
-for part in ('side', 'front', 'top', 'bottom'):
-    tint(os.path.join(TB, 'wooden_crate_%s.png' % part), os.path.join(TB, 'outback_crate_%s.png' % part), (1.25, 0.72, 0.55), (10, 0, 0))
-for suffix, parent in (('', 'crate_closed'), ('_open', 'crate_open')):
-    wj(os.path.join(MB, 'outback_crate%s.json' % suffix), {'parent': 'holeydigsite:block/' + parent, 'textures': {
-        'side': 'holeydigsite:block/outback_crate_side', 'front': 'holeydigsite:block/outback_crate_front',
-        'top': 'holeydigsite:block/outback_crate_top', 'bottom': 'holeydigsite:block/outback_crate_bottom',
-        'inside': 'holeydigsite:block/crate_inside', 'particle': 'holeydigsite:block/outback_crate_side'}})
-v = {}
-for f, y in (('north', 0), ('east', 90), ('south', 180), ('west', 270)):
-    for o in ('false', 'true'):
-        e = {'model': 'holeydigsite:block/outback_crate' + ('_open' if o == 'true' else '')}
-        if y:
-            e['y'] = y
-        v['facing=%s,open=%s' % (f, o)] = e
-wj(os.path.join(BS, 'outback_crate.json'), {'variants': v})
-wj(os.path.join(MI, 'outback_crate.json'), {'parent': 'holeydigsite:block/outback_crate'})
+# The Outback Crate is made by make_phase31_assets.py (skins, locked model); writing it here would undo that.
 
 # ---- decor textures
 rnd = random.Random(7)
@@ -234,7 +218,17 @@ DECOR = {
                          'east': {'texture': '#1', 'uv': [4, 0, 8, 7.5]}, 'west': {'texture': '#1', 'uv': [8, 0, 12, 7.5]},
                          'up': {'texture': '#0', 'uv': [3, 4, 13, 8]}, 'down': {'texture': '#0', 'uv': [3, 4, 13, 8]}}},
                      box([3, 2.5, 8], [13, 3.5, 16], '#0'), box([3, 3.5, 8], [3.5, 5, 16], '#0'), box([12.5, 3.5, 8], [13, 5, 16], '#0'),
-                     box([3.5, 3.5, 15.5], [12.5, 5, 16], '#0'), box([4, 3.5, 9], [12, 6, 15], '#2'), box([5.5, 6, 10], [10.5, 7.5, 14], '#2'),
+                     box([3.5, 3.5, 15.5], [12.5, 5, 16], '#0'), # Dirt clump shapes filling the ute tray
+                     box([3.8, 3.5, 8.5], [8.4, 5.5, 14.8], '#5'),
+                     box([4.4, 5.5, 9.2], [7.8, 6.8, 14.2], '#5'),
+                     box([8.4, 3.5, 8.5], [12.2, 5.5, 14.8], '#5'),
+                     box([8.6, 5.5, 9.2], [11.8, 6.8, 14.2], '#5'),
+                     box([5.4, 6.8, 9.8], [10.6, 7.6, 13.8], '#5'),
+                     # Goldchro chunks on top
+                     box([4.8, 7.2, 10.2], [7.6, 8.4, 12.8], '#2'),
+                     box([5.3, 8.4, 10.7], [7.1, 9.1, 12.3], '#2'),
+                     box([8.2, 7.2, 11.2], [11.0, 8.3, 14.0], '#2'),
+                     box([8.6, 8.3, 11.7], [10.5, 9.0, 13.5], '#2'),
                      box([2, 0, 1.5], [3, 3, 4.5], '#3'), box([13, 0, 1.5], [14, 3, 4.5], '#3'), box([2, 0, 11], [3, 3, 14], '#3'),
                      box([13, 0, 11], [14, 3, 14], '#3')],
     # the pole on its base, the flag flying out past the block (22 x 11 texels, 2:1)
@@ -254,8 +248,8 @@ TEX = {
     'corrugated_iron_sheet': {'0': 'holeydigsite:block/corrugated_iron', 'particle': 'holeydigsite:block/corrugated_iron'},
     'little_windmill': {'0': 'holeydigsite:block/little_windmill_fan', '1': 'holeydigsite:block/windpump_steel',
                         '2': 'minecraft:block/red_concrete', 'particle': 'holeydigsite:block/windpump_steel'},
-    'ute_ore_cart': {'0': 'holeydigsite:block/ute_paint', '1': 'holeydigsite:block/ute_cab', '2': 'minecraft:block/raw_gold_block',
-                     '3': 'minecraft:block/black_concrete', '4': 'minecraft:block/iron_block', 'particle': 'holeydigsite:block/ute_paint'},
+    'ute_ore_cart': {'0': 'holeydigsite:block/ute_paint', '1': 'holeydigsite:block/ute_cab', '2': 'holeydigsite:item/lump/welcome_stranger',
+                     '3': 'minecraft:block/black_concrete', '4': 'minecraft:block/iron_block', '5': 'holeydigsite:item/lump/dirt', 'particle': 'holeydigsite:block/ute_paint'},
     'southern_cross_banner': {'0': 'holeydigsite:block/australian_flag', '1': 'minecraft:block/stripped_spruce_log',
                               'particle': 'holeydigsite:block/australian_flag'},
     'welcome_stranger_stand': {'0': 'minecraft:block/dark_oak_planks', '1': 'minecraft:block/spruce_planks',

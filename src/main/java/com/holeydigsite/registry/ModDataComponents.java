@@ -111,4 +111,16 @@ public final class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("locked", builder -> builder
                     .persistent(Codec.BOOL)
                     .networkSynchronized(ByteBufCodecs.BOOL));
+
+    /** {@code holeydigsite:flawless}, true on a rare jackpot gem. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> FLAWLESS =
+            DATA_COMPONENTS.registerComponentType("flawless", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL));
+
+    /** {@code holeydigsite:counted}, true if this item was already counted in the player's records. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> COUNTED =
+            DATA_COMPONENTS.registerComponentType("counted", builder -> builder
+                    .persistent(Codec.BOOL)
+                    .networkSynchronized(ByteBufCodecs.BOOL));
 }

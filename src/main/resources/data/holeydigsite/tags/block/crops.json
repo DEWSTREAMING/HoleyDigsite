@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:crops",
+    "holeydigsite:glowroot_crop",
+    "holeydigsite:riverbean_crop",
+    "holeydigsite:dune_melon_crop",
+    "holeydigsite:hemp_crop"
+  ]
+}

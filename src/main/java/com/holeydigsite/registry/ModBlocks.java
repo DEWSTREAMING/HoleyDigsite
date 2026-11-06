@@ -315,6 +315,8 @@ public final class ModBlocks {
 
     public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> PROSPECTOR_CRATE = BLOCKS.register("prospector_crate",
             () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.WOOD, SoundType.WOOD, 1.0F), "prospector_crate"));
+    public static final DeferredBlock<com.holeydigsite.crate.CrateBlock> GOLDFIELDS_CRATE = BLOCKS.register("goldfields_crate",
+            () -> new com.holeydigsite.crate.CrateBlock(crate(MapColor.COLOR_ORANGE, SoundType.WOOD, 1.0F), "goldfields_crate"));
     /** {@code holeydigsite:crate_switch}, the plaque at spawn that turns crates and skins on or off for the player who uses it. */
     public static final DeferredBlock<com.holeydigsite.crate.CrateSwitchBlock> CRATE_SWITCH = BLOCKS.register("crate_switch",
             () -> new com.holeydigsite.crate.CrateSwitchBlock(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD)
@@ -377,6 +379,43 @@ public final class ModBlocks {
     public static final DeferredBlock<com.holeydigsite.block.OwnCropBlock> RIVERBEAN_CROP = BLOCKS.register("riverbean_crop",
             () -> new com.holeydigsite.block.OwnCropBlock(crop(), () -> ModItems.RIVERBEAN_SEEDS.get()));
     /** {@code holeydigsite:dune_melon_crop} for the Sand Dunes. */
+    public static final DeferredBlock<com.holeydigsite.power.SprinklerBlock> SPRINKLER = BLOCKS.register("sprinkler",
+            () -> new com.holeydigsite.power.SprinklerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+    public static final DeferredBlock<com.holeydigsite.power.FloodGateBlock> FLOOD_GATE = BLOCKS.register("flood_gate",
+            () -> new com.holeydigsite.power.FloodGateBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+        /** {@code holeydigsite:hemp_crop} providing hemp stalks and seeds. */
+    public static final DeferredBlock<com.holeydigsite.block.OwnCropBlock> HEMP_CROP = BLOCKS.register("hemp_crop",
+            () -> new com.holeydigsite.block.OwnCropBlock(crop(), () -> ModItems.HEMP_SEEDS.get()));
+
+    public static final DeferredBlock<com.holeydigsite.machine.ThreshingDrumBlock> THRESHING_DRUM = BLOCKS.register("threshing_drum",
+            () -> new com.holeydigsite.machine.ThreshingDrumBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
+    public static final DeferredBlock<com.holeydigsite.machine.RopeMachineBlock> ROPE_MACHINE = BLOCKS.register("rope_machine",
+            () -> new com.holeydigsite.machine.RopeMachineBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+
+    public static final DeferredBlock<com.holeydigsite.machine.SawmillBlock> SAWMILL = BLOCKS.register("sawmill",
+            () -> new com.holeydigsite.machine.SawmillBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOD)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
     public static final DeferredBlock<com.holeydigsite.block.OwnCropBlock> DUNE_MELON_CROP = BLOCKS.register("dune_melon_crop",
             () -> new com.holeydigsite.block.OwnCropBlock(crop(), () -> ModItems.DUNE_MELON_SEEDS.get()));
 

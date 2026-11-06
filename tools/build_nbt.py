@@ -4,9 +4,9 @@ JDK21 = r"C:\Users\Dewey\.gradle\jdks\eclipse_adoptium-21-amd64-windows.2\bin"
 JAVAC = os.path.join(JDK21, "javac.exe")
 JAVA = os.path.join(JDK21, "java.exe")
 
-MOD = r"E:\Minecraft Mods\Holey Digsite"
+HERE = os.path.dirname(os.path.abspath(__file__))
+MOD = os.path.dirname(HERE)
 PACK = r"E:\Minecraft Mods\Holey Digsite Pack"
-HERE = os.path.join(MOD, "tools")
 OUT_CLASSES = os.path.join(HERE, "world_snbt", "classes")
 os.makedirs(OUT_CLASSES, exist_ok=True)
 

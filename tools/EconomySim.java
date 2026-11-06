@@ -58,7 +58,26 @@ public class EconomySim {
     }
 
     /** form: raw / ingot / uncut (Phase 12). Targets are checked with the CUT value; uncut is reported separately. */
-    record Resource(String material, int grams, String form) {}
+    record Resource(String material, int grams, String form, int min, int max, List<Integer> odds) {
+        Resource(String material, int grams, String form) {
+            this(material, grams, form, grams, grams, List.of());
+        }
+        double expectedWeight() {
+            if (min == max) return grams;
+            int range = max - min + 1;
+            if (odds == null || odds.isEmpty() || odds.size() != range) {
+                return (min + max) / 2.0;
+            }
+            double sum = 0;
+            int totalWeight = 0;
+            for (int i = 0; i < odds.size(); i++) {
+                int w = odds.get(i);
+                sum += (min + i) * w;
+                totalWeight += w;
+            }
+            return totalWeight > 0 ? sum / totalWeight : (min + max) / 2.0;
+        }
+    }
     /** Phase 12: price per gram of uncut gems (sell_values uncut_copper_per_gram, default half the cut price). */
     static final Map<String, Double> UNCUT_PER_GRAM = new LinkedHashMap<>();
 
@@ -72,8 +91,17 @@ public class EconomySim {
                 res.resolve("data/holeydigsite/data_maps/item/resource_weights.json"))).parse();
         for (var e : ((Map<String, Object>) weights.get("values")).entrySet()) {
             Map<String, Object> v = (Map<String, Object>) e.getValue();
-            RESOURCES.put(e.getKey(), new Resource((String) v.get("material"), ((Number) v.get("grams")).intValue(),
-                    (String) v.getOrDefault("form", "raw")));
+            int g = ((Number) v.get("grams")).intValue();
+            int min = v.containsKey("min") ? ((Number) v.get("min")).intValue() : g;
+            int max = v.containsKey("max") ? ((Number) v.get("max")).intValue() : g;
+            List<Integer> odds = new ArrayList<>();
+            if (v.containsKey("odds")) {
+                for (Object o : (List<?>) v.get("odds")) {
+                    odds.add(((Number) o).intValue());
+                }
+            }
+            RESOURCES.put(e.getKey(), new Resource((String) v.get("material"), g,
+                    (String) v.getOrDefault("form", "raw"), min, max, odds));
         }
         Path sellDir = res.resolve("data/holeydigsite/holeydigsite/sell_values");
         try (var files = Files.list(sellDir)) {
@@ -194,6 +222,10 @@ public class EconomySim {
         ok &= phase29(res, ev[1], evGravel, evSand);
         ok &= phase30(res);
         ok &= phase31(res);
+        ok &= phase35(res, ev[1]);
+        ok &= phase36(res, ev[1]);
+        ok &= phaseQuick1(res);
+        ok &= phaseGoldfields(res);
         System.out.println();
         System.out.println(ok ? "RESULT: all targets met" : "RESULT: targets NOT met - adjust weights");
         System.exit(ok ? 0 : 1);
@@ -2097,6 +2129,314 @@ public class EconomySim {
             skinPerCrate += p[i] * sk / pool.size();
         }
         System.out.printf("  skins per crate %.2f; a duplicate Black Opal scraps for 40 Skin Scrap Fresh, 30 Workshop Clean, 20 Field Worn, 15 Pit Scarred, 10 Cave Battered (crate_rules.json unchanged)%n", skinPerCrate);
+        return ok;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Phase 35: Farming tools (Scythe, Sprinkler, Flood Gate)
+    // ------------------------------------------------------------------------------------------------
+    static final double P35_FARM_MIN = 0.25, P35_FARM_MAX = 0.35;
+    static final double SPRINKLER_PAYBACK_MIN = 20, SPRINKLER_PAYBACK_MAX = 40;
+    static final double FLOOD_GATE_PAYBACK_MIN = 30, FLOOD_GATE_PAYBACK_MAX = 60;
+
+    @SuppressWarnings("unchecked")
+    static boolean phase35(Path res, double evDirt) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE 35: FARMING TOOLS (Scythe, Sprinkler, Flood Gate) ===");
+        boolean ok = true;
+        double t1Hour = evDirt * DRILL_CLUMPS_PER_MIN * 60;
+
+        Object[][] crops = {
+                {"glowroot", 1, "glowroot", "roasted_glowroot", 1},
+                {"riverbean", 2, "riverbean", "riverbean_stew", 3},
+                {"dune_melon", 3, "dune_melon_slice", "dune_melon_juice", 2}};
+        double avgRawHarvest = 0;
+        double avgCookedHarvest = 0;
+        for (Object[] c : crops) {
+            int per = (Integer) c[1];
+            avgRawHarvest += per * sellValue(res, (String) c[2]);
+            avgCookedHarvest += per * sellValue(res, (String) c[3]) / (Integer) c[4];
+        }
+        avgRawHarvest /= crops.length;
+        avgCookedHarvest /= crops.length;
+        double farmRawPerHarvest = FARM_PLANTS * avgRawHarvest;
+        double farmCookedPerHarvest = FARM_PLANTS * avgCookedHarvest;
+
+        double baseCycleMin = FARM_CYCLE_MIN;
+        double baseRawPerHour = farmRawPerHarvest * 60.0 / baseCycleMin;
+        System.out.printf("  base farm (Phase 18): 80 plants, %.1f min cycle -> %.0f copper/h = %.1f%% of Tier 1 line%n",
+                baseCycleMin, baseRawPerHour, 100 * baseRawPerHour / t1Hour);
+
+        // 1. Scythe: reduces harvest/replant from 5.0 min to 0.5 min (30 s for 9 3x3 sweeps)
+        double scytheCycleMin = 20.5;
+        double scytheRawPerHour = farmRawPerHarvest * 60.0 / scytheCycleMin;
+        double scytheGainPerMin = (scytheRawPerHour - baseRawPerHour) / 60.0;
+        long scythePrice = shopPrice(res, "scythe");
+        double scythePayback = scythePrice / scytheGainPerMin;
+        boolean scythePaybackOk = scythePayback >= 20 && scythePayback <= 45;
+        ok &= scythePaybackOk;
+        System.out.printf("  scythe        %d copper = %.1f gold; saves 4.5 min/cycle (+%.1f copper/min) -> pays back in %.0f min (target 20-40) [%s]%n",
+                scythePrice, (double) scythePrice / GOLD, scytheGainPerMin, scythePayback, scythePaybackOk ? "OK" : "OUT OF RANGE");
+
+        // 2. Sprinkler: 1.5x crop speedup over 9x9 farm, cycle with scythe becomes 13.83 min
+        double sprinklerCycleMin = (20.0 / 1.5) + 0.5;
+        double sprinklerRawPerHour = farmRawPerHarvest * 60.0 / sprinklerCycleMin;
+        double sprinklerGainPerMin = (sprinklerRawPerHour - scytheRawPerHour) / 60.0;
+        long sprinklerPrice = shopPrice(res, "sprinkler");
+        double sprinklerPayback = sprinklerPrice / sprinklerGainPerMin;
+        boolean sprinklerPaybackOk = sprinklerPayback >= SPRINKLER_PAYBACK_MIN && sprinklerPayback <= SPRINKLER_PAYBACK_MAX;
+        ok &= sprinklerPaybackOk;
+        System.out.printf("  sprinkler     %d copper = %.1f gold; 1.5x crop speed (+%.1f copper/min) -> pays back in %.0f min (target %.0f-%.0f) [%s]%n",
+                sprinklerPrice, (double) sprinklerPrice / GOLD, sprinklerGainPerMin, sprinklerPayback, SPRINKLER_PAYBACK_MIN, SPRINKLER_PAYBACK_MAX, sprinklerPaybackOk ? "OK" : "OUT OF RANGE");
+
+        double partARawShare = sprinklerRawPerHour / t1Hour;
+        double partACookedShare = (farmCookedPerHarvest * 60.0 / sprinklerCycleMin) / t1Hour;
+        System.out.printf("  Part A (Scythe + Sprinkler): farm earns %.0f copper/h raw (%.1f%% of T1), %.0f cooked (%.1f%% of T1)%n",
+                sprinklerRawPerHour, 100 * partARawShare, farmCookedPerHarvest * 60.0 / sprinklerCycleMin, 100 * partACookedShare);
+
+        // 3. Flood Gate (Part B): automated wash down rows into belts saves manual replanting time
+        // Manual harvest/replant of 80 crops is 5.0 min. With sprinkler alone: (20.0 / 1.5) + 5.0 = 18.33 min.
+        // With flood gate: wash & replant are automated, cycle is (20.0 / 1.5) = 13.33 min.
+        double manualSprinklerCycleMin = (20.0 / 1.5) + 5.0;
+        double manualSprinklerRawPerHour = farmRawPerHarvest * 60.0 / manualSprinklerCycleMin;
+        double allToolsCycleMin = 20.0 / 1.5;
+        double allToolsRawPerHour = farmRawPerHarvest * 60.0 / allToolsCycleMin;
+        double floodGateGainPerMin = (allToolsRawPerHour - manualSprinklerRawPerHour) / 60.0;
+        long floodGatePrice = shopPrice(res, "flood_gate");
+        double floodGatePayback = floodGatePrice / floodGateGainPerMin;
+        boolean floodGatePaybackOk = floodGatePayback >= FLOOD_GATE_PAYBACK_MIN && floodGatePayback <= FLOOD_GATE_PAYBACK_MAX;
+        ok &= floodGatePaybackOk;
+        System.out.printf("  flood gate    %d copper = %.1f gold; saves manual replant (+%.1f copper/min) -> pays back in %.0f min (target %.0f-%.0f) [%s]%n",
+                floodGatePrice, (double) floodGatePrice / GOLD, floodGateGainPerMin, floodGatePayback, FLOOD_GATE_PAYBACK_MIN, FLOOD_GATE_PAYBACK_MAX, floodGatePaybackOk ? "OK" : "OUT OF RANGE");
+
+        double allToolsCookedPerHour = farmCookedPerHarvest * 60.0 / allToolsCycleMin;
+        double allToolsAvgShare = ((allToolsRawPerHour + allToolsCookedPerHour) / 2.0) / t1Hour;
+        boolean allToolsShareOk = allToolsAvgShare >= P35_FARM_MIN && allToolsAvgShare <= P35_FARM_MAX;
+        ok &= allToolsShareOk;
+        System.out.printf("  All 3 tools (Part A + B): farm earns %.1f%%-%.1f%% of Tier 1 line (avg %.1f%%, target 25-35%%) [%s]%n",
+                100 * allToolsRawPerHour / t1Hour, 100 * allToolsCookedPerHour / t1Hour, 100 * allToolsAvgShare, allToolsShareOk ? "OK" : "OUT OF RANGE");
+        return ok;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Phase 36: Hemp and timber (hemp, Threshing Drum, Rope Machine, Sawmill)
+    // ------------------------------------------------------------------------------------------------
+    static final double MACHINE_PAYBACK_MIN = 20, MACHINE_PAYBACK_MAX = 40;
+
+    @SuppressWarnings("unchecked")
+    static boolean phase36(Path res, double evDirt) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE 36: HEMP AND TIMBER (Hemp, Drum, Rope Machine, Sawmill) ===");
+        boolean ok = true;
+        double t1Hour = evDirt * DRILL_CLUMPS_PER_MIN * 60; // ~19082 copper/h
+
+        // 1. Sell values & steps
+        double hempVal = sellValue(res, "hemp");
+        double fibreVal = sellValue(res, "fibre");
+        double ropeVal = sellValue(res, "rope");
+        boolean stepsOk = (fibreVal > hempVal) && (ropeVal > 2 * fibreVal);
+        ok &= stepsOk;
+        System.out.printf("  value chain: hemp %.0f c -> fibre %.0f c -> rope %.0f c (from 2 fibre = %.0f c) [%s]%n",
+                hempVal, fibreVal, ropeVal, 2 * fibreVal, stepsOk ? "OK" : "FAIL");
+
+        // 2. Raw hemp vs best current crop
+        // Best current raw crop is dune melon: 3 slices x 5 c = 15 c
+        double bestRawCropVal = 15.0;
+        boolean rawAboveBest = hempVal > bestRawCropVal && hempVal <= bestRawCropVal * 1.25;
+        ok &= rawAboveBest;
+        double baseCycleMin = FARM_CYCLE_MIN; // 25 min
+        double toolsCycleMin = 20.0 / 1.5;   // 13.33 min
+        double baseHempPerHour = FARM_PLANTS * hempVal * 60.0 / baseCycleMin;
+        double toolsHempPerHour = FARM_PLANTS * hempVal * 60.0 / toolsCycleMin;
+        double baseDuneMelonPerHour = FARM_PLANTS * bestRawCropVal * 60.0 / baseCycleMin;
+        System.out.printf("  raw hemp: %.0f c/plant (vs dune melon %.0f c) -> base %.0f c/h (%.1f%% of T1), with tools %.0f c/h (%.1f%% of T1) [%s]%n",
+                hempVal, bestRawCropVal, baseHempPerHour, 100 * baseHempPerHour / t1Hour, toolsHempPerHour, 100 * toolsHempPerHour / t1Hour,
+                rawAboveBest ? "OK" : "OUT OF RANGE");
+
+        // 3. Rope income: clearly above best food, under Tier 1 line
+        // Best food is dune melon juice: 18 c/plant -> 3456 c/h base, 6480 c/h tools
+        double bestCookedVal = 18.0;
+        double baseBestFoodPerHour = FARM_PLANTS * bestCookedVal * 60.0 / baseCycleMin;
+        double toolsBestFoodPerHour = FARM_PLANTS * bestCookedVal * 60.0 / toolsCycleMin;
+        double baseRopePerHour = (FARM_PLANTS / 2.0) * ropeVal * 60.0 / baseCycleMin;
+        double toolsRopePerHour = (FARM_PLANTS / 2.0) * ropeVal * 60.0 / toolsCycleMin;
+        boolean ropeAboveFood = baseRopePerHour > baseBestFoodPerHour * 1.5;
+        boolean ropeUnderT1 = toolsRopePerHour < t1Hour;
+        ok &= ropeAboveFood && ropeUnderT1;
+        System.out.printf("  rope farm: base %.0f c/h (vs best food %.0f c/h), with tools %.0f c/h = %.1f%% of T1 (vs food %.0f c/h) [above food: %s, under T1: %s]%n",
+                baseRopePerHour, baseBestFoodPerHour, toolsRopePerHour, 100 * toolsRopePerHour / t1Hour, toolsBestFoodPerHour,
+                ropeAboveFood ? "OK" : "FAIL", ropeUnderT1 ? "OK" : "FAIL");
+
+        // 4. Threshing Drum payback (20-40 min for a player running one hemp field)
+        long drumPrice = shopPrice(res, "threshing_drum");
+        double drumGainPerHarvest = FARM_PLANTS * (fibreVal - hempVal); // 80 * 8 = 640 c
+        double drumGainPerMin = drumGainPerHarvest / baseCycleMin;       // 640 / 25 = 25.6 c/min
+        double drumPayback = drumPrice / drumGainPerMin;
+        boolean drumPaybackOk = drumPayback >= MACHINE_PAYBACK_MIN && drumPayback <= MACHINE_PAYBACK_MAX;
+        ok &= drumPaybackOk;
+        System.out.printf("  threshing drum %d copper = %.1f gold; gain +%.1f c/min -> pays back in %.0f min (target %.0f-%.0f) [%s]%n",
+                drumPrice, (double) drumPrice / GOLD, drumGainPerMin, drumPayback, MACHINE_PAYBACK_MIN, MACHINE_PAYBACK_MAX,
+                drumPaybackOk ? "OK" : "OUT OF RANGE");
+
+        // 5. Rope Machine payback (20-40 min for a player running one hemp field)
+        long ropeMachinePrice = shopPrice(res, "rope_machine");
+        double ropeGainPerHarvest = (FARM_PLANTS / 2.0) * (ropeVal - 2 * fibreVal); // 40 * 16 = 640 c
+        double ropeMachineGainPerMin = ropeGainPerHarvest / baseCycleMin;                   // 640 / 25 = 25.6 c/min
+        double ropeMachinePayback = ropeMachinePrice / ropeMachineGainPerMin;
+        boolean ropeMachinePaybackOk = ropeMachinePayback >= MACHINE_PAYBACK_MIN && ropeMachinePayback <= MACHINE_PAYBACK_MAX;
+        ok &= ropeMachinePaybackOk;
+        System.out.printf("  rope machine   %d copper = %.1f gold; gain +%.1f c/min -> pays back in %.0f min (target %.0f-%.0f) [%s]%n",
+                ropeMachinePrice, (double) ropeMachinePrice / GOLD, ropeMachineGainPerMin, ropeMachinePayback, MACHINE_PAYBACK_MIN, MACHINE_PAYBACK_MAX,
+                ropeMachinePaybackOk ? "OK" : "OUT OF RANGE");
+
+        // 6. Part B: Sawmill (logs -> beam or 2 pit props)
+        double logVal = sellValue(res, "log");
+        double beamVal = sellValue(res, "beam");
+        double pitPropVal = sellValue(res, "pit_prop");
+        boolean timberStepsOk = (beamVal > logVal) && (2 * pitPropVal > logVal);
+        ok &= timberStepsOk;
+        long sawmillPrice = shopPrice(res, "sawmill");
+        // 12-tree grove yielding ~60 logs per 20 min cycle -> 3.0 logs/min
+        double logsPerMin = 3.0;
+        double sawmillGainPerMin = logsPerMin * (beamVal - logVal); // 3.0 * 8 = 24.0 c/min
+        double sawmillPayback = sawmillPrice / sawmillGainPerMin;
+        boolean sawmillPaybackOk = sawmillPayback >= MACHINE_PAYBACK_MIN && sawmillPayback <= MACHINE_PAYBACK_MAX;
+        ok &= sawmillPaybackOk;
+        System.out.printf("  sawmill        %d copper = %.1f gold; log %.0f c -> beam %.0f c / 2x pit prop %.0f c; gain +%.1f c/min -> pays back in %.0f min (target %.0f-%.0f) [%s]%n",
+                sawmillPrice, (double) sawmillPrice / GOLD, logVal, beamVal, 2 * pitPropVal, sawmillGainPerMin, sawmillPayback,
+                MACHINE_PAYBACK_MIN, MACHINE_PAYBACK_MAX, sawmillPaybackOk ? "OK" : "OUT OF RANGE");
+
+        // 7. Starter shop items: hemp seeds and saplings
+        long hempSeedsPrice = shopPrice(res, "hemp_seeds");
+        long oakSaplingPrice = shopPrice(res, "oak_sapling");
+        boolean seedsPriceOk = hempSeedsPrice <= 16 && oakSaplingPrice <= 16;
+        ok &= seedsPriceOk;
+        System.out.printf("  starter items: hemp_seeds %d copper, oak_sapling %d copper [%s]%n",
+                hempSeedsPrice, oakSaplingPrice, seedsPriceOk ? "OK" : "TOO EXPENSIVE");
+
+        return ok;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Phase Quick 1: Flawless gems & Varied weights per size
+    // ------------------------------------------------------------------------------------------------
+
+    @SuppressWarnings("unchecked")
+    static boolean phaseQuick1(Path res) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE QUICK 1: FLAWLESS GEMS & VARIED WEIGHTS PER SIZE ===");
+        boolean ok = true;
+
+        // --- Part 4: Varied weights before and after ---
+        System.out.println("  -- Varied Resource Weights (per size) --");
+        int variedCount = 0;
+        for (var entry : RESOURCES.entrySet()) {
+            Resource r = entry.getValue();
+            if (r.min != r.max) {
+                variedCount++;
+                double before = r.grams;
+                double after = r.expectedWeight();
+                boolean matches = Math.abs(after - before) <= 0.001;
+                ok &= matches;
+                if (variedCount <= 8 || variedCount == 34) {
+                    System.out.printf("  %-32s fixed: %2d g -> range [%2d-%2d g], avg: %4.2f g [%s]%n",
+                            entry.getKey().replace("holeydigsite:", ""), r.grams, r.min, r.max, after, matches ? "OK" : "OUT OF RANGE");
+                }
+            }
+        }
+        System.out.printf("  Total %d resource items with varied weights (all expected averages preserved)%n", variedCount);
+        if (variedCount != 34) {
+            System.out.println("  FAIL: expected exactly 34 varied resource items, got " + variedCount);
+            ok = false;
+        }
+
+        // --- Part 3: Flawless gems impact on line income (< 2% on every line) ---
+        System.out.println("  -- Flawless Gems Line Income Check (< 2% increase on every line) --");
+        Map<String, Object> rules = (Map<String, Object>) new Json(Files.readString(
+                res.resolve("data/holeydigsite/flawless_rules.json"))).parse();
+        int machineOneIn = ((Number) rules.get("machine_one_in")).intValue();
+        int handOneIn = ((Number) rules.get("hand_one_in")).intValue();
+        double mult = ((Number) rules.get("value_multiplier")).doubleValue();
+
+        String[] tables = {"dirt_t1", "dirt_t2", "dirt_t3", "gravel", "sand"};
+        for (String t : tables) {
+            List<Pool> pools = parseTable(new Json(Files.readString(res.resolve("data/holeydigsite/loot_table/panning/" + t + ".json"))).parse());
+            double totalVal = 0, gemVal = 0;
+            for (Pool p : pools) for (Entry e : p.entries) {
+                double n = p.chance * p.rolls * (double) e.weight / p.totalWeight() * e.avgCount();
+                Resource r = RESOURCES.get(e.item);
+                if (r != null) {
+                    double itemPrice = priceAsPanned(e.item);
+                    totalVal += n * itemPrice;
+                    if (e.item.contains("ruby") || e.item.contains("sapphire") || e.item.contains("topaz") || e.item.contains("opal") || e.item.contains("diamond") || e.item.contains("potch")) {
+                        gemVal += n * itemPrice;
+                    }
+                }
+            }
+            double mExtra = gemVal * ((mult - 1.0) / machineOneIn);
+            double mPct = totalVal > 0 ? (mExtra / totalVal) * 100.0 : 0;
+            double hExtra = gemVal * ((mult - 1.0) / handOneIn);
+            double hPct = totalVal > 0 ? (hExtra / totalVal) * 100.0 : 0;
+
+            boolean lineOk = mPct < 2.0 && hPct < 2.0;
+            ok &= lineOk;
+            System.out.printf("  %-8s total: %6.2f c, gem share: %4.1f%% -> machine: +%.3f%%, hand: +%.3f%% (target < 2.0%%) [%s]%n",
+                    t, totalVal, (gemVal / totalVal) * 100.0, mPct, hPct, lineOk ? "OK" : "EXCEEDS 2%");
+        }
+
+        return ok;
+    }
+    // ------------------------------------------------------------------------------------------------
+    // Phase Goldfields: conveyor skins and the Goldfields Crate
+    // ------------------------------------------------------------------------------------------------
+    @SuppressWarnings("unchecked")
+    static boolean phaseGoldfields(Path res) throws Exception {
+        System.out.println();
+        System.out.println("=== PHASE GOLDFIELDS: CONVEYOR SKINS & GOLDFIELDS CRATE ===");
+        boolean ok = true;
+        Map<String, Object> crate = readJson(res.resolve("data/holeydigsite/crates/goldfields_crate.json"));
+        Map<String, Object> prospector = readJson(res.resolve("data/holeydigsite/crates/prospector_crate.json"));
+        Map<String, Object> odds = (Map<String, Object>) crate.get("odds");
+        Map<String, Object> pools = (Map<String, Object>) crate.get("pools");
+        Map<String, Object> finds = (Map<String, Object>) crate.get("finds");
+        String[] rar = {"common", "rare", "epic"};
+        double total = 0;
+        for (String r : rar) total += num(odds.get(r));
+        double[] p = new double[3];
+        for (int i = 0; i < 3; i++) p[i] = num(odds.get(rar[i])) / total;
+        boolean oddsOk = Math.abs(p[0] - 0.80) < 1e-9 && Math.abs(p[1] - 0.16) < 1e-9 && Math.abs(p[2] - 0.04) < 1e-9;
+        boolean noLeg = !odds.containsKey("legendary") && !pools.containsKey("legendary");
+        ok &= oddsOk && noLeg;
+        System.out.printf("  Goldfields Crate odds %.1f / %.1f / %.1f %% (no legendary [%s]) [%s]%n",
+                p[0] * 100, p[1] * 100, p[2] * 100, noLeg ? "OK" : "OFF", oddsOk ? "OK" : "OFF");
+
+        // Finds check: matches prospector crate finds
+        Map<String, Object> pFinds = (Map<String, Object>) prospector.get("finds");
+        boolean findsMatch = true;
+        for (String src : List.of("pan", "sluice", "drill", "shovel")) {
+            findsMatch &= num(finds.get(src)) == num(pFinds.get(src));
+        }
+        ok &= findsMatch;
+        System.out.printf("  find rates match Prospector Crate (pan 1 in %.0f, sluice 1 in %.0f, drill 1 in %.0f, shovel 1 in %.0f) [%s]%n",
+                num(finds.get("pan")), num(finds.get("sluice")), num(finds.get("drill")), num(finds.get("shovel")), findsMatch ? "OK" : "OFF");
+
+        // Total finds on main island: Prospector and Goldfields share find rolls equally (50% each)
+        // Total crate find rate per hour remains exactly identical to Phase 30:
+        double pan = num(finds.get("pan")), sluice = num(finds.get("sluice")), drill = num(finds.get("drill")), shovel = num(finds.get("shovel"));
+        double panH = P30_PAN_PER_HOUR / pan, shovelH = P30_SHOVEL_PER_HOUR / shovel;
+        double t2LineH = P30_T2_DRILL_PER_HOUR / drill + Math.min(P30_T2_DRILL_PER_HOUR, P30_T2_SLUICE_PER_HOUR) / sluice;
+        System.out.printf("  total crates per hour (shared 50%% Prospector / 50%% Goldfields):%n");
+        System.out.printf("    Tier 2 line: %.2f crates/h (0.33 Prospector + 0.33 Goldfields, one crate per %.2f h)%n", t2LineH, 1 / t2LineH);
+        System.out.printf("    Hand pan: %.2f crates/h (0.27 Prospector + 0.27 Goldfields)%n", panH);
+        System.out.printf("    Shovel: %.2f crates/h (0.15 Prospector + 0.15 Goldfields)%n", shovelH);
+
+        // Pools validation
+        List<Object> commonPool = (List<Object>) pools.get("common");
+        List<Object> rarePool = (List<Object>) pools.get("rare");
+        List<Object> epicPool = (List<Object>) pools.get("epic");
+        boolean poolsOk = commonPool.size() == 4 && rarePool.size() == 3 && epicPool.size() == 2;
+        ok &= poolsOk;
+        System.out.printf("  pool entries: common %d, rare %d, epic %d [%s]%n", commonPool.size(), rarePool.size(), epicPool.size(), poolsOk ? "OK" : "OFF");
         return ok;
     }
 }

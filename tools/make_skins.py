@@ -1,5 +1,5 @@
 """
-Generate skin textures for mining drills and sluice boxes.
+Generate skin textures for mining drills, sluice boxes and conveyor belts.
 
 Usage: python tools/make_skins.py
 
@@ -37,6 +37,12 @@ SKINS = {
     "opal": {"name": "Opal", "rarity": "epic"},
     "opal_boulder": {"name": "Boulder Opal", "rarity": "epic"},
     "black_opal": {"name": "Black Opal", "rarity": "legendary", "animated": True},
+    "patina": {"name": "Patina", "rarity": "common"},
+    "gunmetal": {"name": "Gunmetal", "rarity": "common"},
+    "ironbark": {"name": "Ironbark", "rarity": "rare"},
+    "enamel": {"name": "Enamel", "rarity": "rare"},
+    "quartz_reef": {"name": "Quartz Reef", "rarity": "epic"},
+    "nugget": {"name": "Nugget", "rarity": "epic"},
 }
 
 # Input/output paths
@@ -46,6 +52,9 @@ PREVIEW_DIR = "tools/skin_previews"
 
 # Skip patterns for functional textures
 SKIP_PATTERNS = ['lamp', 'lantern', 'water', 'dirt', 'insert']
+
+# Texture name prefixes of the machine families that take skins.
+FAMILY_PREFIXES = ('mining_drill', 'sluice', 'clump_belt', 'fast_clump_belt', 'filter_belt', 'belt_splitter', 'drop_chute')
 
 
 def is_skip_file(filename):
@@ -706,6 +715,147 @@ OPAL_WORKING_PHASES = 16
 FLECK_COLOURS = {"green": (60, 205, 120), "blue": (70, 140, 245), "violet": (160, 95, 240), "orange": (245, 150, 50)}
 
 
+def apply_enamel_palette(r, g, b, x, y, filename):
+    """Apply enamel skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> lerp (150, 140, 110) to (245, 235, 205)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        wood_low = (150, 140, 110)
+        wood_high = (245, 235, 205)
+        
+        r = wood_low[0] + (wood_high[0] - wood_low[0]) * luminance
+        g = wood_low[1] + (wood_high[1] - wood_low[1]) * luminance
+        b = wood_low[2] + (wood_high[2] - wood_low[2]) * luminance
+        
+    elif is_metal:
+        # Metal -> lerp (20, 60, 40) to (90, 170, 120)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        metal_low = (20, 60, 40)
+        metal_high = (90, 170, 120)
+        
+        r = metal_low[0] + (metal_high[0] - metal_low[0]) * luminance
+        g = metal_low[1] + (metal_high[1] - metal_low[1]) * luminance
+        b = metal_low[2] + (metal_high[2] - metal_low[2]) * luminance
+        
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_quartz_reef_palette(r, g, b, x, y, filename):
+    """Apply quartz reef skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> multiply r, g, b by (0.6, 0.55, 0.5)
+        r = r * 0.6
+        g = g * 0.55
+        b = b * 0.5
+        
+    elif is_metal:
+        # Metal -> lerp luminance from (150, 150, 155) to (245, 245, 240)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the gold vein pixels (8% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_gold_vein = (hash_val % 100) < 8
+        
+        if is_gold_vein:
+            # Use gold vein colour
+            r, g, b = 235, 190, 60
+        else:
+            # Lerp from (150, 150, 155) to (245, 245, 240)
+            quartz_low = (150, 150, 155)
+            quartz_high = (245, 245, 240)
+            
+            r = quartz_low[0] + (quartz_high[0] - quartz_low[0]) * luminance
+            g = quartz_low[1] + (quartz_high[1] - quartz_low[1]) * luminance
+            b = quartz_low[2] + (quartz_high[2] - quartz_low[2]) * luminance
+        
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_nugget_palette(r, g, b, x, y, filename):
+    """Apply nugget skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> multiply r, g, b by (0.45, 0.38, 0.35)
+        r = r * 0.45
+        g = g * 0.38
+        b = b * 0.35
+        
+    elif is_metal:
+        # Metal -> lerp luminance from (110, 70, 15) to (255, 220, 110)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        # Check if this is one of the spark pixels (5% of pixels)
+        hash_input = f"{x},{y},{filename}"
+        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        is_spark = (hash_val % 100) < 5
+        
+        if is_spark and luminance > 0.5:
+            # Use spark colour
+            r, g, b = 255, 250, 210
+        else:
+            # Lerp from (110, 70, 15) to (255, 220, 110)
+            gold_low = (110, 70, 15)
+            gold_high = (255, 220, 110)
+            
+            r = gold_low[0] + (gold_high[0] - gold_low[0]) * luminance
+            g = gold_low[1] + (gold_high[1] - gold_low[1]) * luminance
+            b = gold_low[2] + (gold_high[2] - gold_low[2]) * luminance
+        
+    elif is_gold_trim:
+        # Gold trim -> lerp (150, 150, 140) to (250, 250, 240)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        trim_low = (150, 150, 140)
+        trim_high = (250, 250, 240)
+        
+        r = trim_low[0] + (trim_high[0] - trim_low[0]) * luminance
+        g = trim_low[1] + (trim_high[1] - trim_low[1]) * luminance
+        b = trim_low[2] + (trim_high[2] - trim_low[2]) * luminance
+    
+    # Else leave unchanged
+    
+    return int(r), int(g), int(b)
+
+
 def smooth(f):
     return f * f * (3 - 2 * f)
 
@@ -748,16 +898,145 @@ def apply_black_opal_palette(r, g, b, x, y, filename, phase=0.0):
     return r, g, b
 
 
+def apply_patina_palette(r, g, b, x, y, filename):
+    """Apply patina skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> multiply r, g, b by (0.75, 0.6, 0.45)
+        r = r * 0.75
+        g = g * 0.6
+        b = b * 0.45
+        
+    elif is_metal:
+        # Metal -> lerp (30, 70, 60) to (120, 200, 170)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        patina_low = (30, 70, 60)
+        patina_high = (120, 200, 170)
+        
+        r = patina_low[0] + (patina_high[0] - patina_low[0]) * luminance
+        g = patina_low[1] + (patina_high[1] - patina_low[1]) * luminance
+        b = patina_low[2] + (patina_high[2] - patina_low[2]) * luminance
+        
+    elif is_gold_trim:
+        # Gold trim -> lerp (90, 45, 25) to (230, 140, 90)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        gold_low = (90, 45, 25)
+        gold_high = (230, 140, 90)
+        
+        r = gold_low[0] + (gold_high[0] - gold_low[0]) * luminance
+        g = gold_low[1] + (gold_high[1] - gold_low[1]) * luminance
+        b = gold_low[2] + (gold_high[2] - gold_low[2]) * luminance
+    
+    # Else leave unchanged
+    
+    return int(r), int(g), int(b)
+
+
+def apply_gunmetal_palette(r, g, b, x, y, filename):
+    """Apply gunmetal skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> multiply r, g, b by (0.55, 0.5, 0.5)
+        r = r * 0.55
+        g = g * 0.5
+        b = b * 0.5
+        
+    elif is_metal:
+        # Metal -> lerp (35, 38, 45) to (140, 148, 160)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        gunmetal_low = (35, 38, 45)
+        gunmetal_high = (140, 148, 160)
+        
+        r = gunmetal_low[0] + (gunmetal_high[0] - gunmetal_low[0]) * luminance
+        g = gunmetal_low[1] + (gunmetal_high[1] - gunmetal_low[1]) * luminance
+        b = gunmetal_low[2] + (gunmetal_high[2] - gunmetal_low[2]) * luminance
+        
+    # Gold trim stays unchanged (leave as-is)
+    
+    return int(r), int(g), int(b)
+
+
+def apply_ironbark_palette(r, g, b, x, y, filename):
+    """Apply ironbark skin palette to a pixel."""
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # Classify pixel
+    is_near_white = (max(r, g, b) - min(r, g, b) <= 25) and l > 0.75
+    # Wood: brown/orange range (15-45 degrees) with saturation > 0.25
+    is_wood = 15 <= h <= 45 and s > 0.25 and not is_near_white
+    # Metal: saturation < 0.2 (greys) or near-white
+    is_metal = s < 0.2 or is_near_white
+    # Gold trim: hue 45-65 degrees and saturation > 0.3
+    is_gold_trim = 45 <= h <= 65 and s > 0.3 and not is_near_white
+    
+    if is_wood:
+        # Wood -> multiply r, g, b by (0.65, 0.38, 0.32)
+        r = r * 0.65
+        g = g * 0.38
+        b = b * 0.32
+        
+    elif is_metal:
+        # Metal -> lerp (25, 22, 22) to (110, 100, 95)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        ironbark_low = (25, 22, 22)
+        ironbark_high = (110, 100, 95)
+        
+        r = ironbark_low[0] + (ironbark_high[0] - ironbark_low[0]) * luminance
+        g = ironbark_low[1] + (ironbark_high[1] - ironbark_low[1]) * luminance
+        b = ironbark_low[2] + (ironbark_high[2] - ironbark_low[2]) * luminance
+        
+    elif is_gold_trim:
+        # Gold trim -> lerp (110, 80, 30) to (235, 195, 110)
+        luminance = get_luminance(r, g, b) / 255.0
+        
+        gold_low = (110, 80, 30)
+        gold_high = (235, 195, 110)
+        
+        r = gold_low[0] + (gold_high[0] - gold_low[0]) * luminance
+        g = gold_low[1] + (gold_high[1] - gold_low[1]) * luminance
+        b = gold_low[2] + (gold_high[2] - gold_low[2]) * luminance
+    
+    # Else leave unchanged
+    
+    return int(r), int(g), int(b)
+
+
 def source_frames(input_path):
-    """(image, frame count, frametime) of a source texture; frametime is 1 when it has no animation."""
+    """(image, frame count, frametime, raw_meta) of a source texture; frametime is 1 when it has no animation."""
     img = Image.open(input_path).convert('RGBA')
     frames = max(1, img.height // img.width)
     frametime = 1
+    raw_meta = None
     meta = input_path + '.mcmeta'
     if os.path.exists(meta):
         with open(meta, encoding='utf-8') as f:
-            frametime = int(json.load(f).get('animation', {}).get('frametime', 1))
-    return img, frames, frametime
+            raw_meta = json.load(f)
+            frametime = int(raw_meta.get('animation', {}).get('frametime', 1))
+    return img, frames, frametime, raw_meta
 
 
 def recolour(img, palette_func, filename, tile=0, phase=None):
@@ -780,19 +1059,32 @@ def write_texture(skin_id, filename, palette_func, animated):
     once per phase so the working cycle keeps its speed."""
     input_path = os.path.join(INPUT_DIR, filename)
     output_path = os.path.join(OUTPUT_DIR, skin_id, filename)
-    img, frames, frametime = source_frames(input_path)
+    img, frames, frametime, raw_meta = source_frames(input_path)
     if not animated:
         tiles = [recolour(img, palette_func, filename, t) for t in range(frames)]
-        meta = None
-        if frames > 1:
-            meta = {"animation": {"frametime": frametime}}
+        meta = raw_meta if raw_meta else ({"animation": {"frametime": frametime}} if frames > 1 else None)
     elif frames == 1:
         tiles = [recolour(img, palette_func, filename, 0, p / OPAL_PHASES) for p in range(OPAL_PHASES)]
         meta = {"animation": {"frametime": OPAL_FRAMETIME, "interpolate": True}}
     else:
         tiles = [recolour(img, palette_func, filename, t, p / OPAL_WORKING_PHASES)
                  for p in range(OPAL_WORKING_PHASES) for t in range(frames)]
-        meta = {"animation": {"frametime": frametime}}
+        if raw_meta and 'animation' in raw_meta and 'frames' in raw_meta['animation']:
+            source_anim_frames = raw_meta['animation']['frames']
+            new_frames = []
+            for p in range(OPAL_WORKING_PHASES):
+                for f in source_anim_frames:
+                    if isinstance(f, int):
+                        new_frames.append({"index": p * frames + f, "time": frametime})
+                    elif isinstance(f, dict):
+                        f_copy = dict(f)
+                        f_copy["index"] = p * frames + f.get("index", 0)
+                        new_frames.append(f_copy)
+            meta = {"animation": {"frames": new_frames}}
+            if "interpolate" in raw_meta['animation']:
+                meta["animation"]["interpolate"] = raw_meta['animation']['interpolate']
+        else:
+            meta = {"animation": {"frametime": frametime}}
     out = Image.new('RGBA', (img.width, img.width * len(tiles)))
     for i, tile in enumerate(tiles):
         out.paste(tile, (0, i * img.width))
@@ -815,7 +1107,7 @@ def process_skin(skin_id, palette_func, animated=False):
     if os.path.exists(INPUT_DIR):
         for filename in os.listdir(INPUT_DIR):
             if (filename.endswith('.png') and
-                (filename.startswith('mining_drill') or filename.startswith('sluice')) and
+                filename.startswith(FAMILY_PREFIXES) and
                 not filename.endswith(('_s.png', '_n.png')) and
                 not is_skip_file(filename)):
                 input_files.append(filename)
@@ -923,6 +1215,12 @@ PALETTES = {
     "opal": apply_opal_palette,
     "opal_boulder": apply_opal_boulder_palette,
     "black_opal": apply_black_opal_palette,
+    "patina": apply_patina_palette,
+    "gunmetal": apply_gunmetal_palette,
+    "ironbark": apply_ironbark_palette,
+    "enamel": apply_enamel_palette,
+    "quartz_reef": apply_quartz_reef_palette,
+    "nugget": apply_nugget_palette,
 }
 
 

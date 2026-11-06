@@ -132,6 +132,10 @@ public class CrateBlock extends HorizontalDirectionalBlock {
         if (!state.getValue(LOCKED) || state.getValue(OPEN) || !cutters.is(ModItems.BOLT_CUTTERS.get())) {
             return false;
         }
+        if (!com.holeydigsite.ledger.LedgerData.get(sp).cratesOn()) {
+            sp.displayClientMessage(Component.translatable("message.holeydigsite.crate.switch_off"), true);
+            return false;
+        }
         BlockState unlocked = state.setValue(LOCKED, false);
         level.setBlock(pos, unlocked, Block.UPDATE_ALL);
         if (!open(level, pos, unlocked, sp)) {
@@ -162,6 +166,10 @@ public class CrateBlock extends HorizontalDirectionalBlock {
             return InteractionResult.CONSUME;
         }
         if (player instanceof ServerPlayer sp && level instanceof ServerLevel sl) {
+            if (!com.holeydigsite.ledger.LedgerData.get(sp).cratesOn()) {
+                sp.displayClientMessage(Component.translatable("message.holeydigsite.crate.switch_off"), true);
+                return InteractionResult.CONSUME;
+            }
             open(sl, pos, state, sp);
         }
         return InteractionResult.CONSUME;
@@ -173,6 +181,10 @@ public class CrateBlock extends HorizontalDirectionalBlock {
             return false;
         }
         if (!PlotLock.canUse(sp, level, pos)) {
+            return false;
+        }
+        if (!com.holeydigsite.ledger.LedgerData.get(sp).cratesOn()) {
+            sp.displayClientMessage(Component.translatable("message.holeydigsite.crate.switch_off"), true);
             return false;
         }
         CrateDefs.CrateTier def = CrateDefs.tier(crate.tier);
