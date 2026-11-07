@@ -7,17 +7,20 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /** The islands that have been claimed, and the chunks this mod claimed for each (so it never touches any other claim). */
 public final class IslandClaimData extends SavedData {
     private static final String NAME = "holeydigsite_island_claims";
     private final Map<UUID, List<IslandClaimRules.Chunk>> islands = new HashMap<>();
+    private final Map<UUID, UUID> owners = new HashMap<>();
 
     public static IslandClaimData get(MinecraftServer server) {
         return server.overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(IslandClaimData::new, IslandClaimData::load, null), NAME);
@@ -37,6 +40,27 @@ public final class IslandClaimData extends SavedData {
         setDirty();
     }
 
+    public void release(UUID island) {
+        boolean changed = islands.remove(island) != null;
+        if (owners.remove(island) != null) {
+            changed = true;
+        }
+        if (changed) {
+            setDirty();
+        }
+    }
+
+    public void setOwner(UUID island, UUID owner) {
+        if (!Objects.equals(owners.put(island, owner), owner)) {
+            setDirty();
+        }
+    }
+
+    @Nullable
+    public UUID ownerOf(UUID island) {
+        return owners.get(island);
+    }
+
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag list = new ListTag();
@@ -52,6 +76,9 @@ public final class IslandClaimData extends SavedData {
             list.add(e);
         });
         tag.put("Islands", list);
+        CompoundTag ownersTag = new CompoundTag();
+        owners.forEach((island, owner) -> ownersTag.putUUID(island.toString(), owner));
+        tag.put("Owners", ownersTag);
         return tag;
     }
 
@@ -65,6 +92,10 @@ public final class IslandClaimData extends SavedData {
                 chunks.add(new IslandClaimRules.Chunk(xz[i], xz[i + 1]));
             }
             d.islands.put(NbtUtils.loadUUID(e.get("Island")), chunks);
+        }
+        CompoundTag ownersTag = tag.getCompound("Owners");
+        for (String key : ownersTag.getAllKeys()) {
+            d.owners.put(UUID.fromString(key), ownersTag.getUUID(key));
         }
         return d;
     }

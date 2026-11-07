@@ -1,15 +1,19 @@
 package com.holeydigsite.compat.teams;
 
 import com.holeydigsite.HoleyDigsite;
+import com.holeydigsite.hub.HubData;
 import com.holeydigsite.team.IslandClaimData;
 import com.holeydigsite.team.IslandClaimRules;
 import com.holeydigsite.team.IslandClaimRules.Centre;
 import com.holeydigsite.team.IslandClaimRules.Chunk;
 import com.holeydigsite.team.TeamConfig;
+import com.holeydigsite.team.TeamSyncRules;
+import de.melanx.skyblockbuilder.config.common.TemplatesConfig;
 import de.melanx.skyblockbuilder.data.SkyblockSavedData;
 import de.melanx.skyblockbuilder.data.Team;
 import de.melanx.skyblockbuilder.events.SkyblockCreateTeamEvent;
 import de.melanx.skyblockbuilder.util.WorldUtil;
+import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbchunks.api.ChunkTeamData;
 import dev.ftb.mods.ftbchunks.api.ClaimResult;
 import dev.ftb.mods.ftbchunks.api.ClaimedChunk;
@@ -18,13 +22,16 @@ import dev.ftb.mods.ftbchunks.api.FTBChunksAPI;
 import dev.ftb.mods.ftblibrary.math.ChunkDimPos;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.TeamManager;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -36,15 +43,52 @@ import java.util.UUID;
 
 /**
  * Claims each island's chunks in FTB Chunks for the team that holds the island. Decisions come from
- * {@link IslandClaimRules}; this class reads both mods and carries them out. It only ever claims. When parties change,
- * FTB Chunks itself moves the claims with the players, and the island is looked at again here a tick later.
+ * {@link IslandClaimRules}; this class reads both mods and carries them out. When parties change,
+ * FTB Chunks moves claims with players, and the islands are looked at again here a tick later.
+ * Spawn islands in singleplayer / old worlds are claimed for whoever lives on them, and released when empty.
+ * The server hub is whatever {@link HubData} records; only its chunks get a server claim, and never a team's.
  */
-final class IslandClaims {
+public final class IslandClaims {
     private IslandClaims() {}
 
     static void register() {
         NeoForge.EVENT_BUS.addListener(IslandClaims::onLogin);
         NeoForge.EVENT_BUS.addListener(IslandClaims::onIslandCommand);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOW, IslandClaims::onServerStarted);
+    }
+
+    /** A server made from the server pack: its spawn island is the hub, recorded before anyone has stood on it. */
+    private static void onServerStarted(ServerStartedEvent event) {
+        MinecraftServer server = event.getServer();
+        recordServerHubIfFresh(server);
+        if (HubData.get(server).hasHub() && TeamConfig.claimEnabled()) {
+            claimHub(server);
+        }
+    }
+
+    static void recordServerHubIfFresh(MinecraftServer server) {
+        ServerLevel level = WorldUtil.getConfiguredLevel(server);
+        if (level == null || !WorldUtil.isSkyblock(level)) {
+            return;
+        }
+        HubData hub = HubData.get(server);
+        if (hub.hasHub() || !TemplatesConfig.mainSpawnIsland.isPresent()
+                || IslandClaimData.get(server).isDone(TeamSyncRules.SPAWN)) {
+            return;
+        }
+        SkyblockSavedData data = SkyblockSavedData.get(level);
+        Team spawn = data.getSpawnOption().orElse(null);
+        if (spawn == null) {
+            spawn = data.getSpawn();
+        }
+        int residents = spawn == null ? 0 : (int) spawn.getPlayers().stream().filter(u -> !Util.NIL_UUID.equals(u)).count();
+        boolean built = spawn != null && spawn.getIsland() != null;
+        if (IslandClaimRules.recordSpawnAsHub(true, hub.hasHub(), built, residents,
+                IslandClaimData.get(server).isDone(TeamSyncRules.SPAWN))) {
+            Centre c = centre(spawn);
+            hub.create(spawn.getIsland().getCenter(), level.getSharedSpawnPos(), IslandClaimRules.area(c, 0, List.of()));
+            HoleyDigsite.LOGGER.info("Server hub: spawn island at {},{} recorded as the hub", c.x(), c.z());
+        }
     }
 
     // ---- when ----
@@ -59,6 +103,10 @@ final class IslandClaims {
         server.tell(new TickTask(server.getTickCount() + 1, () -> {
             if (!ready(server)) {
                 return;
+            }
+            recordServerHubIfFresh(server);
+            if (HubData.get(server).hasHub()) {
+                claimHub(server);
             }
             UUID island = SkyblockTeamAccess.teamIdOf(data(server), id);
             if (island != null) {
@@ -84,7 +132,7 @@ final class IslandClaims {
     }
 
     /** After a party change: look at these islands again one tick later, once FTB Chunks has moved its claims. */
-    static void later(MinecraftServer server, Collection<UUID> islands) {
+    public static void later(MinecraftServer server, Collection<UUID> islands) {
         if (islands.isEmpty() || !TeamConfig.claimEnabled()) {
             return;
         }
@@ -112,12 +160,19 @@ final class IslandClaims {
 
     private static void ensure(MinecraftServer server, UUID islandId) {
         IslandClaimData record = IslandClaimData.get(server);
-        if (record.isDone(islandId)) {
+        boolean done = record.isDone(islandId);
+        if (done && !TeamSyncRules.SPAWN.equals(islandId)) {
             return;
         }
         SkyblockSavedData data = data(server);
         Team island = data.getTeam(islandId);
         if (island == null || island.getIsland() == null) {
+            return;
+        }
+        HubData hub = HubData.get(server);
+        if (hub.hasHub() && IslandClaimRules.isHub(centre(island), hub.chunks())) {
+            // a newcomer passing through the hub before their own island is ready never gets it claimed
+            claimHub(server);
             return;
         }
         ServerLevel level = WorldUtil.getConfiguredLevel(server);
@@ -131,7 +186,7 @@ final class IslandClaims {
 
         TeamManager ftb = FTBTeamsAPI.api().getManager();
         ClaimedChunkManager chunks = FTBChunksAPI.api().getManager();
-        IslandClaimRules.Plan plan = IslandClaimRules.plan(true, islandId, false, area,
+        IslandClaimRules.Plan plan = IslandClaimRules.plan(true, islandId, done, area,
                 new IslandClaimRules.Holders() {
                     @Override
                     public Set<UUID> members(UUID i) {
@@ -148,7 +203,20 @@ final class IslandClaims {
                     ClaimedChunk owner = chunks.getChunk(new ChunkDimPos(level.dimension(), c.x(), c.z()));
                     return owner == null ? null : owner.getTeamData().getTeam().getId();
                 });
-        if (plan.team() == null && !plan.finished()) {
+
+        if (!plan.unclaim().isEmpty()) {
+            for (Chunk c : plan.unclaim()) {
+                ClaimedChunk cc = chunks.getChunk(new ChunkDimPos(level.dimension(), c.x(), c.z()));
+                if (cc != null) {
+                    cc.unclaim(server.createCommandSourceStack(), false);
+                }
+            }
+            record.release(islandId);
+            HoleyDigsite.LOGGER.info("Island claim: {} chunks of spawn island released (island empty)", plan.unclaim().size());
+            return;
+        }
+
+        if (plan.team() == null) {
             return;
         }
         dev.ftb.mods.ftbteams.api.Team owner = ftb.getTeamByID(plan.team()).orElse(null);
@@ -173,6 +241,48 @@ final class IslandClaims {
         }
         record.finish(islandId, made);
         HoleyDigsite.LOGGER.info("Island claim: {} chunks of island {} claimed for {}", made.size(), island.getName(), owner.getShortName());
+    }
+
+    /** Server-claims every hub chunk {@link HubData} records. Safe to run again; a hub chunk a team holds is taken back. */
+    public static void claimHub(MinecraftServer server) {
+        if (!ready(server)) {
+            return;
+        }
+        HubData hub = HubData.get(server);
+        ServerLevel level = WorldUtil.getConfiguredLevel(server);
+        if (!hub.hasHub() || level == null) {
+            return;
+        }
+        TeamManager ftb = FTBTeamsAPI.api().getManager();
+        ClaimedChunkManager chunks = FTBChunksAPI.api().getManager();
+        dev.ftb.mods.ftbteams.api.Team serverTeam = ftb.getTeamByName("Server").orElse(null);
+        if (serverTeam == null) {
+            try {
+                serverTeam = ftb.createServerTeam(server.createCommandSourceStack(), "Server", "Server", Color4I.rgb(0x4080C0));
+            } catch (Exception e) {
+                HoleyDigsite.LOGGER.warn("Server hub: could not make the Server team for the hub claim: {}", e.getMessage());
+                return;
+            }
+        }
+        UUID serverId = serverTeam.getId();
+        ChunkTeamData teamData = chunks.getOrCreateData(serverTeam);
+        int made = 0;
+        for (Chunk c : hub.chunks()) {
+            ChunkDimPos pos = new ChunkDimPos(level.dimension(), c.x(), c.z());
+            ClaimedChunk cc = chunks.getChunk(pos);
+            if (cc != null && serverId.equals(cc.getTeamData().getTeam().getId())) {
+                continue;
+            }
+            if (cc != null) {
+                cc.unclaim(server.createCommandSourceStack(), false);
+            }
+            if (teamData.claim(server.createCommandSourceStack(), pos, false).isSuccess()) {
+                made++;
+            }
+        }
+        if (made > 0) {
+            HoleyDigsite.LOGGER.info("Server hub: {} chunks claimed for the server", made);
+        }
     }
 
     private static Centre centre(Team t) {

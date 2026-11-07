@@ -14,9 +14,9 @@ import java.util.UUID;
  * <ul>
  *   <li>Joined a party: move to the owner's island (unless already there).</li>
  *   <li>Made a party on an island another party already holds: the new party gets a fresh island.</li>
- *   <li>Not in a party (left, kicked, disbanded) but on an island a party holds: back to the island they left for
- *       the party if it still stands empty ({@link #oldIsland}), otherwise a fresh one. The last one on an island keeps it.</li>
- *   <li>First time on the server and the spawn island already has someone: an island of their own.</li>
+ *   <li>Not in a party (left, kicked, disbanded) but on an island a party holds, or sharing an island without a party:
+ *       whoever first owned the island keeps it; the others follow the leaving rule (back to old island if empty, else fresh).</li>
+ *   <li>First time on the server and the spawn island already has someone (or ownIslandForEveryone): an island of their own.</li>
  *   <li>Made an island by command while not in a party: a matching party.</li>
  * </ul>
  * Every rule only moves a player away from a state that breaks it, so applying the actions and asking again gives nothing.
@@ -32,6 +32,12 @@ public final class TeamSyncRules {
 
         /** Players on that island team. */
         java.util.Set<UUID> members(UUID island);
+
+        /** The player who first owned this island, null if unknown. */
+        @Nullable
+        default UUID islandOwner(UUID island) {
+            return null;
+        }
     }
 
     /** The party side (FTB Teams). */
@@ -84,16 +90,30 @@ public final class TeamSyncRules {
             }
             return out;
         }
-        if (island != null && heldByOtherParty(island, player, null, islands, parties)) {
-            out.add(new FreshIsland(player));
+        if (island != null) {
+            if (heldByOtherParty(island, player, null, islands, parties)) {
+                out.add(new FreshIsland(player));
+                return out;
+            }
+            java.util.Set<UUID> members = islands.members(island);
+            if (members.size() > 1) {
+                UUID owner = islands.islandOwner(island);
+                if (owner != null && !owner.equals(player) && members.contains(owner)) {
+                    out.add(new FreshIsland(player));
+                }
+            }
         }
         return out;
     }
 
     /** A player Skyblock Builder has just put on the spawn island for the first time. */
-    public static List<Action> newcomer(boolean enabled, UUID player, Islands islands) {
+    public static List<Action> newcomer(boolean enabled, boolean ownIslandForEveryone, UUID player, Islands islands) {
         List<Action> out = new ArrayList<>();
         if (!enabled || !SPAWN.equals(islands.islandOf(player))) {
+            return out;
+        }
+        if (ownIslandForEveryone) {
+            out.add(new FreshIsland(player));
             return out;
         }
         for (UUID m : islands.members(SPAWN)) {
@@ -103,6 +123,10 @@ public final class TeamSyncRules {
             }
         }
         return out;
+    }
+
+    public static List<Action> newcomer(boolean enabled, UUID player, Islands islands) {
+        return newcomer(enabled, false, player, islands);
     }
 
     /** An island just made by Skyblock Builder's own create command. */

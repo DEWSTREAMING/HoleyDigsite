@@ -1,6 +1,8 @@
 package com.holeydigsite.compat.teams;
 
 import com.holeydigsite.HoleyDigsite;
+import com.holeydigsite.hub.HubData;
+import com.holeydigsite.team.IslandClaimData;
 import com.holeydigsite.team.TeamConfig;
 import com.holeydigsite.team.TeamSyncRules;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -86,9 +88,13 @@ final class FtbTeamSync {
         }
         Sides s = sides(server);
         if (newcomer) {
-            apply(server, TeamSyncRules.newcomer(true, id, s));
+            apply(server, TeamSyncRules.newcomer(true, TeamConfig.ownIslandForEveryone(), id, s));
         }
         apply(server, TeamSyncRules.reconcile(true, id, false, s, s));
+        UUID island = s.islandOf(id);
+        if (!HubData.get(server).hasHub() && TeamSyncRules.SPAWN.equals(island) && IslandClaimData.get(server).ownerOf(TeamSyncRules.SPAWN) == null) {
+            IslandClaimData.get(server).setOwner(TeamSyncRules.SPAWN, id);
+        }
         if (TeamMoves.get(server).take(id)) {
             Team team = s.teamOf(id);
             if (team != null) {
@@ -156,6 +162,9 @@ final class FtbTeamSync {
         }
         data.removePlayerFromTeam(player);
         touched.add(target.getId());
+        if (from != null) {
+            touched.add(from);
+        }
         if (!target.hasPlayer(player)) {
             data.addPlayerToTeam(target, player);
         }
@@ -188,6 +197,7 @@ final class FtbTeamSync {
             HoleyDigsite.LOGGER.warn("Team sync: could not make an island for {}", player);
             return;
         }
+        IslandClaimData.get(server).setOwner(team.getId(), player);
         move(server, player, team.getId(), "message.holeydigsite.team.fresh");
     }
 
@@ -233,11 +243,11 @@ final class FtbTeamSync {
     }
 
     private static Sides sides(MinecraftServer server) {
-        return new Sides(data(server), FTBTeamsAPI.api().getManager());
+        return new Sides(server, data(server), FTBTeamsAPI.api().getManager());
     }
 
     /** Both teams as {@link TeamSyncRules} sees them. */
-    private record Sides(SkyblockSavedData data, TeamManager ftb) implements TeamSyncRules.Islands, TeamSyncRules.Parties {
+    private record Sides(MinecraftServer server, SkyblockSavedData data, TeamManager ftb) implements TeamSyncRules.Islands, TeamSyncRules.Parties {
         @Override
         public @Nullable UUID islandOf(UUID player) {
             return SkyblockTeamAccess.teamIdOf(data, player);
@@ -247,6 +257,35 @@ final class FtbTeamSync {
         public Set<UUID> members(UUID island) {
             Team t = data.getTeam(island);
             return t == null ? Set.of() : SkyblockTeamAccess.players(t);
+        }
+
+        @Override
+        public @Nullable UUID islandOwner(UUID island) {
+            UUID recorded = IslandClaimData.get(server).ownerOf(island);
+            if (recorded != null) {
+                return recorded;
+            }
+            Team t = data.getTeam(island);
+            if (t != null) {
+                Set<UUID> pl = SkyblockTeamAccess.players(t);
+                for (UUID p : pl) {
+                    ServerPlayer sp = server.getPlayerList().getPlayer(p);
+                    String name = sp != null ? sp.getGameProfile().getName()
+                            : (server.getProfileCache() != null ? server.getProfileCache().get(p).map(com.mojang.authlib.GameProfile::getName).orElse(null) : null);
+                    if (name != null && t.getName().equalsIgnoreCase(name)) {
+                        IslandClaimData.get(server).setOwner(island, p);
+                        return p;
+                    }
+                }
+                if (!pl.isEmpty()) {
+                    UUID first = pl.stream().min(UUID::compareTo).orElse(null);
+                    if (first != null) {
+                        IslandClaimData.get(server).setOwner(island, first);
+                        return first;
+                    }
+                }
+            }
+            return null;
         }
 
         @Override

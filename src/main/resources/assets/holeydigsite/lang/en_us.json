@@ -1160,6 +1160,13 @@
   "message.holeydigsite.record.heaviest_ingot": "New record: heaviest ingot poured, %s g",
   "message.holeydigsite.record.biggest_sale": "New record: biggest sale, %s",
   "message.holeydigsite.record.most_coins_day": "New record: most coins in one day, %s",
+  "command.holeydigsite.hub.already_exists": "Hub already exists at %s, %s, %s.",
+  "command.holeydigsite.hub.preview_pos": "Hub will be placed at %s, %s, %s on grid (%s, %s).",
+  "command.holeydigsite.hub.preview_residents": "Current spawn island residents: %s. They will keep their island and claims.",
+  "command.holeydigsite.hub.preview_backup": "A world backup is recommended before creating the hub.",
+  "command.holeydigsite.hub.preview_confirm": "Run '/holeydigsite hub create confirm' to create the hub.",
+  "command.holeydigsite.hub.created": "Server hub created at %s, %s, %s. World spawn and claims updated.",
+  "message.holeydigsite.hub.teleport": "Teleported to the server hub.",
   "skin.holeydigsite.patina": "Patina",
   "skin.holeydigsite.gunmetal": "Gunmetal",
   "skin.holeydigsite.ironbark": "Ironbark",
@@ -1172,3 +1179,4 @@
   "block.holeydigsite.goldfields_crate": "Goldfields Crate",
   "crate.holeydigsite.collection.goldfields_crate": "Goldfields Crate"
 }
+

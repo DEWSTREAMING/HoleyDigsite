@@ -245,7 +245,7 @@ public class Phase34Tests {
         UUID spawn = TeamSyncRules.SPAWN;
         w.island.put(a, spawn);
         w.team.put(a, a);
-        check(h, IslandClaimRules.claimingTeam(spawn, w) == null, "the shared spawn island is never claimed");
+        check(h, a.equals(IslandClaimRules.claimingTeam(spawn, w)), "spawn island is claimed for its resident in Phase 34b");
         h.succeed();
     }
 

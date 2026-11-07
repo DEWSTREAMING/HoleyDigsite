@@ -10,7 +10,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 
 /**
- * Unified registration for operator commands under {@code /holeydigsite} (permission level 2).
+ * Unified registration for operator commands under {@code /holeydigsite}.
  */
 public final class ModCommands {
     private ModCommands() {}
@@ -25,5 +25,6 @@ public final class ModCommands {
         SkinCommands.register(dispatcher);
         com.holeydigsite.crate.CrateCommands.register(dispatcher);
         com.holeydigsite.contract.ContractCommands.register(dispatcher);
+        com.holeydigsite.hub.HubCommands.register(dispatcher);
     }
 }

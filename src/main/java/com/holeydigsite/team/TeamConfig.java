@@ -1,5 +1,6 @@
 package com.holeydigsite.team;
 
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /** Server config ({@code holeydigsite-server.toml}, per world). */
@@ -10,6 +11,7 @@ public final class TeamConfig {
     public static final ModConfigSpec.BooleanValue SYNC_FTB_TEAMS;
     public static final ModConfigSpec.BooleanValue CLAIM_ISLANDS;
     public static final ModConfigSpec.IntValue CLAIM_MARGIN_CHUNKS;
+    public static final ModConfigSpec.BooleanValue OWN_ISLAND_FOR_EVERYONE;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -26,6 +28,10 @@ public final class TeamConfig {
                         "How many chunks to claim beyond the edge of the island (home island, store, plots and event island).",
                         "0 = just the island. Every claimed chunk counts against the team's FTB Chunks limit.")
                 .defineInRange("claimMarginChunks", 1, 0, IslandClaimRules.MAX_MARGIN);
+        OWN_ISLAND_FOR_EVERYONE = b.comment(
+                        "Give every player (including the first player on a server) their own island when joining, leaving the",
+                        "spawn island as a shared hub. On by default on a dedicated server, off in single player.")
+                .define("ownIslandForEveryone", FMLEnvironment.dist.isDedicatedServer());
         b.pop();
         SPEC = b.build();
     }
@@ -42,5 +48,9 @@ public final class TeamConfig {
 
     public static int claimMargin() {
         return SPEC.isLoaded() ? CLAIM_MARGIN_CHUNKS.get() : 1;
+    }
+
+    public static boolean ownIslandForEveryone() {
+        return SPEC.isLoaded() ? OWN_ISLAND_FOR_EVERYONE.get() : FMLEnvironment.dist.isDedicatedServer();
     }
 }
